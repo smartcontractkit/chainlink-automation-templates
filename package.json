@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npx hardhat test --network localhost",
+    "fork:polygon": "npx hardhat node --fork ${POLYGON_RPC}"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,7 @@
     "@types/node": "^12.20.47",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
+    "beefy-proto": "git+https://github.com/beefyfinance/beefy-contracts.git",
     "chai": "^4.3.6",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
