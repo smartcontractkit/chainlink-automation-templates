@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npx hardhat test --network localhost",
-    "fork:polygon": "npx hardhat node --fork ${POLYGON_RPC}"
+    "fork:polygon": "npx hardhat node --fork ${POLYGON_RPC}",
+    "deploy": "hardhat run scripts/deploy.ts --network"
   },
   "repository": {
     "type": "git",
