@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "beefy-proto/contracts/BIFI/keepers/interfaces/IBeefyVault.sol";
 import "beefy-proto/contracts/BIFI/keepers/interfaces/IBeefyStrategy.sol";
-import "beefy-proto/contracts/BIFI/keepers/interfaces/IBeefyRegistry.sol";
+import "contracts/Beefy/interfaces/IBeefyRegistry.sol";
 import "../base/KeeperCompatibleHarvester.sol";
 
 contract BeefyHarvester is KeeperCompatibleHarvester {
