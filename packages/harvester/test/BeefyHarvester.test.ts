@@ -96,7 +96,7 @@ describe("BeefyHarvester", () => {
 
   it("basic multiharvests", async () => {
     // set up gas price
-    const gasPrice = ethers.utils.parseUnits("5", "gwei");
+    const gasPrice = ethers.utils.parseUnits("10", "gwei");
     const upkeepOverrides: CallOverrides = {
       gasPrice,
     };
