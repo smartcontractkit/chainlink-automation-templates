@@ -9,7 +9,9 @@
     "nohoist": [
       "**/@nomiclabs/**",
       "**/typescript",
-      "**/ts-node"
+      "**/ts-node",
+      "**/typechain",
+      "**/@typechain/*"
     ]
   }
 }
