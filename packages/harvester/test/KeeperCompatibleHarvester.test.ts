@@ -18,7 +18,7 @@ const abi = [
 
 const iface = new ethers.utils.Interface(abi);
 
-describe("MockHarvester", () => {
+describe("KeeperCompatibleHarvester", () => {
   let harvester: MockHarvester;
   let keeperRegistry: MockKeeperRegistry;
 
