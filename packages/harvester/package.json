@@ -7,6 +7,7 @@
   "scripts": {
     "test": "hardhat test ./test/KeeperCompatibleHarvester.test.ts",
     "test:beefy": "hardhat test ./test/BeefyHarvester.test.ts --network localhost",
+    "net:fork": "hardhat node --fork ${RPC_URL}",
     "flatten": "bash bin/flattener.sh"
   },
   "devDependencies": {
