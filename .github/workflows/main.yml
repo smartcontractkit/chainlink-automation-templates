@@ -1,0 +1,23 @@
+name: CI
+on: ["push", "pull_request"]
+
+jobs:
+  test:
+    name: Test contracts
+    runs-on: ubuntu-latest
+    env:
+      REPORT_GAS: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Compile harvester contracts
+        run: yarn workspace @chainlink-keeper-templates/harvester compile
+
+      - name: Test harvester contracts
+        run: yarn workspace @chainlink-keeper-templates/harvester test
