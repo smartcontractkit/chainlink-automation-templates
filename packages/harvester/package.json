@@ -5,9 +5,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "compile": "hardhat compile",
     "test": "hardhat test ./test/KeeperCompatibleHarvester.test.ts",
     "test:beefy": "hardhat test ./test/BeefyHarvester.test.ts --network localhost",
     "net:fork": "hardhat node --fork ${RPC_URL}",
+    "deploy": "hardhat run scripts/deploy.ts --network",
     "flatten": "bash bin/flattener.sh"
   },
   "devDependencies": {
