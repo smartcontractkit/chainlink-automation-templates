@@ -1,19 +1,10 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { MockHarvester } from "../typechain";
+import { MockHarvester, MockKeeperRegistry } from "../typechain";
 
-// Polygon mainnet
-const config = {
-  keeperRegistry: {
-    name: "IKeeperRegistry",
-    address: "0x7b3EC232b08BD7b4b3305BE0C044D907B2DF960B",
-  },
-};
-
-const mockConfig = {
+const harvesterConfig = {
   contractName: "MockHarvester",
   args: {
-    keeperRegistry: config.keeperRegistry.address,
     performUpkeepGasLimit: 2500000,
     performUpkeepGasLimitBuffer: 100000,
     vaultHarvestFunctionGasOverhead: 600000,
@@ -27,17 +18,22 @@ const abi = [
 
 const iface = new ethers.utils.Interface(abi);
 
-describe("MockHarvester", () => {
+describe("KeeperCompatibleHarvester", () => {
   let harvester: MockHarvester;
+  let keeperRegistry: MockKeeperRegistry;
 
   before(async () => {
+    const MockKeeperRegistry = await ethers.getContractFactory(
+      "MockKeeperRegistry"
+    );
+    keeperRegistry = await MockKeeperRegistry.deploy();
+
     const MockHarvesterFactory = await ethers.getContractFactory(
-      mockConfig.contractName
+      harvesterConfig.contractName
     );
-    const deployTx = await MockHarvesterFactory.deploy(
-      ...Object.values(mockConfig.args)
-    );
-    harvester = (await deployTx.deployed()) as unknown as MockHarvester;
+    harvester = (await MockHarvesterFactory.deploy(
+      ...[keeperRegistry.address, ...Object.values(harvesterConfig.args)]
+    )) as unknown as MockHarvester;
   });
 
   it("should harvest", async () => {
@@ -64,11 +60,11 @@ describe("MockHarvester", () => {
 
     const gasUsed =
       numberOfSuccessfulHarvests *
-      mockConfig.args.vaultHarvestFunctionGasOverhead;
+      harvesterConfig.args.vaultHarvestFunctionGasOverhead;
 
     const gasLimit =
-      mockConfig.args.performUpkeepGasLimit -
-      mockConfig.args.performUpkeepGasLimitBuffer;
+      harvesterConfig.args.performUpkeepGasLimit -
+      harvesterConfig.args.performUpkeepGasLimitBuffer;
 
     expect(gasUsed).to.be.lte(gasLimit);
   });
