@@ -1,50 +1,73 @@
-# Advanced Sample Hardhat Project
+# Chainlink Keeper Template: Vault Harvester
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+[Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keeper-templates/packages/harvester/flatten/BeefyHarvester.flat.sol)
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+The key component in DeFi yield aggregators are the Vaults in which you stake your crypto tokens. The investment strategy tied to the specific vault will increase your deposited token amount by compounding arbitrary yield farm reward tokens back into your initially deposited asset. The process is called vault harvesting and can be automated by [Chainlink Keepers](https://docs.chain.link/docs/chainlink-keepers/introduction/) while making it more trustless and decentralized.
 
-Try running some of the following tasks:
+Main Contracts:
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.ts
-TS_NODE_FILES=true npx ts-node scripts/deploy.ts
-npx eslint '**/*.{js,ts}'
-npx eslint '**/*.{js,ts}' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
+- `KeeperCompatibleHarvester.sol`
+  - Abstract contract
+  - Iterates vaults from a provided list
+  - Fits vaults within upkeep gas limit
+  - Provides helper functions to calculate gas consumption and estimate profit
+  - Trigger mechanism can be time-based, profit-based or custom
+  - Reports profits, successfull and failed harvests
+- `BeefyHarvester.sol`
+  - Sample implementation of the abstract harvester for [Beefy Finance](https://beefy.finance/)
+
+## Develop
+
+If you want to create an automated vault harvesting powered by Chainlink Keepers you have to create a new contract that inherits the abstract `KeeperCompatibleHarvester` contract and implements the following functions:
+
+- `_getVaultAddresses` provides a list of vault addresses
+- `_canHarvestVault` checks if the vault is harvestable (ex: if paused)
+- `_shouldHarvestVault` whether vault should be harvested based on a criteria (ex: profit or time passed)
+- `_getVaultHarvestGasOverhead` estimated gas consumption overhead for harvesting a vault
+- `_harvestVault` defines how to harvest a vault
+
+## Test
+
+To run unit tests for the abstract harvester:
+
+```bash
+yarn test
 ```
 
-# Etherscan verification
+To test `BeefyHarvester` you need to start an instance of Hardhat Network that forks mainnet.
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+For quick start the test suite is configured for Polygon Mainnet which is supported by both Beefy Finance and Chainlink Keepers.
 
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+In a separate terminal run:
 
-```shell
-hardhat run --network ropsten scripts/deploy.ts
+```bash
+RPC_URL=https://polygon-mainnet.g.alchemy.com/v2/api-key yarn net:fork
 ```
 
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
+And then run:
 
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
+```bash
+yarn test:beefy
 ```
 
-# Performance optimizations
+## Deploy
 
-For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
+To deploy `BeefyHarvester` on `<network>`:
 
-[Remix image][hyperlink]
+```bash
+yarn deploy <network>
+```
 
-[hyperlink]: https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keeper-templates/packages/harvester/flatten/BeefyHarvester.flat.sol
+To test the deploy, execute it on `localhost` while running a mainnet fork local network.
+
+## Misc
+
+To flatten the contract which is used to open and deploy via Remix IDE:
+
+```bash
+yarn flatten
+```
+
+## References
+
+- [Beefy Contracts](https://github.com/beefyfinance/beefy-contracts)
