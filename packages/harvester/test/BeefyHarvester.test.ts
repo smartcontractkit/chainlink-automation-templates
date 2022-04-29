@@ -107,7 +107,7 @@ describe("BeefyHarvester", () => {
     const { quick_eth_matic } = testData.vaults;
     const vaultInfo = await vaultRegistry.getVaultInfo(quick_eth_matic);
 
-    const { strategy_: strategyAddress } = vaultInfo;
+    const { strategy: strategyAddress } = vaultInfo;
     const strategy = (await ethers.getContractAt(
       "IBeefyStrategy",
       strategyAddress
@@ -128,18 +128,18 @@ describe("BeefyHarvester", () => {
     await network.provider.send("evm_mine");
 
     const callReward = await strategy.callReward();
-    const harvestGasLimit = await harvester._vaultHarvestFunctionGasOverhead();
+    const harvestGasLimit = await harvester.vaultHarvestFunctionGasOverhead();
 
     // manually ensure should harvest
     const expectedTxCost = harvestGasLimit.mul(gasPrice);
     expect(callReward).to.be.gte(expectedTxCost);
 
     // call checker function and ensure there are profitable harvests
-    const { upkeepNeeded_, performData_ } = await harvester.checkUpkeep([]);
-    expect(upkeepNeeded_).to.be.true;
+    const { upkeepNeeded, performData } = await harvester.checkUpkeep([]);
+    expect(upkeepNeeded).to.be.true;
 
     const performUpkeepTx = await harvester.performUpkeep(
-      performData_,
+      performData,
       upkeepOverrides
     );
     const performUpkeepTxReceipt = await performUpkeepTx.wait();

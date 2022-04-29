@@ -7,25 +7,25 @@ import "contracts/Beefy/interfaces/IBeefyRegistry.sol";
 import "../base/KeeperCompatibleHarvester.sol";
 
 contract BeefyHarvester is KeeperCompatibleHarvester {
-    IBeefyRegistry public _vaultRegistry;
+    IBeefyRegistry public vaultRegistry;
 
     constructor(
-        address vaultRegistry_,
-        address keeperRegistry_,
-        uint256 performUpkeepGasLimit_,
-        uint256 performUpkeepGasLimitBuffer_,
-        uint256 vaultHarvestFunctionGasOverhead_,
-        uint256 keeperRegistryGasOverhead_
+        address _vaultRegistry,
+        address _keeperRegistry,
+        uint256 _performUpkeepGasLimit,
+        uint256 _performUpkeepGasLimitBuffer,
+        uint256 _vaultHarvestFunctionGasOverhead,
+        uint256 _keeperRegistryGasOverhead
     )
         KeeperCompatibleHarvester(
-            keeperRegistry_,
-            performUpkeepGasLimit_,
-            performUpkeepGasLimitBuffer_,
-            vaultHarvestFunctionGasOverhead_,
-            keeperRegistryGasOverhead_
+            _keeperRegistry,
+            _performUpkeepGasLimit,
+            _performUpkeepGasLimitBuffer,
+            _vaultHarvestFunctionGasOverhead,
+            _keeperRegistryGasOverhead
         )
     {
-        _vaultRegistry = IBeefyRegistry(vaultRegistry_);
+        vaultRegistry = IBeefyRegistry(_vaultRegistry);
     }
 
     function _getVaultAddresses()
@@ -34,36 +34,36 @@ contract BeefyHarvester is KeeperCompatibleHarvester {
         override
         returns (address[] memory)
     {
-        return _vaultRegistry.allVaultAddresses();
+        return vaultRegistry.allVaultAddresses();
     }
 
-    function _canHarvestVault(address vaultAddress_)
+    function _canHarvestVault(address _vaultAddress)
         internal
         view
         override
-        returns (bool canHarvest_)
+        returns (bool canHarvest)
     {
-        IBeefyVault vault = IBeefyVault(vaultAddress_);
+        IBeefyVault vault = IBeefyVault(_vaultAddress);
         IBeefyStrategy strategy = IBeefyStrategy(vault.strategy());
 
         bool isPaused = strategy.paused();
 
-        canHarvest_ = !isPaused;
+        canHarvest = !isPaused;
 
-        return canHarvest_;
+        return canHarvest;
     }
 
-    function _shouldHarvestVault(address vaultAddress_)
+    function _shouldHarvestVault(address _vaultAddress)
         internal
         view
         override
         returns (
-            bool shouldHarvestVault_,
-            uint256 txCostWithPremium_,
-            uint256 callRewardAmount_
+            bool shouldHarvestVault,
+            uint256 txCostWithPremium,
+            uint256 callRewardAmount
         )
     {
-        IBeefyVault vault = IBeefyVault(vaultAddress_);
+        IBeefyVault vault = IBeefyVault(_vaultAddress);
         IBeefyStrategy strategy = IBeefyStrategy(vault.strategy());
 
         /* solhint-disable not-rely-on-time */
@@ -71,21 +71,21 @@ contract BeefyHarvester is KeeperCompatibleHarvester {
         bool hasBeenHarvestedToday = strategy.lastHarvest() > oneDayAgo;
         /* solhint-enable not-rely-on-time */
 
-        callRewardAmount_ = strategy.callReward();
+        callRewardAmount = strategy.callReward();
 
         uint256 vaultHarvestGasOverhead = _getVaultHarvestGasOverhead(
-            vaultAddress_
+            _vaultAddress
         );
-        txCostWithPremium_ = _calculateTxCostWithPremium(
+        txCostWithPremium = _calculateTxCostWithPremium(
             vaultHarvestGasOverhead
         );
-        bool isProfitableHarvest = callRewardAmount_ >= txCostWithPremium_;
+        bool isProfitableHarvest = callRewardAmount >= txCostWithPremium;
 
-        shouldHarvestVault_ =
+        shouldHarvestVault =
             isProfitableHarvest ||
-            (!hasBeenHarvestedToday && callRewardAmount_ > 0);
+            (!hasBeenHarvestedToday && callRewardAmount > 0);
 
-        return (shouldHarvestVault_, txCostWithPremium_, callRewardAmount_);
+        return (shouldHarvestVault, txCostWithPremium, callRewardAmount);
     }
 
     function _getVaultHarvestGasOverhead(address)
@@ -96,31 +96,31 @@ contract BeefyHarvester is KeeperCompatibleHarvester {
     {
         return
             _estimateSingleVaultHarvestGasOverhead(
-                _vaultHarvestFunctionGasOverhead
+                vaultHarvestFunctionGasOverhead
             );
     }
 
-    function _harvestVault(address vault_)
+    function _harvestVault(address _vault)
         internal
         override
-        returns (bool didHarvest_, uint256 callRewards_)
+        returns (bool didHarvest, uint256 callRewards)
     {
         IBeefyStrategy strategy = IBeefyStrategy(
-            IBeefyVault(vault_).strategy()
+            IBeefyVault(_vault).strategy()
         );
-        callRewards_ = strategy.callReward();
-        try strategy.harvest(_callFeeRecipient) {
-            didHarvest_ = true;
+        callRewards = strategy.callReward();
+        try strategy.harvest(callFeeRecipient) {
+            didHarvest = true;
         } catch {
             // try old function signature
-            try strategy.harvestWithCallFeeRecipient(_callFeeRecipient) {
-                didHarvest_ = true;
+            try strategy.harvestWithCallFeeRecipient(callFeeRecipient) {
+                didHarvest = true;
                 /* solhint-disable no-empty-blocks */
             } catch {
                 /* solhint-enable no-empty-blocks */
             }
         }
 
-        return (didHarvest_, callRewards_);
+        return (didHarvest, callRewards);
     }
 }

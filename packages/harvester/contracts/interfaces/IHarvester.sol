@@ -39,11 +39,11 @@ interface IHarvester is KeeperCompatibleInterface {
     );
     event FailedHarvests(uint256 indexed blockNumber, address[] failedVaults);
 
-    function setHarvestGasConsumption(uint256 harvestGasConsumption_) external;
+    function setHarvestGasConsumption(uint256 harvestGasConsumption) external;
 
-    function setPerformUpkeepGasLimit(uint256 performUpkeepGasLimit_) external;
+    function setPerformUpkeepGasLimit(uint256 performUpkeepGasLimit) external;
 
     function setPerformUpkeepGasLimitBuffer(
-        uint256 performUpkeepGasLimitBuffer_
+        uint256 performUpkeepGasLimitBuffer
     ) external;
 }

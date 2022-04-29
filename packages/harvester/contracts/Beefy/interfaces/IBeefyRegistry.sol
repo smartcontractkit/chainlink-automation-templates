@@ -8,21 +8,21 @@ interface IBeefyRegistry {
 
     function getVaultCount() external view returns (uint256 count);
 
-    function getVaultInfo(address _vaultAddress)
+    function getVaultInfo(address vaultAddress)
         external
         view
         returns (
-            string memory name_,
-            IBeefyStrategy strategy_,
-            bool isPaused_,
-            address[] memory tokens_,
-            uint256 blockNumber_,
-            bool retired_,
-            uint256 gasOverhead_
+            string memory name,
+            IBeefyStrategy strategy,
+            bool isPaused,
+            address[] memory tokens,
+            uint256 blockNumber,
+            bool retired,
+            uint256 gasOverhead
         );
 
     function setHarvestFunctionGasOverhead(
-        address vaultAddress_,
-        uint256 gasOverhead_
+        address vaultAddress,
+        uint256 gasOverhead
     ) external;
 }
