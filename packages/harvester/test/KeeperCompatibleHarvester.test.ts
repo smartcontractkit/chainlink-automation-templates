@@ -39,10 +39,10 @@ describe("KeeperCompatibleHarvester", () => {
   });
 
   it("should harvest", async () => {
-    const { upkeepNeeded_, performData_ } = await harvester.checkUpkeep([]);
-    expect(upkeepNeeded_).to.be.true;
+    const { upkeepNeeded, performData } = await harvester.checkUpkeep([]);
+    expect(upkeepNeeded).to.be.true;
 
-    const performUpkeepTx = await harvester.performUpkeep(performData_);
+    const performUpkeepTx = await harvester.performUpkeep(performData);
     const performUpkeepTxReceipt = await performUpkeepTx.wait();
 
     performUpkeepTxReceipt.logs.forEach((log) => {
@@ -60,8 +60,8 @@ describe("KeeperCompatibleHarvester", () => {
   it("should fit vault harvests within gas limit", async () => {
     await harvester.setVaultCount(10);
 
-    const { performData_ } = await harvester.checkUpkeep([]);
-    const performUpkeepTx = await harvester.performUpkeep(performData_);
+    const { performData } = await harvester.checkUpkeep([]);
+    const performUpkeepTx = await harvester.performUpkeep(performData);
     const performUpkeepTxReceipt = await performUpkeepTx.wait();
 
     const [, , , harvestSummary] = performUpkeepTxReceipt.logs;
@@ -80,22 +80,22 @@ describe("KeeperCompatibleHarvester", () => {
 
   it("should not harvest because of _canHarvestVault function", async () => {
     await harvester.setCanHarvestVault(false);
-    const { upkeepNeeded_ } = await harvester.checkUpkeep([]);
-    expect(upkeepNeeded_).to.be.false;
+    const { upkeepNeeded } = await harvester.checkUpkeep([]);
+    expect(upkeepNeeded).to.be.false;
   });
 
   it("should not harvest because of _shouldHarvestVault function", async () => {
     await harvester.setShouldHarvestVault(false);
-    const { upkeepNeeded_ } = await harvester.checkUpkeep([]);
-    expect(upkeepNeeded_).to.be.false;
+    const { upkeepNeeded } = await harvester.checkUpkeep([]);
+    expect(upkeepNeeded).to.be.false;
   });
 
   it("should fail vault harvest", async () => {
     await harvester.setHarvestVault(false);
-    const { upkeepNeeded_, performData_ } = await harvester.checkUpkeep([]);
-    expect(upkeepNeeded_).to.be.true;
+    const { upkeepNeeded, performData } = await harvester.checkUpkeep([]);
+    expect(upkeepNeeded).to.be.true;
 
-    const performUpkeepTx = await harvester.performUpkeep(performData_);
+    const performUpkeepTx = await harvester.performUpkeep(performData);
     const performUpkeepTxReceipt = await performUpkeepTx.wait();
 
     performUpkeepTxReceipt.logs.forEach((log) => {

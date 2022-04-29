@@ -8,35 +8,44 @@ library UpkeepLibrary {
      * @dev Rescues random funds stuck.
      */
     function _getCircularIndex(
-        uint256 index_,
-        uint256 offset_,
-        uint256 bufferLength_
-    ) internal pure returns (uint256 circularIndex_) {
-        circularIndex_ = (index_ + offset_) % bufferLength_;
+        uint256 _index,
+        uint256 _offset,
+        uint256 _bufferLength
+    ) internal pure returns (uint256 circularIndex) {
+        circularIndex = (_index + _offset) % _bufferLength;
     }
 
     function _calculateUpkeepTxCost(
-        uint256 gasprice_,
-        uint256 gasOverhead_,
-        uint256 chainlinkUpkeepTxPremiumFactor_
-    ) internal pure returns (uint256 upkeepTxCost_) {
-        upkeepTxCost_ =
-            (gasprice_ * gasOverhead_ * chainlinkUpkeepTxPremiumFactor_) /
+        uint256 _gasprice,
+        uint256 _gasOverhead,
+        uint256 _chainlinkUpkeepTxPremiumFactor
+    ) internal pure returns (uint256 _upkeepTxCost) {
+        _upkeepTxCost =
+            (_gasprice * _gasOverhead * _chainlinkUpkeepTxPremiumFactor) /
             CHAINLINK_UPKEEPTX_PREMIUM_SCALING_FACTOR;
     }
 
     function _calculateUpkeepTxCostFromTotalVaultHarvestOverhead(
-        uint256 gasprice_,
-        uint256 totalVaultHarvestOverhead_,
-        uint256 keeperRegistryOverhead_,
-        uint256 chainlinkUpkeepTxPremiumFactor_
-    ) internal pure returns (uint256 upkeepTxCost_) {
-        uint256 totalOverhead = totalVaultHarvestOverhead_ + keeperRegistryOverhead_;
+        uint256 _gasprice,
+        uint256 _totalVaultHarvestOverhead,
+        uint256 _keeperRegistryOverhead,
+        uint256 _chainlinkUpkeepTxPremiumFactor
+    ) internal pure returns (uint256 upkeepTxCost) {
+        uint256 totalOverhead = _totalVaultHarvestOverhead +
+            _keeperRegistryOverhead;
 
-        upkeepTxCost_ = _calculateUpkeepTxCost(gasprice_, totalOverhead, chainlinkUpkeepTxPremiumFactor_);
+        upkeepTxCost = _calculateUpkeepTxCost(
+            _gasprice,
+            totalOverhead,
+            _chainlinkUpkeepTxPremiumFactor
+        );
     }
 
-    function _calculateProfit(uint256 revenue, uint256 expenses) internal pure returns (uint256 profit_) {
-        profit_ = revenue >= expenses ? revenue - expenses : 0;
+    function _calculateProfit(uint256 _revenue, uint256 _expenses)
+        internal
+        pure
+        returns (uint256 profit)
+    {
+        profit = _revenue >= _expenses ? _revenue - _expenses : 0;
     }
 }

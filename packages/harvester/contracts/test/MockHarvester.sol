@@ -10,18 +10,18 @@ contract MockHarvester is KeeperCompatibleHarvester {
     bool public didHarvest;
 
     constructor(
-        address keeperRegistry_,
-        uint256 performUpkeepGasLimit_,
-        uint256 performUpkeepGasLimitBuffer_,
-        uint256 vaultHarvestFunctionGasOverhead_,
-        uint256 keeperRegistryGasOverhead_
+        address _keeperRegistry,
+        uint256 _performUpkeepGasLimit,
+        uint256 _performUpkeepGasLimitBuffer,
+        uint256 _vaultHarvestFunctionGasOverhead,
+        uint256 _keeperRegistryGasOverhead
     )
         KeeperCompatibleHarvester(
-            keeperRegistry_,
-            performUpkeepGasLimit_,
-            performUpkeepGasLimitBuffer_,
-            vaultHarvestFunctionGasOverhead_,
-            keeperRegistryGasOverhead_
+            _keeperRegistry,
+            _performUpkeepGasLimit,
+            _performUpkeepGasLimitBuffer,
+            _vaultHarvestFunctionGasOverhead,
+            _keeperRegistryGasOverhead
         )
     {
         setVaultCount(1);
@@ -39,12 +39,7 @@ contract MockHarvester is KeeperCompatibleHarvester {
         result = new address[](vaultCount);
     }
 
-    function _canHarvestVault(address)
-        internal
-        view
-        override
-        returns (bool canHarvest_)
-    {
+    function _canHarvestVault(address) internal view override returns (bool) {
         return canHarvest;
     }
 
@@ -53,9 +48,9 @@ contract MockHarvester is KeeperCompatibleHarvester {
         view
         override
         returns (
-            bool shouldHarvestVault_,
-            uint256 txCostWithPremium_,
-            uint256 callRewardAmount_
+            bool shouldHarvestVault,
+            uint256 txCostWithPremium,
+            uint256 callRewardAmount
         )
     {
         return (shouldHarvest, 0, 0);
@@ -69,7 +64,7 @@ contract MockHarvester is KeeperCompatibleHarvester {
     {
         return
             _estimateSingleVaultHarvestGasOverhead(
-                _vaultHarvestFunctionGasOverhead
+                vaultHarvestFunctionGasOverhead
             );
     }
 
@@ -77,7 +72,7 @@ contract MockHarvester is KeeperCompatibleHarvester {
         internal
         view
         override
-        returns (bool didHarvest_, uint256 callRewards_)
+        returns (bool, uint256)
     {
         return (didHarvest, 0);
     }
