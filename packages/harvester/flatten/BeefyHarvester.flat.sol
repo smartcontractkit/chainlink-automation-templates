@@ -526,36 +526,45 @@ library UpkeepLibrary {
      * @dev Rescues random funds stuck.
      */
     function _getCircularIndex(
-        uint256 index_,
-        uint256 offset_,
-        uint256 bufferLength_
-    ) internal pure returns (uint256 circularIndex_) {
-        circularIndex_ = (index_ + offset_) % bufferLength_;
+        uint256 _index,
+        uint256 _offset,
+        uint256 _bufferLength
+    ) internal pure returns (uint256 circularIndex) {
+        circularIndex = (_index + _offset) % _bufferLength;
     }
 
     function _calculateUpkeepTxCost(
-        uint256 gasprice_,
-        uint256 gasOverhead_,
-        uint256 chainlinkUpkeepTxPremiumFactor_
-    ) internal pure returns (uint256 upkeepTxCost_) {
-        upkeepTxCost_ =
-            (gasprice_ * gasOverhead_ * chainlinkUpkeepTxPremiumFactor_) /
+        uint256 _gasprice,
+        uint256 _gasOverhead,
+        uint256 _chainlinkUpkeepTxPremiumFactor
+    ) internal pure returns (uint256 _upkeepTxCost) {
+        _upkeepTxCost =
+            (_gasprice * _gasOverhead * _chainlinkUpkeepTxPremiumFactor) /
             CHAINLINK_UPKEEPTX_PREMIUM_SCALING_FACTOR;
     }
 
     function _calculateUpkeepTxCostFromTotalVaultHarvestOverhead(
-        uint256 gasprice_,
-        uint256 totalVaultHarvestOverhead_,
-        uint256 keeperRegistryOverhead_,
-        uint256 chainlinkUpkeepTxPremiumFactor_
-    ) internal pure returns (uint256 upkeepTxCost_) {
-        uint256 totalOverhead = totalVaultHarvestOverhead_ + keeperRegistryOverhead_;
+        uint256 _gasprice,
+        uint256 _totalVaultHarvestOverhead,
+        uint256 _keeperRegistryOverhead,
+        uint256 _chainlinkUpkeepTxPremiumFactor
+    ) internal pure returns (uint256 upkeepTxCost) {
+        uint256 totalOverhead = _totalVaultHarvestOverhead +
+            _keeperRegistryOverhead;
 
-        upkeepTxCost_ = _calculateUpkeepTxCost(gasprice_, totalOverhead, chainlinkUpkeepTxPremiumFactor_);
+        upkeepTxCost = _calculateUpkeepTxCost(
+            _gasprice,
+            totalOverhead,
+            _chainlinkUpkeepTxPremiumFactor
+        );
     }
 
-    function _calculateProfit(uint256 revenue, uint256 expenses) internal pure returns (uint256 profit_) {
-        profit_ = revenue >= expenses ? revenue - expenses : 0;
+    function _calculateProfit(uint256 _revenue, uint256 _expenses)
+        internal
+        pure
+        returns (uint256 profit)
+    {
+        profit = _revenue >= _expenses ? _revenue - _expenses : 0;
     }
 }
 
@@ -831,12 +840,12 @@ interface IHarvester is KeeperCompatibleInterface {
     );
     event FailedHarvests(uint256 indexed blockNumber, address[] failedVaults);
 
-    function setHarvestGasConsumption(uint256 harvestGasConsumption_) external;
+    function setHarvestGasConsumption(uint256 harvestGasConsumption) external;
 
-    function setPerformUpkeepGasLimit(uint256 performUpkeepGasLimit_) external;
+    function setPerformUpkeepGasLimit(uint256 performUpkeepGasLimit) external;
 
     function setPerformUpkeepGasLimitBuffer(
-        uint256 performUpkeepGasLimitBuffer_
+        uint256 performUpkeepGasLimitBuffer
     ) external;
 }
 
@@ -854,38 +863,38 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
     using SafeERC20 for IERC20;
 
     // Contracts.
-    IKeeperRegistry public _keeperRegistry;
+    IKeeperRegistry public keeperRegistry;
 
     // Configuration state variables.
-    uint256 public _performUpkeepGasLimit;
-    uint256 public _performUpkeepGasLimitBuffer;
-    uint256 public _vaultHarvestFunctionGasOverhead; // Estimated average gas cost of calling harvest()
-    uint256 public _keeperRegistryGasOverhead; // Gas cost of upstream contract that calls performUpkeep(). This is a private variable on KeeperRegistry.
-    uint256 public _chainlinkUpkeepTxPremiumFactor; // Tx premium factor/multiplier scaled by 1 gwei (10**9).
-    address public _callFeeRecipient;
+    uint256 public performUpkeepGasLimit;
+    uint256 public performUpkeepGasLimitBuffer;
+    uint256 public vaultHarvestFunctionGasOverhead; // Estimated average gas cost of calling harvest()
+    uint256 public keeperRegistryGasOverhead; // Gas cost of upstream contract that calls performUpkeep(). This is a private variable on KeeperRegistry.
+    uint256 public chainlinkUpkeepTxPremiumFactor; // Tx premium factor/multiplier scaled by 1 gwei (10**9).
+    address public callFeeRecipient;
 
     // State variables that will change across upkeeps.
-    uint256 public _startIndex;
+    uint256 public startIndex;
 
     constructor(
-        address keeperRegistry_,
-        uint256 performUpkeepGasLimit_,
-        uint256 performUpkeepGasLimitBuffer_,
-        uint256 vaultHarvestFunctionGasOverhead_,
-        uint256 keeperRegistryGasOverhead_
+        address _keeperRegistry,
+        uint256 _performUpkeepGasLimit,
+        uint256 _performUpkeepGasLimitBuffer,
+        uint256 _vaultHarvestFunctionGasOverhead,
+        uint256 _keeperRegistryGasOverhead
     ) {
         // Set contract references.
-        _keeperRegistry = IKeeperRegistry(keeperRegistry_);
+        keeperRegistry = IKeeperRegistry(_keeperRegistry);
 
         // Initialize state variables from initialize() arguments.
-        _performUpkeepGasLimit = performUpkeepGasLimit_;
-        _performUpkeepGasLimitBuffer = performUpkeepGasLimitBuffer_;
-        _vaultHarvestFunctionGasOverhead = vaultHarvestFunctionGasOverhead_;
-        _keeperRegistryGasOverhead = keeperRegistryGasOverhead_;
+        performUpkeepGasLimit = _performUpkeepGasLimit;
+        performUpkeepGasLimitBuffer = _performUpkeepGasLimitBuffer;
+        vaultHarvestFunctionGasOverhead = _vaultHarvestFunctionGasOverhead;
+        keeperRegistryGasOverhead = _keeperRegistryGasOverhead;
 
         // Initialize state variables derived from initialize() arguments.
-        (uint32 paymentPremiumPPB, , , , , , ) = _keeperRegistry.getConfig();
-        _chainlinkUpkeepTxPremiumFactor = uint256(paymentPremiumPPB);
+        (uint32 paymentPremiumPPB, , , , , , ) = keeperRegistry.getConfig();
+        chainlinkUpkeepTxPremiumFactor = uint256(paymentPremiumPPB);
     }
 
     /*             */
@@ -893,17 +902,17 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
     /*             */
 
     function checkUpkeep(
-        bytes calldata checkData_ // unused
+        bytes calldata _checkData // unused
     )
         external
         view
         override
         returns (
-            bool upkeepNeeded_,
-            bytes memory performData_ // array of vaults +
+            bool upkeepNeeded,
+            bytes memory performData // array of vaults +
         )
     {
-        checkData_; // dummy reference to get rid of unused parameter warning
+        _checkData; // dummy reference to get rid of unused parameter warning
 
         // get vaults to iterate over
         address[] memory vaults = _getVaultAddresses();
@@ -927,7 +936,7 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
                 numberOfVaultsToHarvest
             );
 
-        performData_ = abi.encode(
+        performData = abi.encode(
             vaultsToHarvest,
             newStartIndex,
             heuristicEstimatedTxCost,
@@ -935,74 +944,74 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
             callRewards
         );
 
-        return (true, performData_);
+        return (true, performData);
     }
 
     function _buildVaultsToHarvest(
-        address[] memory vaults_,
-        HarvestInfo[] memory willHarvestVault_,
-        uint256 numberOfVaultsToHarvest_
+        address[] memory _vaults,
+        HarvestInfo[] memory _willHarvestVaults,
+        uint256 _numberOfVaultsToHarvest
     )
         internal
         view
         returns (
-            address[] memory vaultsToHarvest_,
-            uint256 heuristicEstimatedTxCost_,
-            uint256 totalCallRewards_
+            address[] memory vaultsToHarvest,
+            uint256 heuristicEstimatedTxCost,
+            uint256 totalCallRewards
         )
     {
         uint256 vaultPositionInArray;
-        vaultsToHarvest_ = new address[](numberOfVaultsToHarvest_);
+        vaultsToHarvest = new address[](_numberOfVaultsToHarvest);
 
         // create array of vaults to harvest. Could reduce code duplication from _countVaultsToHarvest via a another function parameter called _loopPostProcess
-        for (uint256 offset; offset < vaults_.length; ++offset) {
+        for (uint256 offset; offset < _vaults.length; ++offset) {
             uint256 vaultIndexToCheck = UpkeepLibrary._getCircularIndex(
-                _startIndex,
+                startIndex,
                 offset,
-                vaults_.length
+                _vaults.length
             );
-            address vaultAddress = vaults_[vaultIndexToCheck];
+            address vaultAddress = _vaults[vaultIndexToCheck];
 
-            HarvestInfo memory harvestInfo = willHarvestVault_[offset];
+            HarvestInfo memory harvestInfo = _willHarvestVaults[offset];
 
             if (harvestInfo.willHarvest) {
-                vaultsToHarvest_[vaultPositionInArray] = vaultAddress;
-                heuristicEstimatedTxCost_ += harvestInfo.estimatedTxCost;
-                totalCallRewards_ += harvestInfo.callRewardsAmount;
+                vaultsToHarvest[vaultPositionInArray] = vaultAddress;
+                heuristicEstimatedTxCost += harvestInfo.estimatedTxCost;
+                totalCallRewards += harvestInfo.callRewardsAmount;
                 vaultPositionInArray += 1;
             }
 
             // no need to keep going if we're past last index
-            if (vaultPositionInArray == numberOfVaultsToHarvest_) break;
+            if (vaultPositionInArray == _numberOfVaultsToHarvest) break;
         }
 
-        return (vaultsToHarvest_, heuristicEstimatedTxCost_, totalCallRewards_);
+        return (vaultsToHarvest, heuristicEstimatedTxCost, totalCallRewards);
     }
 
-    function _countVaultsToHarvest(address[] memory vaults_)
+    function _countVaultsToHarvest(address[] memory _vaults)
         internal
         view
         returns (
-            HarvestInfo[] memory harvestInfo_,
-            uint256 numberOfVaultsToHarvest_,
-            uint256 newStartIndex_
+            HarvestInfo[] memory harvestInfo,
+            uint256 numberOfVaultsToHarvest,
+            uint256 newStartIndex
         )
     {
         uint256 gasLeft = _calculateAdjustedGasCap();
         uint256 vaultIndexToCheck; // hoisted up to be able to set newStartIndex
-        harvestInfo_ = new HarvestInfo[](vaults_.length);
+        harvestInfo = new HarvestInfo[](_vaults.length);
 
         // count the number of vaults to harvest.
-        for (uint256 offset; offset < vaults_.length; ++offset) {
+        for (uint256 offset; offset < _vaults.length; ++offset) {
             // _startIndex is where to start in the _vaultRegistry array, offset is position from start index (in other words, number of vaults we've checked so far),
             // then modulo to wrap around to the start of the array, until we've checked all vaults, or break early due to hitting gas limit
             // this logic is contained in _getCircularIndex()
             vaultIndexToCheck = UpkeepLibrary._getCircularIndex(
-                _startIndex,
+                startIndex,
                 offset,
-                vaults_.length
+                _vaults.length
             );
-            address vaultAddress = vaults_[vaultIndexToCheck];
+            address vaultAddress = _vaults[vaultIndexToCheck];
 
             (
                 bool willHarvest,
@@ -1010,72 +1019,72 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
                 uint256 callRewardsAmount
             ) = _willHarvestVault(vaultAddress);
 
-            if (willHarvest && gasLeft >= _vaultHarvestFunctionGasOverhead) {
-                gasLeft -= _vaultHarvestFunctionGasOverhead;
-                numberOfVaultsToHarvest_ += 1;
-                harvestInfo_[offset] = HarvestInfo(
+            if (willHarvest && gasLeft >= vaultHarvestFunctionGasOverhead) {
+                gasLeft -= vaultHarvestFunctionGasOverhead;
+                numberOfVaultsToHarvest += 1;
+                harvestInfo[offset] = HarvestInfo(
                     true,
                     estimatedTxCost,
                     callRewardsAmount
                 );
             }
 
-            if (gasLeft < _vaultHarvestFunctionGasOverhead) {
+            if (gasLeft < vaultHarvestFunctionGasOverhead) {
                 break;
             }
         }
 
-        newStartIndex_ = UpkeepLibrary._getCircularIndex(
+        newStartIndex = UpkeepLibrary._getCircularIndex(
             vaultIndexToCheck,
             1,
-            vaults_.length
+            _vaults.length
         );
 
-        return (harvestInfo_, numberOfVaultsToHarvest_, newStartIndex_);
+        return (harvestInfo, numberOfVaultsToHarvest, newStartIndex);
     }
 
-    function _willHarvestVault(address vaultAddress_)
+    function _willHarvestVault(address _vaultAddress)
         internal
         view
         returns (
-            bool willHarvestVault_,
-            uint256 estimatedTxCost_,
-            uint256 callRewardAmount_
+            bool willHarvestVault,
+            uint256,
+            uint256
         )
     {
         (
             bool shouldHarvestVault,
             uint256 estimatedTxCost,
             uint256 callRewardAmount
-        ) = _shouldHarvestVault(vaultAddress_);
-        bool canHarvestVault = _canHarvestVault(vaultAddress_);
+        ) = _shouldHarvestVault(_vaultAddress);
+        bool canHarvestVault = _canHarvestVault(_vaultAddress);
 
-        willHarvestVault_ = canHarvestVault && shouldHarvestVault;
+        willHarvestVault = canHarvestVault && shouldHarvestVault;
 
-        return (willHarvestVault_, estimatedTxCost, callRewardAmount);
+        return (willHarvestVault, estimatedTxCost, callRewardAmount);
     }
 
-    function _canHarvestVault(address vaultAddress_)
+    function _canHarvestVault(address _vaultAddress)
         internal
         view
         virtual
-        returns (bool canHarvest_);
+        returns (bool canHarvest);
 
-    function _shouldHarvestVault(address vaultAddress_)
+    function _shouldHarvestVault(address _vaultAddress)
         internal
         view
         virtual
         returns (
-            bool shouldHarvestVault_,
-            uint256 txCostWithPremium_,
-            uint256 callRewardAmount_
+            bool shouldHarvestVault,
+            uint256 txCostWithPremium,
+            uint256 callRewardAmount
         );
 
     /*               */
     /* performUpkeep */
     /*               */
 
-    function performUpkeep(bytes calldata performData) external override {
+    function performUpkeep(bytes calldata _performData) external override {
         (
             address[] memory vaultsToHarvest,
             uint256 newStartIndex,
@@ -1083,7 +1092,7 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
             uint256 nonHeuristicEstimatedTxCost,
             uint256 estimatedCallRewards
         ) = abi.decode(
-                performData,
+                _performData,
                 (address[], uint256, uint256, uint256, uint256)
             );
 
@@ -1097,38 +1106,38 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
     }
 
     function _runUpkeep(
-        address[] memory vaults_,
-        uint256 newStartIndex_,
-        uint256 heuristicEstimatedTxCost_,
-        uint256 nonHeuristicEstimatedTxCost_,
-        uint256 estimatedCallRewards_
+        address[] memory _vaults,
+        uint256 _newStartIndex,
+        uint256 _heuristicEstimatedTxCost,
+        uint256 _nonHeuristicEstimatedTxCost,
+        uint256 _estimatedCallRewards
     ) internal {
         // Make sure estimate looks good.
-        if (estimatedCallRewards_ < nonHeuristicEstimatedTxCost_) {
+        if (_estimatedCallRewards < _nonHeuristicEstimatedTxCost) {
             emit HeuristicFailed(
                 block.number,
-                heuristicEstimatedTxCost_,
-                nonHeuristicEstimatedTxCost_,
-                estimatedCallRewards_
+                _heuristicEstimatedTxCost,
+                _nonHeuristicEstimatedTxCost,
+                _estimatedCallRewards
             );
         }
 
         uint256 gasBefore = gasleft();
         // multi harvest
-        require(vaults_.length > 0, "No vaults to harvest");
+        require(_vaults.length > 0, "No vaults to harvest");
         (
             uint256 numberOfSuccessfulHarvests,
             uint256 numberOfFailedHarvests,
             uint256 calculatedCallRewards
-        ) = _multiHarvest(vaults_);
+        ) = _multiHarvest(_vaults);
 
-        // ensure newStartIndex_ is valid and set _startIndex
+        // ensure _newStartIndex is valid and set startIndex
         uint256 vaultCount = _getVaultAddresses().length;
         require(
-            newStartIndex_ >= 0 && newStartIndex_ < vaultCount,
-            "newStartIndex_ out of range."
+            _newStartIndex >= 0 && _newStartIndex < vaultCount,
+            "_newStartIndex out of range."
         );
-        _startIndex = newStartIndex_;
+        startIndex = _newStartIndex;
 
         uint256 gasAfter = gasleft();
         uint256 gasUsedByPerformUpkeep = gasBefore - gasAfter;
@@ -1136,12 +1145,12 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
         // split these into their own functions to avoid `Stack too deep`
         _reportProfitSummary(
             gasUsedByPerformUpkeep,
-            nonHeuristicEstimatedTxCost_,
-            estimatedCallRewards_,
+            _nonHeuristicEstimatedTxCost,
+            _estimatedCallRewards,
             calculatedCallRewards
         );
         _reportHarvestSummary(
-            newStartIndex_,
+            _newStartIndex,
             gasUsedByPerformUpkeep,
             numberOfSuccessfulHarvests,
             numberOfFailedHarvests
@@ -1149,154 +1158,154 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
     }
 
     function _reportHarvestSummary(
-        uint256 newStartIndex_,
-        uint256 gasUsedByPerformUpkeep_,
-        uint256 numberOfSuccessfulHarvests_,
-        uint256 numberOfFailedHarvests_
+        uint256 _newStartIndex,
+        uint256 _gasUsedByPerformUpkeep,
+        uint256 _numberOfSuccessfulHarvests,
+        uint256 _numberOfFailedHarvests
     ) internal {
         emit HarvestSummary(
             block.number,
             // state variables
-            _startIndex,
-            newStartIndex_,
+            startIndex,
+            _newStartIndex,
             // gas metrics
             tx.gasprice,
-            gasUsedByPerformUpkeep_,
+            _gasUsedByPerformUpkeep,
             // summary metrics
-            numberOfSuccessfulHarvests_,
-            numberOfFailedHarvests_
+            _numberOfSuccessfulHarvests,
+            _numberOfFailedHarvests
         );
     }
 
     function _reportProfitSummary(
-        uint256 gasUsedByPerformUpkeep_,
-        uint256 nonHeuristicEstimatedTxCost_,
-        uint256 estimatedCallRewards_,
-        uint256 calculatedCallRewards_
+        uint256 _gasUsedByPerformUpkeep,
+        uint256 _nonHeuristicEstimatedTxCost,
+        uint256 _estimatedCallRewards,
+        uint256 _calculatedCallRewards
     ) internal {
-        uint256 estimatedTxCost = nonHeuristicEstimatedTxCost_; // use nonHeuristic here as its more accurate
+        uint256 estimatedTxCost = _nonHeuristicEstimatedTxCost; // use nonHeuristic here as its more accurate
         uint256 estimatedProfit = UpkeepLibrary._calculateProfit(
-            estimatedCallRewards_,
+            _estimatedCallRewards,
             estimatedTxCost
         );
 
         uint256 calculatedTxCost = _calculateTxCostWithOverheadWithPremium(
-            gasUsedByPerformUpkeep_
+            _gasUsedByPerformUpkeep
         );
         uint256 calculatedProfit = UpkeepLibrary._calculateProfit(
-            calculatedCallRewards_,
+            _calculatedCallRewards,
             calculatedTxCost
         );
 
         emit ProfitSummary(
             // predicted values
             estimatedTxCost,
-            estimatedCallRewards_,
+            _estimatedCallRewards,
             estimatedProfit,
             // calculated values
             calculatedTxCost,
-            calculatedCallRewards_,
+            _calculatedCallRewards,
             calculatedProfit
         );
     }
 
-    function _multiHarvest(address[] memory vaults_)
+    function _multiHarvest(address[] memory _vaults)
         internal
         returns (
-            uint256 numberOfSuccessfulHarvests_,
-            uint256 numberOfFailedHarvests_,
-            uint256 cumulativeCallRewards_
+            uint256 numberOfSuccessfulHarvests,
+            uint256 numberOfFailedHarvests,
+            uint256 cumulativeCallRewards
         )
     {
-        bool[] memory isSuccessfulHarvest = new bool[](vaults_.length);
-        for (uint256 i = 0; i < vaults_.length; ++i) {
-            (bool didHarvest, uint256 callRewards) = _harvestVault(vaults_[i]);
+        bool[] memory isSuccessfulHarvest = new bool[](_vaults.length);
+        for (uint256 i = 0; i < _vaults.length; ++i) {
+            (bool didHarvest, uint256 callRewards) = _harvestVault(_vaults[i]);
             // Add rewards to cumulative tracker.
             if (didHarvest) {
                 isSuccessfulHarvest[i] = true;
-                cumulativeCallRewards_ += callRewards;
+                cumulativeCallRewards += callRewards;
             }
         }
 
         (
             address[] memory successfulHarvests,
             address[] memory failedHarvests
-        ) = _getSuccessfulAndFailedVaults(vaults_, isSuccessfulHarvest);
+        ) = _getSuccessfulAndFailedVaults(_vaults, isSuccessfulHarvest);
 
         emit SuccessfulHarvests(block.number, successfulHarvests);
         emit FailedHarvests(block.number, failedHarvests);
 
-        numberOfSuccessfulHarvests_ = successfulHarvests.length;
-        numberOfFailedHarvests_ = failedHarvests.length;
+        numberOfSuccessfulHarvests = successfulHarvests.length;
+        numberOfFailedHarvests = failedHarvests.length;
         return (
-            numberOfSuccessfulHarvests_,
-            numberOfFailedHarvests_,
-            cumulativeCallRewards_
+            numberOfSuccessfulHarvests,
+            numberOfFailedHarvests,
+            cumulativeCallRewards
         );
     }
 
-    function _harvestVault(address vault_)
+    function _harvestVault(address _vault)
         internal
         virtual
-        returns (bool didHarvest_, uint256 callRewards_);
+        returns (bool didHarvest, uint256 callRewards);
 
     function _getSuccessfulAndFailedVaults(
-        address[] memory vaults_,
-        bool[] memory isSuccessfulHarvest_
+        address[] memory _vaults,
+        bool[] memory _isSuccessfulHarvest
     )
         internal
         pure
         returns (
-            address[] memory successfulHarvests_,
-            address[] memory failedHarvests_
+            address[] memory successfulHarvests,
+            address[] memory failedHarvests
         )
     {
         uint256 successfulCount;
-        for (uint256 i = 0; i < vaults_.length; i++) {
-            if (isSuccessfulHarvest_[i]) {
+        for (uint256 i = 0; i < _vaults.length; i++) {
+            if (_isSuccessfulHarvest[i]) {
                 successfulCount += 1;
             }
         }
 
-        successfulHarvests_ = new address[](successfulCount);
-        failedHarvests_ = new address[](vaults_.length - successfulCount);
+        successfulHarvests = new address[](successfulCount);
+        failedHarvests = new address[](_vaults.length - successfulCount);
         uint256 successfulHarvestsIndex;
         uint256 failedHarvestIndex;
-        for (uint256 i = 0; i < vaults_.length; i++) {
-            if (isSuccessfulHarvest_[i]) {
-                successfulHarvests_[successfulHarvestsIndex++] = vaults_[i];
+        for (uint256 i = 0; i < _vaults.length; i++) {
+            if (_isSuccessfulHarvest[i]) {
+                successfulHarvests[successfulHarvestsIndex++] = _vaults[i];
             } else {
-                failedHarvests_[failedHarvestIndex++] = vaults_[i];
+                failedHarvests[failedHarvestIndex++] = _vaults[i];
             }
         }
 
-        return (successfulHarvests_, failedHarvests_);
+        return (successfulHarvests, failedHarvests);
     }
 
     /*     */
     /* Set */
     /*     */
 
-    function setPerformUpkeepGasLimit(uint256 performUpkeepGasLimit_)
+    function setPerformUpkeepGasLimit(uint256 _performUpkeepGasLimit)
         external
         override
         onlyOwner
     {
-        _performUpkeepGasLimit = performUpkeepGasLimit_;
+        performUpkeepGasLimit = _performUpkeepGasLimit;
     }
 
     function setPerformUpkeepGasLimitBuffer(
-        uint256 performUpkeepGasLimitBuffer_
+        uint256 _performUpkeepGasLimitBuffer
     ) external override onlyOwner {
-        _performUpkeepGasLimitBuffer = performUpkeepGasLimitBuffer_;
+        performUpkeepGasLimitBuffer = _performUpkeepGasLimitBuffer;
     }
 
-    function setHarvestGasConsumption(uint256 harvestGasConsumption_)
+    function setHarvestGasConsumption(uint256 _harvestGasConsumption)
         external
         override
         onlyOwner
     {
-        _vaultHarvestFunctionGasOverhead = harvestGasConsumption_;
+        vaultHarvestFunctionGasOverhead = _harvestGasConsumption;
     }
 
     /*      */
@@ -1309,7 +1318,7 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
         virtual
         returns (address[] memory);
 
-    function _getVaultHarvestGasOverhead(address vault)
+    function _getVaultHarvestGasOverhead(address _vault)
         internal
         view
         virtual
@@ -1318,56 +1327,56 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
     function _calculateAdjustedGasCap()
         internal
         view
-        returns (uint256 adjustedPerformUpkeepGasLimit_)
+        returns (uint256 adjustedPerformUpkeepGasLimit)
     {
-        return _performUpkeepGasLimit - _performUpkeepGasLimitBuffer;
+        return performUpkeepGasLimit - performUpkeepGasLimitBuffer;
     }
 
-    function _calculateTxCostWithPremium(uint256 gasOverhead_)
+    function _calculateTxCostWithPremium(uint256 _gasOverhead)
         internal
         view
-        returns (uint256 txCost_)
+        returns (uint256 txCost)
     {
         return
             UpkeepLibrary._calculateUpkeepTxCost(
                 tx.gasprice,
-                gasOverhead_,
-                _chainlinkUpkeepTxPremiumFactor
+                _gasOverhead,
+                chainlinkUpkeepTxPremiumFactor
             );
     }
 
     function _calculateTxCostWithOverheadWithPremium(
-        uint256 totalVaultHarvestOverhead_
-    ) internal view returns (uint256 txCost_) {
+        uint256 _totalVaultHarvestOverhead
+    ) internal view returns (uint256 txCost) {
         return
             UpkeepLibrary._calculateUpkeepTxCostFromTotalVaultHarvestOverhead(
                 tx.gasprice,
-                totalVaultHarvestOverhead_,
-                _keeperRegistryGasOverhead,
-                _chainlinkUpkeepTxPremiumFactor
+                _totalVaultHarvestOverhead,
+                keeperRegistryGasOverhead,
+                chainlinkUpkeepTxPremiumFactor
             );
     }
 
     function _calculateExpectedTotalUpkeepTxCost(
-        uint256 numberOfVaultsToHarvest_
-    ) internal view returns (uint256 txCost_) {
-        uint256 totalVaultHarvestGasOverhead = _vaultHarvestFunctionGasOverhead *
-                numberOfVaultsToHarvest_;
+        uint256 _numberOfVaultsToHarvest
+    ) internal view returns (uint256 txCost) {
+        uint256 totalVaultHarvestGasOverhead = vaultHarvestFunctionGasOverhead *
+            _numberOfVaultsToHarvest;
         return
             UpkeepLibrary._calculateUpkeepTxCostFromTotalVaultHarvestOverhead(
                 tx.gasprice,
                 totalVaultHarvestGasOverhead,
-                _keeperRegistryGasOverhead,
-                _chainlinkUpkeepTxPremiumFactor
+                keeperRegistryGasOverhead,
+                chainlinkUpkeepTxPremiumFactor
             );
     }
 
     function _estimateSingleVaultHarvestGasOverhead(
-        uint256 vaultHarvestFunctionGasOverhead_
-    ) internal view returns (uint256 totalGasOverhead_) {
-        totalGasOverhead_ =
-            vaultHarvestFunctionGasOverhead_ +
-            _keeperRegistryGasOverhead;
+        uint256 _vaultHarvestFunctionGasOverhead
+    ) internal view returns (uint256 totalGasOverhead) {
+        totalGasOverhead =
+            _vaultHarvestFunctionGasOverhead +
+            keeperRegistryGasOverhead;
     }
 
     /*      */
@@ -1376,10 +1385,10 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
 
     /**
      * @dev Rescues random funds stuck.
-     * @param token_ address of the token to rescue.
+     * @param _token address of the token to rescue.
      */
-    function inCaseTokensGetStuck(address token_) external onlyOwner {
-        IERC20 token = IERC20(token_);
+    function inCaseTokensGetStuck(address _token) external onlyOwner {
+        IERC20 token = IERC20(_token);
 
         uint256 amount = token.balanceOf(address(this));
         token.safeTransfer(msg.sender, amount);
@@ -1553,22 +1562,22 @@ interface IBeefyRegistry {
 
     function getVaultCount() external view returns (uint256 count);
 
-    function getVaultInfo(address _vaultAddress)
+    function getVaultInfo(address vaultAddress)
         external
         view
         returns (
-            string memory name_,
-            IBeefyStrategy strategy_,
-            bool isPaused_,
-            address[] memory tokens_,
-            uint256 blockNumber_,
-            bool retired_,
-            uint256 gasOverhead_
+            string memory name,
+            IBeefyStrategy strategy,
+            bool isPaused,
+            address[] memory tokens,
+            uint256 blockNumber,
+            bool retired,
+            uint256 gasOverhead
         );
 
     function setHarvestFunctionGasOverhead(
-        address vaultAddress_,
-        uint256 gasOverhead_
+        address vaultAddress,
+        uint256 gasOverhead
     ) external;
 }
 
@@ -1581,25 +1590,25 @@ pragma solidity ^0.8.0;
 
 
 contract BeefyHarvester is KeeperCompatibleHarvester {
-    IBeefyRegistry public _vaultRegistry;
+    IBeefyRegistry public vaultRegistry;
 
     constructor(
-        address vaultRegistry_,
-        address keeperRegistry_,
-        uint256 performUpkeepGasLimit_,
-        uint256 performUpkeepGasLimitBuffer_,
-        uint256 vaultHarvestFunctionGasOverhead_,
-        uint256 keeperRegistryGasOverhead_
+        address _vaultRegistry,
+        address _keeperRegistry,
+        uint256 _performUpkeepGasLimit,
+        uint256 _performUpkeepGasLimitBuffer,
+        uint256 _vaultHarvestFunctionGasOverhead,
+        uint256 _keeperRegistryGasOverhead
     )
         KeeperCompatibleHarvester(
-            keeperRegistry_,
-            performUpkeepGasLimit_,
-            performUpkeepGasLimitBuffer_,
-            vaultHarvestFunctionGasOverhead_,
-            keeperRegistryGasOverhead_
+            _keeperRegistry,
+            _performUpkeepGasLimit,
+            _performUpkeepGasLimitBuffer,
+            _vaultHarvestFunctionGasOverhead,
+            _keeperRegistryGasOverhead
         )
     {
-        _vaultRegistry = IBeefyRegistry(vaultRegistry_);
+        vaultRegistry = IBeefyRegistry(_vaultRegistry);
     }
 
     function _getVaultAddresses()
@@ -1608,36 +1617,36 @@ contract BeefyHarvester is KeeperCompatibleHarvester {
         override
         returns (address[] memory)
     {
-        return _vaultRegistry.allVaultAddresses();
+        return vaultRegistry.allVaultAddresses();
     }
 
-    function _canHarvestVault(address vaultAddress_)
+    function _canHarvestVault(address _vaultAddress)
         internal
         view
         override
-        returns (bool canHarvest_)
+        returns (bool canHarvest)
     {
-        IBeefyVault vault = IBeefyVault(vaultAddress_);
+        IBeefyVault vault = IBeefyVault(_vaultAddress);
         IBeefyStrategy strategy = IBeefyStrategy(vault.strategy());
 
         bool isPaused = strategy.paused();
 
-        canHarvest_ = !isPaused;
+        canHarvest = !isPaused;
 
-        return canHarvest_;
+        return canHarvest;
     }
 
-    function _shouldHarvestVault(address vaultAddress_)
+    function _shouldHarvestVault(address _vaultAddress)
         internal
         view
         override
         returns (
-            bool shouldHarvestVault_,
-            uint256 txCostWithPremium_,
-            uint256 callRewardAmount_
+            bool shouldHarvestVault,
+            uint256 txCostWithPremium,
+            uint256 callRewardAmount
         )
     {
-        IBeefyVault vault = IBeefyVault(vaultAddress_);
+        IBeefyVault vault = IBeefyVault(_vaultAddress);
         IBeefyStrategy strategy = IBeefyStrategy(vault.strategy());
 
         /* solhint-disable not-rely-on-time */
@@ -1645,21 +1654,21 @@ contract BeefyHarvester is KeeperCompatibleHarvester {
         bool hasBeenHarvestedToday = strategy.lastHarvest() > oneDayAgo;
         /* solhint-enable not-rely-on-time */
 
-        callRewardAmount_ = strategy.callReward();
+        callRewardAmount = strategy.callReward();
 
         uint256 vaultHarvestGasOverhead = _getVaultHarvestGasOverhead(
-            vaultAddress_
+            _vaultAddress
         );
-        txCostWithPremium_ = _calculateTxCostWithPremium(
+        txCostWithPremium = _calculateTxCostWithPremium(
             vaultHarvestGasOverhead
         );
-        bool isProfitableHarvest = callRewardAmount_ >= txCostWithPremium_;
+        bool isProfitableHarvest = callRewardAmount >= txCostWithPremium;
 
-        shouldHarvestVault_ =
+        shouldHarvestVault =
             isProfitableHarvest ||
-            (!hasBeenHarvestedToday && callRewardAmount_ > 0);
+            (!hasBeenHarvestedToday && callRewardAmount > 0);
 
-        return (shouldHarvestVault_, txCostWithPremium_, callRewardAmount_);
+        return (shouldHarvestVault, txCostWithPremium, callRewardAmount);
     }
 
     function _getVaultHarvestGasOverhead(address)
@@ -1670,32 +1679,32 @@ contract BeefyHarvester is KeeperCompatibleHarvester {
     {
         return
             _estimateSingleVaultHarvestGasOverhead(
-                _vaultHarvestFunctionGasOverhead
+                vaultHarvestFunctionGasOverhead
             );
     }
 
-    function _harvestVault(address vault_)
+    function _harvestVault(address _vault)
         internal
         override
-        returns (bool didHarvest_, uint256 callRewards_)
+        returns (bool didHarvest, uint256 callRewards)
     {
         IBeefyStrategy strategy = IBeefyStrategy(
-            IBeefyVault(vault_).strategy()
+            IBeefyVault(_vault).strategy()
         );
-        callRewards_ = strategy.callReward();
-        try strategy.harvest(_callFeeRecipient) {
-            didHarvest_ = true;
+        callRewards = strategy.callReward();
+        try strategy.harvest(callFeeRecipient) {
+            didHarvest = true;
         } catch {
             // try old function signature
-            try strategy.harvestWithCallFeeRecipient(_callFeeRecipient) {
-                didHarvest_ = true;
+            try strategy.harvestWithCallFeeRecipient(callFeeRecipient) {
+                didHarvest = true;
                 /* solhint-disable no-empty-blocks */
             } catch {
                 /* solhint-enable no-empty-blocks */
             }
         }
 
-        return (didHarvest_, callRewards_);
+        return (didHarvest, callRewards);
     }
 }
 
@@ -1703,6 +1712,102 @@ contract BeefyHarvester is KeeperCompatibleHarvester {
 // File contracts/Beefy/interfaces/IBeefyStrategy.sol
 
 pragma solidity >=0.6.0 <0.9.0;
+
+
+// File contracts/test/MockHarvester.sol
+
+pragma solidity ^0.8.0;
+
+contract MockHarvester is KeeperCompatibleHarvester {
+    uint256 public vaultCount;
+    bool public canHarvest;
+    bool public shouldHarvest;
+    bool public didHarvest;
+
+    constructor(
+        address _keeperRegistry,
+        uint256 _performUpkeepGasLimit,
+        uint256 _performUpkeepGasLimitBuffer,
+        uint256 _vaultHarvestFunctionGasOverhead,
+        uint256 _keeperRegistryGasOverhead
+    )
+        KeeperCompatibleHarvester(
+            _keeperRegistry,
+            _performUpkeepGasLimit,
+            _performUpkeepGasLimitBuffer,
+            _vaultHarvestFunctionGasOverhead,
+            _keeperRegistryGasOverhead
+        )
+    {
+        setVaultCount(1);
+        setCanHarvestVault(true);
+        setShouldHarvestVault(true);
+        setHarvestVault(true);
+    }
+
+    function _getVaultAddresses()
+        internal
+        view
+        override
+        returns (address[] memory result)
+    {
+        result = new address[](vaultCount);
+    }
+
+    function _canHarvestVault(address) internal view override returns (bool) {
+        return canHarvest;
+    }
+
+    function _shouldHarvestVault(address)
+        internal
+        view
+        override
+        returns (
+            bool shouldHarvestVault,
+            uint256 txCostWithPremium,
+            uint256 callRewardAmount
+        )
+    {
+        return (shouldHarvest, 0, 0);
+    }
+
+    function _getVaultHarvestGasOverhead(address)
+        internal
+        view
+        override
+        returns (uint256)
+    {
+        return
+            _estimateSingleVaultHarvestGasOverhead(
+                vaultHarvestFunctionGasOverhead
+            );
+    }
+
+    function _harvestVault(address)
+        internal
+        view
+        override
+        returns (bool, uint256)
+    {
+        return (didHarvest, 0);
+    }
+
+    function setVaultCount(uint256 newVaultCount) public {
+        vaultCount = newVaultCount;
+    }
+
+    function setCanHarvestVault(bool _canHarvest) public {
+        canHarvest = _canHarvest;
+    }
+
+    function setShouldHarvestVault(bool _shouldHarvest) public {
+        shouldHarvest = _shouldHarvest;
+    }
+
+    function setHarvestVault(bool _didHarvest) public {
+        didHarvest = _didHarvest;
+    }
+}
 
 
 // File contracts/Beefy/interfaces/IBeefyUniV2Zap.sol
@@ -1744,4 +1849,27 @@ interface IBeefyUniV2Zap {
         );
 
     function checkWETH() external view returns (bool isValid);
+}
+
+
+// File contracts/test/MockKeeperRegistry.sol
+
+pragma solidity ^0.8.0;
+
+contract MockKeeperRegistry {
+    function getConfig()
+        external
+        pure
+        returns (
+            uint32 paymentPremiumPPB,
+            uint24 blockCountPerTurn,
+            uint32 checkGasLimit,
+            uint24 stalenessSeconds,
+            uint16 gasCeilingMultiplier,
+            uint256 fallbackGasPrice,
+            uint256 fallbackLinkPrice
+        )
+    {
+        return (0, 0, 0, 0, 0, 0, 0);
+    }
 }
