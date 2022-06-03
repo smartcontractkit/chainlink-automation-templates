@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 import "../base/KeeperCompatibleHarvester.sol";
 
 contract MockHarvester is KeeperCompatibleHarvester {
-    uint256 public vaultCount;
-    bool public canHarvest;
-    bool public shouldHarvest;
-    bool public didHarvest;
+    uint256 public vaultCount = 1;
+    bool public canHarvest = true;
+    bool public shouldHarvest = true;
+    bool public didHarvest = true;
 
     constructor(
         address _keeperRegistry,
@@ -23,12 +23,7 @@ contract MockHarvester is KeeperCompatibleHarvester {
             _vaultHarvestFunctionGasOverhead,
             _keeperRegistryGasOverhead
         )
-    {
-        setVaultCount(1);
-        setCanHarvestVault(true);
-        setShouldHarvestVault(true);
-        setHarvestVault(true);
-    }
+    {}
 
     function _getVaultAddresses()
         internal
