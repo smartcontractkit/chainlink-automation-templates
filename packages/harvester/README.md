@@ -16,13 +16,157 @@ Main Contracts:
 
 ## Develop
 
-If you want to create an automated vault harvesting powered by Chainlink Keepers you have to create a new contract that inherits the abstract `KeeperCompatibleHarvester` contract and implements the following functions:
+If you want to create an automated vault harvesting powered by Chainlink Keepers you have to create a new contract that inherits the abstract `KeeperCompatibleHarvester` contract and implement all placeholder functions.
+
+In `src/contracts` create a new `.sol` file:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
+
+import "../base/KeeperCompatibleHarvester.sol";
+
+contract MyHarvester is KeeperCompatibleHarvester {
+  ...
+}
+```
+
+Inside the contract body, add a constructor which passes all the required parameters to the parent harvester contract:
+
+```solidity
+constructor(
+    uint256 _additionalParam,
+    address _keeperRegistry,
+    uint256 _performUpkeepGasLimit,
+    uint256 _performUpkeepGasLimitBuffer,
+    uint256 _vaultHarvestFunctionGasOverhead,
+    uint256 _keeperRegistryGasOverhead
+)
+    KeeperCompatibleHarvester(
+        _keeperRegistry,
+        _performUpkeepGasLimit,
+        _performUpkeepGasLimitBuffer,
+        _vaultHarvestFunctionGasOverhead,
+        _keeperRegistryGasOverhead
+    )
+{
+    additionalParam = _additionalParam;
+}
+```
+
+Any additional params specific to your implementation should be added there as well, if needed.
+
+Next you need to implement the behavoiur for all `virtual` functions from the parent contract:
 
 - `_getVaultAddresses` provides a list of vault addresses
-- `_canHarvestVault` checks if the vault is harvestable (ex: if paused)
-- `_shouldHarvestVault` whether vault should be harvested based on a criteria (ex: profit or time passed)
+
+Example:
+
+```solidity
+function _getVaultAddresses()
+    internal
+    view
+    override
+    returns (address[] memory)
+{
+    return vaultRegistry.allVaultAddresses();
+}
+```
+
+- `_canHarvestVault` checks if the vault is harvestable
+
+Example (if paused):
+
+```solidity
+function _canHarvestVault(address _vaultAddress)
+    internal
+    view
+    override
+    returns (bool canHarvest)
+{
+    IVault vault = IVault(_vaultAddress);
+    bool isPaused = vault.paused();
+
+    canHarvest = !isPaused;
+
+    return canHarvest;
+}
+```
+
+- `_shouldHarvestVault` whether vault should be harvested based on a criteria
+
+Example (profit and time based):
+
+```solidity
+function _shouldHarvestVault(address _vaultAddress)
+    internal
+    view
+    override
+    returns (
+        bool shouldHarvestVault,
+        uint256 txCostWithPremium,
+        uint256 callRewardAmount
+    )
+{
+    IVault vault = IVault(_vaultAddress);
+
+    uint256 oneDayAgo = block.timestamp - 1 days;
+    bool hasBeenHarvestedToday = vault.lastHarvest() > oneDayAgo;
+
+    callRewardAmount = vault.callReward();
+
+    uint256 vaultHarvestGasOverhead = _getVaultHarvestGasOverhead(
+        _vaultAddress
+    );
+    txCostWithPremium = _calculateTxCostWithPremium(
+        vaultHarvestGasOverhead
+    );
+    bool isProfitableHarvest = callRewardAmount >= txCostWithPremium;
+
+    shouldHarvestVault =
+        isProfitableHarvest ||
+        (!hasBeenHarvestedToday && callRewardAmount > 0);
+
+    return (shouldHarvestVault, txCostWithPremium, callRewardAmount);
+}
+```
+
 - `_getVaultHarvestGasOverhead` estimated gas consumption overhead for harvesting a vault
+
+Example:
+
+```solidity
+function _getVaultHarvestGasOverhead(address)
+    internal
+    view
+    override
+    returns (uint256)
+{
+    return
+        _estimateSingleVaultHarvestGasOverhead(
+            vaultHarvestFunctionGasOverhead
+        );
+}
+```
+
 - `_harvestVault` defines how to harvest a vault
+
+Example:
+
+```solidity
+function _harvestVault(address _vault)
+    internal
+    override
+    returns (bool didHarvest, uint256 callRewards)
+{
+    IVault vault = IVault(_vaultAddress);
+
+    callRewards = vault.callReward();
+    didHarvest = strategy.harvest(callFeeRecipient);
+
+    return (didHarvest, callRewards);
+}
+```
 
 ## Test
 
@@ -34,10 +178,12 @@ yarn test
 
 ## Deploy
 
-To deploy your harvester contract, make the necessary changes in the deploy script located in `src/deploy.ts`:
+To deploy your harvester contract, make the necessary changes in the deploy script located in `scripts/deploy.ts`:
 
 - Change `KeeperRegistry` address to the one deployed on the network you're targeting
 - Update the contract name to your `KeeperCompatibleHarvester` based contract name
+- Set an appropriate value for your vaults harvest function gas overhead
+- Change the gas limit depending on how many vault harvests you want to fit in a single upkeep perform transaction
 
 Then run:
 
@@ -52,6 +198,10 @@ RPC_URL=https://example-rpc.com yarn net:fork
 ```
 
 Check [Supported Networks](https://docs.chain.link/docs/chainlink-keepers/supported-networks/).
+
+## Register Upkeep
+
+To automate your harvester contract with Chainlink’s network of keepers, you need to [register new Upkeeep](https://keepers.chain.link/new) by following this [step-by-step guide](https://docs.chain.link/docs/chainlink-keepers/register-upkeep/).
 
 ## Misc
 
