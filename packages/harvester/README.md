@@ -2,7 +2,7 @@
 
 [Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keeper-templates/packages/harvester/flatten/BeefyHarvester.flat.sol)
 
-The key component in DeFi yield aggregators are the Vaults in which you stake your crypto tokens. The investment strategy tied to the specific vault will increase your deposited token amount by compounding arbitrary yield farm reward tokens back into your initially deposited asset. The process is called vault harvesting and can be automated by [Chainlink Keepers](https://docs.chain.link/docs/chainlink-keepers/introduction/) while making it more trustless and decentralized.
+The key component in DeFi yield aggregators are the Vaults in which you stake your crypto tokens. The investment strategy tied to the specific vault will increase your deposited token amount by compounding arbitrary yield farm reward tokens back into your initially deposited asset. The process is called vault harvesting and can be automated by [Chainlink Keepers](https://keepers.chain.link) while making it more trustless and decentralized.
 
 Main Contracts:
 
@@ -13,8 +13,6 @@ Main Contracts:
   - Provides helper functions to calculate gas consumption and estimate profit
   - Trigger mechanism can be time-based, profit-based or custom
   - Reports profits, successfull and failed harvests
-- `BeefyHarvester.sol`
-  - Sample implementation of the abstract harvester for [Beefy Finance](https://beefy.finance/)
 
 ## Develop
 
@@ -34,31 +32,26 @@ To run unit tests for the abstract harvester:
 yarn test
 ```
 
-To test `BeefyHarvester` you need to start an instance of Hardhat Network that forks mainnet.
-
-For quick start the test suite is configured for Polygon Mainnet which is supported by both Beefy Finance and Chainlink Keepers.
-
-In a separate terminal run:
-
-```bash
-RPC_URL=https://polygon-mainnet.g.alchemy.com/v2/api-key yarn net:fork
-```
-
-And then run:
-
-```bash
-yarn test:beefy
-```
-
 ## Deploy
 
-To deploy `BeefyHarvester` on `<network>`:
+To deploy your harvester contract, make the necessary changes in the deploy script located in `src/deploy.ts`:
+
+- Change `KeeperRegistry` address to the one deployed on the network you're targeting
+- Update the contract name to your `KeeperCompatibleHarvester` based contract name
+
+Then run:
 
 ```bash
 yarn deploy <network>
 ```
 
-To test the deploy, execute it on `localhost` while running a mainnet fork local network.
+To test the deploy script, execute it on `localhost` network while running a mainnet fork in a separate terminal:
+
+```bash
+RPC_URL=https://example-rpc.com yarn net:fork
+```
+
+Check [Supported Networks](https://docs.chain.link/docs/chainlink-keepers/supported-networks/).
 
 ## Misc
 
@@ -70,4 +63,4 @@ yarn flatten
 
 ## References
 
-- [Beefy Contracts](https://github.com/beefyfinance/beefy-contracts)
+- [Chainlink Keepers Docs](https://docs.chain.link/docs/chainlink-keepers/introduction/)

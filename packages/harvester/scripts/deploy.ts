@@ -1,15 +1,16 @@
 import { ethers } from "hardhat";
 import { ContractFactory } from "ethers";
 
-// The deploy script works for BeefyFinance on Polygon Mainnet.
-// For other harvesters and/or blockchains change the contract name, keeper registry, vault registry address and gas limits.
+// Sample address of KeeperRegistry contract deployed on Polygon
+// Change to the KeeperRegistry contract for your target network
 const keeperRegistry = "0x7b3EC232b08BD7b4b3305BE0C044D907B2DF960B";
-const vaultRegistry = "0x820cE73c7F15C2b828aBE79670D7e61731AB93Be";
+
 const config = {
   harvester: {
-    contractName: "BeefyHarvester",
+    // Test deployment of MockHarvester
+    // Change to your KeeperCompatibleHarvester based contract name
+    contractName: "MockHarvester",
     args: {
-      vaultRegistry,
       keeperRegistry,
       performUpkeepGasLimit: 2500000,
       performUpkeepGasLimitBuffer: 100000,
@@ -25,12 +26,11 @@ const deploy = async () => {
 };
 
 const deployHarvester = async () => {
-  const BeefyHarvesterFactory = await ethers.getContractFactory(
+  const HarvesterFactory = await ethers.getContractFactory(
     config.harvester.contractName
   );
 
   const {
-    vaultRegistry,
     keeperRegistry,
     performUpkeepGasLimit,
     performUpkeepGasLimitBuffer,
@@ -39,7 +39,6 @@ const deployHarvester = async () => {
   } = config.harvester.args;
 
   const harvesterConstructorArguments: any[] = [
-    vaultRegistry,
     keeperRegistry,
     performUpkeepGasLimit,
     performUpkeepGasLimitBuffer,
@@ -49,7 +48,7 @@ const deployHarvester = async () => {
 
   await deployContract(
     config.harvester.contractName,
-    BeefyHarvesterFactory,
+    HarvesterFactory,
     harvesterConstructorArguments
   );
 };
