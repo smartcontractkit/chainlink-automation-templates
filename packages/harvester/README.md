@@ -6,7 +6,7 @@ The key component in DeFi yield aggregators are the Vaults in which you stake yo
 
 Main Contracts:
 
-- `KeeperCompatibleHarvester.sol`
+- [`KeeperCompatibleHarvester.sol`](./contracts/base/KeeperCompatibleHarvester.sol)
   - Abstract contract
   - Iterates vaults from a provided list
   - Fits vaults within upkeep gas limit
@@ -167,6 +167,8 @@ function _harvestVault(address _vault)
     return (didHarvest, callRewards);
 }
 ```
+
+Note: Keeper related functions `checkUpkeep` and `performUpkeep` are handled in the base contract, so that you only have to implement domain-specific behavior.
 
 ## Test
 
