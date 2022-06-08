@@ -1,4 +1,4 @@
-# Chainlink Keeper Templates
+# Chainlink Keepers Templates
 
 This is a monorepo containing real-world examples of [Chainlink Keepers](https://docs.chain.link/docs/chainlink-keepers/introduction/) use cases that can be used for reference or to be built upon.
 
@@ -25,7 +25,7 @@ Chainlink Keepers provide users with a decentralized network of nodes that are i
 Clone repo:
 
 ```bash
-git clone git@github.com:hackbg/chainlink-keeper-templates.git
+git clone git@github.com:hackbg/chainlink-keepers-templates.git
 ```
 
 Install the dependencies for all templates and save space from reusing node modules:

@@ -1,4 +1,4 @@
-# Chainlink Keeper Template: Vault Harvester
+# Chainlink Keepers Template: Vault Harvester
 
 [Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keeper-templates/packages/harvester/flatten/Harvester.flat.sol)
 

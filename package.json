@@ -1,5 +1,5 @@
 {
-  "name": "chainlink-keeper-templates",
+  "name": "chainlink-keepers-templates",
   "version": "1.0.0",
   "private": true,
   "workspaces": {
