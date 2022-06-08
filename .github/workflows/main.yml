@@ -17,7 +17,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Compile harvester contracts
-        run: yarn workspace @chainlink-keeper-templates/harvester compile
+        run: yarn workspace @chainlink-keepers-templates/harvester compile
 
       - name: Test harvester contracts
-        run: yarn workspace @chainlink-keeper-templates/harvester test
+        run: yarn workspace @chainlink-keepers-templates/harvester test
