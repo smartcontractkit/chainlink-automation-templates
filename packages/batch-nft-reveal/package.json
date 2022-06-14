@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "deploy": "hardhat run scripts/deploy.ts --network"
+    "deploy": "hardhat run scripts/deploy.ts --network",
+    "flatten": "bash bin/flattener.sh"
   },
   "devDependencies": {
     "@chainlink/contracts": "^0.4.1",
