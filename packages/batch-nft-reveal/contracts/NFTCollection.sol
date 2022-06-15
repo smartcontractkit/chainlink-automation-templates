@@ -120,9 +120,7 @@ contract NFTCollection is
                 tokenId < metadatas[i].endIndex
             ) {
                 randomness = uint256(
-                    keccak256(
-                        abi.encode(metadatas[i].entropy, msg.sender, tokenId)
-                    )
+                    keccak256(abi.encode(metadatas[i].entropy, tokenId))
                 );
                 metadataCleared = true;
             }
