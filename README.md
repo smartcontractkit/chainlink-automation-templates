@@ -1,12 +1,12 @@
 # Chainlink Keepers Templates
 
-This is a monorepo containing real-world examples of [Chainlink Keepers](https://docs.chain.link/docs/chainlink-keepers/introduction/) use cases that can be used for reference or to be built upon.
+This is a multi-project repo containing real-world examples of [Chainlink Keepers](https://keepers.chain.link) use cases that can be used for reference or to be built upon.
 
 Chainlink Keepers provide users with a decentralized network of nodes that are incentivized to perform all registered jobs (or Upkeeps) without competing with each other. The network provides developers with hyper-reliable, decentralized smart contract automation.
 
 ## Example Projects
 
-- [Vault Harvesting/Compounding](/packages/harvester/)
+- [Vault Harvesting/Compounding](/vault-harvester/)
 
 ## Requirements
 
@@ -20,22 +20,27 @@ Chainlink Keepers provide users with a decentralized network of nodes that are i
     - `yarn --version` and get an output like: `x.x.x`
     - You might need to install it with npm
 
-## Setup
+## Getting Started
 
-Clone repo:
+Clone the repo:
 
 ```bash
 git clone git@github.com:hackbg/chainlink-keepers-templates.git
 ```
 
-Install the dependencies for all templates and save space from reusing node modules:
+Navigate to a template subdirectory and follow the instructions in the included `README.md` file:
+
+```bash
+cd <template>
+```
+
+Install the template's dependencies:
 
 ```bash
 yarn install
 ```
 
-To setup a single template, navigate to an example package and run the command from there.
-
 ## References
 
-- [Hardhat](https://hardhat.org/getting-started/)
+- [Chainlink Keepers Docs](https://docs.chain.link/docs/chainlink-keepers/introduction/)
+- [Hardhat Docs](https://hardhat.org/getting-started/)

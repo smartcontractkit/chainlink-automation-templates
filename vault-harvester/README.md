@@ -1,6 +1,6 @@
 # Chainlink Keepers Template: Vault Harvester
 
-[Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keepers-templates/packages/harvester/flatten/Harvester.flat.sol)
+[Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keepers-templates/vault-harvester/flatten/Harvester.flat.sol)
 
 The key component in DeFi yield aggregators are the Vaults in which you stake your crypto tokens. The investment strategy tied to the specific vault will increase your deposited token amount by compounding arbitrary yield farm reward tokens back into your initially deposited asset. The process is called vault harvesting and can be automated by [Chainlink Keepers](https://keepers.chain.link) while making it more trustless and decentralized.
 
@@ -18,7 +18,7 @@ Main Contracts:
 
 If you want to create an automated vault harvesting powered by Chainlink Keepers you have to create a new contract that inherits the abstract `KeeperCompatibleHarvester` contract and implement all placeholder functions.
 
-In `src/contracts` create a new `.sol` file:
+In `contracts` create a new `.sol` file:
 
 ```solidity
 // SPDX-License-Identifier: MIT

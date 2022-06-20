@@ -1,8 +1,8 @@
 [This template is a WIP]
 
-# Chainlink Keeper Template: Batch NFT Reveal
+# Chainlink Keepers Template: Batch NFT Reveal
 
-[Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keepers-templates/packages/batch-nft-reveal/flatten/NFTCollection.flat.sol)
+[Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keepers-templates/batch-nft-reveal/flatten/NFTCollection.flat.sol)
 
 Using Chainlink VRF in generative art NFT collections is de-facto the standard approach for getting provably random source in smart contracts. By batching the reveal process, instead of making VRF calls for each NFT we can save cost up to 100x (in a collection of 10,000 with batch size of 100).
 
