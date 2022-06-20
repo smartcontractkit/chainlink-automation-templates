@@ -100,3 +100,5 @@ yarn flatten
 - [Chainlink VRF Docs](https://docs.chain.link/docs/chainlink-vrf/)
 - [Designing Effective NFT Launches](https://www.paradigm.xyz/2021/10/a-guide-to-designing-effective-nft-launches)
 - [Smart Batched Auctions](https://github.com/FrankieIsLost/smart-batched-auction)
+
+> :warning: **Disclaimer**: The code used in Chainlink Keepers Quickstarts templates comes from Chainlink community members and has not been audited. The Chainlink team disclaims and shall have no liability with respect to any loss, malfunction, or any other result of deploying a Quickstart Template. By electing to deploy a Quickstart Template you hereby acknowledge and agree to the above.
