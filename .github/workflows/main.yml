@@ -13,11 +13,14 @@ jobs:
         with:
           node-version: 14
 
-      - name: Install dependencies
+      - name: Install Vault Harvester dependencies
+        working-directory: ./vault-harvester
         run: yarn install --frozen-lockfile
 
-      - name: Compile harvester contracts
-        run: yarn workspace @chainlink-keepers-templates/harvester compile
+      - name: Compile Vault Harvester contracts
+        working-directory: ./vault-harvester
+        run: yarn compile
 
-      - name: Test harvester contracts
-        run: yarn workspace @chainlink-keepers-templates/harvester test
+      - name: Test Vault Harvester contracts
+        working-directory: ./vault-harvester
+        run: yarn test
