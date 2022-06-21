@@ -7,6 +7,7 @@ Chainlink Keepers provide users with a decentralized network of nodes that are i
 ## Example Projects
 
 - [Vault Harvesting/Compounding](/vault-harvester/)
+- [Batch NFT Reveal](/batch-nft-reveal/)
 
 ## Requirements
 
