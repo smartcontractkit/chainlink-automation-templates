@@ -216,3 +216,5 @@ yarn flatten
 ## References
 
 - [Chainlink Keepers Docs](https://docs.chain.link/docs/chainlink-keepers/introduction/)
+
+> :warning: **Disclaimer**: The code used in Chainlink Keepers Quickstarts templates comes from Chainlink community members and has not been audited. The Chainlink team disclaims and shall have no liability with respect to any loss, malfunction, or any other result of deploying a Quickstart Template. By electing to deploy a Quickstart Template you hereby acknowledge and agree to the above.
