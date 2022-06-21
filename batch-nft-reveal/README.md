@@ -74,13 +74,11 @@ To deploy the collection to a network, run:
 yarn deploy <network>
 ```
 
-The deploy script (`scripts/deploy.ts`) utilizes an additional config (`helper-config.ts`) which contains all parameters required for VRF on Rinkeby and Kovan test networks.
+The deploy script (`scripts/deploy.ts`) utilizes an additional config (`helper-hardhat-config.ts`) which contains the parameters required for VRF on test networks like Rinkeby.
 
-To have a fully working solution both [Chainlink VRF](https://docs.chain.link/docs/vrf-contracts/) and [Chainlink Keepers](https://docs.chain.link/docs/chainlink-keepers/supported-networks/) have to be supported on the network.
+However, you still need to manually replace the `subscriptionId` value with your own. To obtain one, you need to [Create and fund a VRF subscription](https://docs.chain.link/docs/get-a-random-number/#create-and-fund-a-subscription).
 
-## Fund Contract
-
-Requesting randomness from Chainlink VRF requires a fee paid in LINK. After the contract is deployed transfer LINK tokens enough to cover all batch requests.
+To have a fully working solution, both [Chainlink VRF](https://docs.chain.link/docs/vrf-contracts/) and [Chainlink Keepers](https://docs.chain.link/docs/chainlink-keepers/supported-networks/) have to be supported on the network.
 
 ## Register Upkeep
 

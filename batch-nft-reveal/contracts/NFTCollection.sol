@@ -3,7 +3,8 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
+import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 import "base64-sol/base64.sol";
 import "./interfaces/IERC20.sol";
@@ -11,7 +12,7 @@ import "./interfaces/IERC20.sol";
 contract NFTCollection is
     Ownable,
     ERC721,
-    VRFConsumerBase,
+    VRFConsumerBaseV2,
     KeeperCompatibleInterface
 {
     // STRUCTS
@@ -22,13 +23,19 @@ contract NFTCollection is
         uint256 entropy;
     }
 
+    // CONSTANTS
+
+    uint16 private constant VRF_REQUEST_CONFIRMATIONS = 3;
+    uint32 private constant VRF_NUM_WORDS = 1;
+
     // IMMUTABLE STORAGE
 
     uint256 public immutable maxSupply;
     uint256 public immutable mintCost;
-    address public immutable linkToken;
-    uint256 internal immutable linkFee;
-    bytes32 internal immutable keyHash;
+    VRFCoordinatorV2Interface private immutable vrfCoordinatorV2;
+    uint64 private immutable vrfSubscriptionId;
+    bytes32 private immutable vrfGasLane;
+    uint32 private immutable vrfCallbackGasLimit;
 
     // MUTABLE STORAGE
 
@@ -56,18 +63,19 @@ contract NFTCollection is
         uint256 _mintCost,
         uint256 _revealBatchSize,
         uint256 _revealInterval,
-        address _vrfCoordinator,
-        address _linkToken,
-        uint256 _linkFee,
-        bytes32 _linkKeyHash
-    ) ERC721(_name, _symbol) VRFConsumerBase(_vrfCoordinator, _linkToken) {
+        address _vrfCoordinatorV2,
+        uint64 _vrfSubscriptionId,
+        bytes32 _vrfGasLane,
+        uint32 _vrfCallbackGasLimit
+    ) ERC721(_name, _symbol) VRFConsumerBaseV2(_vrfCoordinatorV2) {
         maxSupply = _maxSupply;
         mintCost = _mintCost;
         revealBatchSize = _revealBatchSize;
         revealInterval = _revealInterval;
-        linkToken = _linkToken;
-        linkFee = _linkFee;
-        keyHash = _linkKeyHash;
+        vrfCoordinatorV2 = VRFCoordinatorV2Interface(_vrfCoordinatorV2);
+        vrfSubscriptionId = _vrfSubscriptionId;
+        vrfGasLane = _vrfGasLane;
+        vrfCallbackGasLimit = _vrfCallbackGasLimit;
     }
 
     // ACTIONS
@@ -152,7 +160,7 @@ contract NFTCollection is
     }
 
     function _generateSVG(uint256 _randomness, bool _metadataCleared)
-        public
+        internal
         pure
         returns (string memory)
     {
@@ -202,14 +210,17 @@ contract NFTCollection is
 
     // VRF
 
-    function revealPendingMetadata() public returns (bytes32 requestId) {
+    function revealPendingMetadata() public returns (uint256 requestId) {
         if (!_canReveal()) {
             revert RevealCriteriaNotMet();
         }
-        if (IERC20(linkToken).balanceOf(address(this)) < linkFee) {
-            revert InsufficientLINK();
-        }
-        requestId = requestRandomness(keyHash, linkFee);
+        requestId = vrfCoordinatorV2.requestRandomWords(
+            vrfGasLane,
+            vrfSubscriptionId,
+            VRF_REQUEST_CONFIRMATIONS,
+            vrfCallbackGasLimit,
+            VRF_NUM_WORDS
+        );
         pendingReveal = true;
     }
 
@@ -226,12 +237,11 @@ contract NFTCollection is
         pendingReveal = false;
     }
 
-    function fulfillRandomness(bytes32, uint256 randomness)
+    function fulfillRandomWords(uint256, uint256[] memory randomWords)
         internal
-        virtual
         override
     {
-        _fulfillRandomnessForMetadata(randomness);
+        _fulfillRandomnessForMetadata(randomWords[0]);
     }
 
     // KEEPERS
