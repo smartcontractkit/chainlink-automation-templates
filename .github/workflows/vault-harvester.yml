@@ -1,9 +1,15 @@
 name: CI
-on: ["push", "pull_request"]
+on:
+  push:
+    paths:
+      - "vault-harvester/**"
+  pull_request:
+    paths:
+      - "batch-nft-reveal/**"
 
 jobs:
   test:
-    name: Test contracts
+    name: Test Vault Harvester
     runs-on: ubuntu-latest
     env:
       REPORT_GAS: true

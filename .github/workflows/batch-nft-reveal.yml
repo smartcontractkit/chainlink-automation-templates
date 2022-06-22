@@ -1,0 +1,29 @@
+name: CI
+on:
+  push:
+    paths:
+      - "batch-nft-reveal/**"
+  pull_request:
+    paths:
+      - "batch-nft-reveal/**"
+
+jobs:
+  test:
+    name: Test Batch NFT Reveal
+    runs-on: ubuntu-latest
+    env:
+      REPORT_GAS: true
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Batch NFT Reveal dependencies
+        working-directory: ./batch-nft-reveal
+        run: yarn install --frozen-lockfile
+
+      - name: Compile Batch NFT Reveal contracts
+        working-directory: ./batch-nft-reveal
+        run: yarn compile
+
+      - name: Test Batch NFT Reveal contracts
+        working-directory: ./batch-nft-reveal
+        run: yarn test
