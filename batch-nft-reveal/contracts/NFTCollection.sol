@@ -190,6 +190,9 @@ contract NFTCollection is
     }
 
     function _canReveal() internal view returns (bool) {
+        if (pendingReveal) {
+            return false;
+        }
         uint256 unrevealedCount = totalSupply - revealedCount;
         if (unrevealedCount == 0) {
             return false;
@@ -252,7 +255,7 @@ contract NFTCollection is
         override
         returns (bool upkeepNeeded, bytes memory)
     {
-        upkeepNeeded = !pendingReveal && _canReveal();
+        upkeepNeeded = _canReveal();
     }
 
     function performUpkeep(bytes calldata) external override {
