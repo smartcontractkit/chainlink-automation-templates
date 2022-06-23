@@ -43,7 +43,7 @@ contract NFTCollection is
     uint256 public revealedCount = 0;
     uint256 public revealBatchSize;
     uint256 public revealInterval;
-    uint256 public lastRevealed;
+    uint256 public lastRevealed = block.timestamp;
     bool public pendingReveal = false;
     Metadata[] public metadatas;
 
