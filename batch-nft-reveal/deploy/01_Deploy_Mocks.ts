@@ -4,7 +4,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 const BASE_FEE = ethers.utils.parseEther("0.25");
-const GAS_PRICE_LINK = ethers.utils.parseEther("0.01");
+const GAS_PRICE_LINK = ethers.utils.parseEther("0.000000001");
 
 const func: DeployFunction = async function ({
   deployments,
