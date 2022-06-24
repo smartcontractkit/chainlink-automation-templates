@@ -47,6 +47,11 @@ contract NFTCollection is
     bool public pendingReveal = false;
     Metadata[] public metadatas;
 
+    // EVENTS
+
+    event BatchRevealRequested(uint256 requestId);
+    event BatchRevealFinished(uint256 startIndex, uint256 endIndex);
+
     // ERRORS
 
     error InvalidAmount();
@@ -225,19 +230,23 @@ contract NFTCollection is
             VRF_NUM_WORDS
         );
         pendingReveal = true;
+        emit BatchRevealRequested(requestId);
     }
 
     function _fulfillRandomnessForMetadata(uint256 randomness) internal {
+        uint256 startIndex = revealedCount + 1;
+        uint256 endIndex = totalSupply + 1;
         metadatas.push(
             Metadata({
-                startIndex: revealedCount + 1,
-                endIndex: totalSupply + 1,
+                startIndex: startIndex,
+                endIndex: endIndex,
                 entropy: randomness
             })
         );
         revealedCount = totalSupply;
         lastRevealed = block.timestamp;
         pendingReveal = false;
+        emit BatchRevealFinished(startIndex, endIndex);
     }
 
     function fulfillRandomWords(uint256, uint256[] memory randomWords)
