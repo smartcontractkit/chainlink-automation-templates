@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { networkConfig, developmentChains } from "../helper-hardhat-config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { VRFCoordinatorV2Interface } from "../typechain";
+import { VRFCoordinatorV2Mock } from "../typechain";
 
 const NFT_NAME = process.env.NFT_NAME;
 const NFT_SYMBOL = process.env.NFT_SYMBOL;
@@ -29,7 +29,7 @@ const func: DeployFunction = async function ({
     const vrfCoordinatorV2Mock = (await ethers.getContractAt(
       "VRFCoordinatorV2Mock",
       vrfCoordinatorV2Address
-    )) as unknown as VRFCoordinatorV2Interface;
+    )) as unknown as VRFCoordinatorV2Mock;
 
     const createSubscriptionTx =
       await vrfCoordinatorV2Mock.createSubscription();
@@ -37,6 +37,9 @@ const func: DeployFunction = async function ({
     vrfSubscriptionId =
       createSubscriptionReceipt.events &&
       createSubscriptionReceipt.events[0].args?.subId;
+
+    const fundAmount = networkConfig[chainId].fundAmount as string;
+    await vrfCoordinatorV2Mock.fundSubscription(vrfSubscriptionId, fundAmount);
   } else {
     vrfCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorV2 as string;
     vrfSubscriptionId = networkConfig[chainId].subscriptionId as string;
