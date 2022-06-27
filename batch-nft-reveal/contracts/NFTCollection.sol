@@ -43,9 +43,14 @@ contract NFTCollection is
     uint256 public revealedCount = 0;
     uint256 public revealBatchSize;
     uint256 public revealInterval;
-    uint256 public lastRevealed;
+    uint256 public lastRevealed = block.timestamp;
     bool public pendingReveal = false;
     Metadata[] public metadatas;
+
+    // EVENTS
+
+    event BatchRevealRequested(uint256 requestId);
+    event BatchRevealFinished(uint256 startIndex, uint256 endIndex);
 
     // ERRORS
 
@@ -84,7 +89,7 @@ contract NFTCollection is
         if (_amount == 0) {
             revert InvalidAmount();
         }
-        if (totalSupply + _amount >= maxSupply) {
+        if (totalSupply + _amount > maxSupply) {
             revert MaxSupplyReached();
         }
         if (msg.value < mintCost * _amount) {
@@ -190,6 +195,9 @@ contract NFTCollection is
     }
 
     function _canReveal() internal view returns (bool) {
+        if (pendingReveal) {
+            return false;
+        }
         uint256 unrevealedCount = totalSupply - revealedCount;
         if (unrevealedCount == 0) {
             return false;
@@ -222,19 +230,23 @@ contract NFTCollection is
             VRF_NUM_WORDS
         );
         pendingReveal = true;
+        emit BatchRevealRequested(requestId);
     }
 
     function _fulfillRandomnessForMetadata(uint256 randomness) internal {
+        uint256 startIndex = revealedCount + 1;
+        uint256 endIndex = totalSupply + 1;
         metadatas.push(
             Metadata({
-                startIndex: revealedCount + 1,
-                endIndex: totalSupply + 1,
+                startIndex: startIndex,
+                endIndex: endIndex,
                 entropy: randomness
             })
         );
         revealedCount = totalSupply;
         lastRevealed = block.timestamp;
         pendingReveal = false;
+        emit BatchRevealFinished(startIndex, endIndex);
     }
 
     function fulfillRandomWords(uint256, uint256[] memory randomWords)
@@ -252,7 +264,7 @@ contract NFTCollection is
         override
         returns (bool upkeepNeeded, bytes memory)
     {
-        upkeepNeeded = !pendingReveal && _canReveal();
+        upkeepNeeded = _canReveal();
     }
 
     function performUpkeep(bytes calldata) external override {
