@@ -1,5 +1,506 @@
 // SPDX-License-Identifier: MIT
-// Sources flattened with hardhat v2.9.7 https://hardhat.org
+// Sources flattened with hardhat v2.9.9 https://hardhat.org
+
+// File @chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol@v0.4.1
+
+pragma solidity ^0.8.0;
+
+interface LinkTokenInterface {
+  function allowance(address owner, address spender) external view returns (uint256 remaining);
+
+  function approve(address spender, uint256 value) external returns (bool success);
+
+  function balanceOf(address owner) external view returns (uint256 balance);
+
+  function decimals() external view returns (uint8 decimalPlaces);
+
+  function decreaseApproval(address spender, uint256 addedValue) external returns (bool success);
+
+  function increaseApproval(address spender, uint256 subtractedValue) external;
+
+  function name() external view returns (string memory tokenName);
+
+  function symbol() external view returns (string memory tokenSymbol);
+
+  function totalSupply() external view returns (uint256 totalTokensIssued);
+
+  function transfer(address to, uint256 value) external returns (bool success);
+
+  function transferAndCall(
+    address to,
+    uint256 value,
+    bytes calldata data
+  ) external returns (bool success);
+
+  function transferFrom(
+    address from,
+    address to,
+    uint256 value
+  ) external returns (bool success);
+}
+
+
+// File @chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol@v0.4.1
+
+pragma solidity ^0.8.0;
+
+interface VRFCoordinatorV2Interface {
+  /**
+   * @notice Get configuration relevant for making requests
+   * @return minimumRequestConfirmations global min for request confirmations
+   * @return maxGasLimit global max for request gas limit
+   * @return s_provingKeyHashes list of registered key hashes
+   */
+  function getRequestConfig()
+    external
+    view
+    returns (
+      uint16,
+      uint32,
+      bytes32[] memory
+    );
+
+  /**
+   * @notice Request a set of random words.
+   * @param keyHash - Corresponds to a particular oracle job which uses
+   * that key for generating the VRF proof. Different keyHash's have different gas price
+   * ceilings, so you can select a specific one to bound your maximum per request cost.
+   * @param subId  - The ID of the VRF subscription. Must be funded
+   * with the minimum subscription balance required for the selected keyHash.
+   * @param minimumRequestConfirmations - How many blocks you'd like the
+   * oracle to wait before responding to the request. See SECURITY CONSIDERATIONS
+   * for why you may want to request more. The acceptable range is
+   * [minimumRequestBlockConfirmations, 200].
+   * @param callbackGasLimit - How much gas you'd like to receive in your
+   * fulfillRandomWords callback. Note that gasleft() inside fulfillRandomWords
+   * may be slightly less than this amount because of gas used calling the function
+   * (argument decoding etc.), so you may need to request slightly more than you expect
+   * to have inside fulfillRandomWords. The acceptable range is
+   * [0, maxGasLimit]
+   * @param numWords - The number of uint256 random values you'd like to receive
+   * in your fulfillRandomWords callback. Note these numbers are expanded in a
+   * secure way by the VRFCoordinator from a single random value supplied by the oracle.
+   * @return requestId - A unique identifier of the request. Can be used to match
+   * a request to a response in fulfillRandomWords.
+   */
+  function requestRandomWords(
+    bytes32 keyHash,
+    uint64 subId,
+    uint16 minimumRequestConfirmations,
+    uint32 callbackGasLimit,
+    uint32 numWords
+  ) external returns (uint256 requestId);
+
+  /**
+   * @notice Create a VRF subscription.
+   * @return subId - A unique subscription id.
+   * @dev You can manage the consumer set dynamically with addConsumer/removeConsumer.
+   * @dev Note to fund the subscription, use transferAndCall. For example
+   * @dev  LINKTOKEN.transferAndCall(
+   * @dev    address(COORDINATOR),
+   * @dev    amount,
+   * @dev    abi.encode(subId));
+   */
+  function createSubscription() external returns (uint64 subId);
+
+  /**
+   * @notice Get a VRF subscription.
+   * @param subId - ID of the subscription
+   * @return balance - LINK balance of the subscription in juels.
+   * @return reqCount - number of requests for this subscription, determines fee tier.
+   * @return owner - owner of the subscription.
+   * @return consumers - list of consumer address which are able to use this subscription.
+   */
+  function getSubscription(uint64 subId)
+    external
+    view
+    returns (
+      uint96 balance,
+      uint64 reqCount,
+      address owner,
+      address[] memory consumers
+    );
+
+  /**
+   * @notice Request subscription owner transfer.
+   * @param subId - ID of the subscription
+   * @param newOwner - proposed new owner of the subscription
+   */
+  function requestSubscriptionOwnerTransfer(uint64 subId, address newOwner) external;
+
+  /**
+   * @notice Request subscription owner transfer.
+   * @param subId - ID of the subscription
+   * @dev will revert if original owner of subId has
+   * not requested that msg.sender become the new owner.
+   */
+  function acceptSubscriptionOwnerTransfer(uint64 subId) external;
+
+  /**
+   * @notice Add a consumer to a VRF subscription.
+   * @param subId - ID of the subscription
+   * @param consumer - New consumer which can use the subscription
+   */
+  function addConsumer(uint64 subId, address consumer) external;
+
+  /**
+   * @notice Remove a consumer from a VRF subscription.
+   * @param subId - ID of the subscription
+   * @param consumer - Consumer to remove from the subscription
+   */
+  function removeConsumer(uint64 subId, address consumer) external;
+
+  /**
+   * @notice Cancel a subscription
+   * @param subId - ID of the subscription
+   * @param to - Where to send the remaining LINK to
+   */
+  function cancelSubscription(uint64 subId, address to) external;
+}
+
+
+// File @chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol@v0.4.1
+
+pragma solidity ^0.8.4;
+
+/** ****************************************************************************
+ * @notice Interface for contracts using VRF randomness
+ * *****************************************************************************
+ * @dev PURPOSE
+ *
+ * @dev Reggie the Random Oracle (not his real job) wants to provide randomness
+ * @dev to Vera the verifier in such a way that Vera can be sure he's not
+ * @dev making his output up to suit himself. Reggie provides Vera a public key
+ * @dev to which he knows the secret key. Each time Vera provides a seed to
+ * @dev Reggie, he gives back a value which is computed completely
+ * @dev deterministically from the seed and the secret key.
+ *
+ * @dev Reggie provides a proof by which Vera can verify that the output was
+ * @dev correctly computed once Reggie tells it to her, but without that proof,
+ * @dev the output is indistinguishable to her from a uniform random sample
+ * @dev from the output space.
+ *
+ * @dev The purpose of this contract is to make it easy for unrelated contracts
+ * @dev to talk to Vera the verifier about the work Reggie is doing, to provide
+ * @dev simple access to a verifiable source of randomness. It ensures 2 things:
+ * @dev 1. The fulfillment came from the VRFCoordinator
+ * @dev 2. The consumer contract implements fulfillRandomWords.
+ * *****************************************************************************
+ * @dev USAGE
+ *
+ * @dev Calling contracts must inherit from VRFConsumerBase, and can
+ * @dev initialize VRFConsumerBase's attributes in their constructor as
+ * @dev shown:
+ *
+ * @dev   contract VRFConsumer {
+ * @dev     constructor(<other arguments>, address _vrfCoordinator, address _link)
+ * @dev       VRFConsumerBase(_vrfCoordinator) public {
+ * @dev         <initialization with other arguments goes here>
+ * @dev       }
+ * @dev   }
+ *
+ * @dev The oracle will have given you an ID for the VRF keypair they have
+ * @dev committed to (let's call it keyHash). Create subscription, fund it
+ * @dev and your consumer contract as a consumer of it (see VRFCoordinatorInterface
+ * @dev subscription management functions).
+ * @dev Call requestRandomWords(keyHash, subId, minimumRequestConfirmations,
+ * @dev callbackGasLimit, numWords),
+ * @dev see (VRFCoordinatorInterface for a description of the arguments).
+ *
+ * @dev Once the VRFCoordinator has received and validated the oracle's response
+ * @dev to your request, it will call your contract's fulfillRandomWords method.
+ *
+ * @dev The randomness argument to fulfillRandomWords is a set of random words
+ * @dev generated from your requestId and the blockHash of the request.
+ *
+ * @dev If your contract could have concurrent requests open, you can use the
+ * @dev requestId returned from requestRandomWords to track which response is associated
+ * @dev with which randomness request.
+ * @dev See "SECURITY CONSIDERATIONS" for principles to keep in mind,
+ * @dev if your contract could have multiple requests in flight simultaneously.
+ *
+ * @dev Colliding `requestId`s are cryptographically impossible as long as seeds
+ * @dev differ.
+ *
+ * *****************************************************************************
+ * @dev SECURITY CONSIDERATIONS
+ *
+ * @dev A method with the ability to call your fulfillRandomness method directly
+ * @dev could spoof a VRF response with any random value, so it's critical that
+ * @dev it cannot be directly called by anything other than this base contract
+ * @dev (specifically, by the VRFConsumerBase.rawFulfillRandomness method).
+ *
+ * @dev For your users to trust that your contract's random behavior is free
+ * @dev from malicious interference, it's best if you can write it so that all
+ * @dev behaviors implied by a VRF response are executed *during* your
+ * @dev fulfillRandomness method. If your contract must store the response (or
+ * @dev anything derived from it) and use it later, you must ensure that any
+ * @dev user-significant behavior which depends on that stored value cannot be
+ * @dev manipulated by a subsequent VRF request.
+ *
+ * @dev Similarly, both miners and the VRF oracle itself have some influence
+ * @dev over the order in which VRF responses appear on the blockchain, so if
+ * @dev your contract could have multiple VRF requests in flight simultaneously,
+ * @dev you must ensure that the order in which the VRF responses arrive cannot
+ * @dev be used to manipulate your contract's user-significant behavior.
+ *
+ * @dev Since the block hash of the block which contains the requestRandomness
+ * @dev call is mixed into the input to the VRF *last*, a sufficiently powerful
+ * @dev miner could, in principle, fork the blockchain to evict the block
+ * @dev containing the request, forcing the request to be included in a
+ * @dev different block with a different hash, and therefore a different input
+ * @dev to the VRF. However, such an attack would incur a substantial economic
+ * @dev cost. This cost scales with the number of blocks the VRF oracle waits
+ * @dev until it calls responds to a request. It is for this reason that
+ * @dev that you can signal to an oracle you'd like them to wait longer before
+ * @dev responding to the request (however this is not enforced in the contract
+ * @dev and so remains effective only in the case of unmodified oracle software).
+ */
+abstract contract VRFConsumerBaseV2 {
+  error OnlyCoordinatorCanFulfill(address have, address want);
+  address private immutable vrfCoordinator;
+
+  /**
+   * @param _vrfCoordinator address of VRFCoordinator contract
+   */
+  constructor(address _vrfCoordinator) {
+    vrfCoordinator = _vrfCoordinator;
+  }
+
+  /**
+   * @notice fulfillRandomness handles the VRF response. Your contract must
+   * @notice implement it. See "SECURITY CONSIDERATIONS" above for important
+   * @notice principles to keep in mind when implementing your fulfillRandomness
+   * @notice method.
+   *
+   * @dev VRFConsumerBaseV2 expects its subcontracts to have a method with this
+   * @dev signature, and will call it once it has verified the proof
+   * @dev associated with the randomness. (It is triggered via a call to
+   * @dev rawFulfillRandomness, below.)
+   *
+   * @param requestId The Id initially returned by requestRandomness
+   * @param randomWords the VRF output expanded to the requested number of words
+   */
+  function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal virtual;
+
+  // rawFulfillRandomness is called by VRFCoordinator when it receives a valid VRF
+  // proof. rawFulfillRandomness then calls fulfillRandomness, after validating
+  // the origin of the call
+  function rawFulfillRandomWords(uint256 requestId, uint256[] memory randomWords) external {
+    if (msg.sender != vrfCoordinator) {
+      revert OnlyCoordinatorCanFulfill(msg.sender, vrfCoordinator);
+    }
+    fulfillRandomWords(requestId, randomWords);
+  }
+}
+
+
+// File @chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol@v0.4.1
+
+// A mock for testing code that relies on VRFCoordinatorV2.
+pragma solidity ^0.8.4;
+
+
+
+contract VRFCoordinatorV2Mock is VRFCoordinatorV2Interface {
+  uint96 public immutable BASE_FEE;
+  uint96 public immutable GAS_PRICE_LINK;
+
+  error InvalidSubscription();
+  error InsufficientBalance();
+  error MustBeSubOwner(address owner);
+
+  event RandomWordsRequested(
+    bytes32 indexed keyHash,
+    uint256 requestId,
+    uint256 preSeed,
+    uint64 indexed subId,
+    uint16 minimumRequestConfirmations,
+    uint32 callbackGasLimit,
+    uint32 numWords,
+    address indexed sender
+  );
+  event RandomWordsFulfilled(uint256 indexed requestId, uint256 outputSeed, uint96 payment, bool success);
+  event SubscriptionCreated(uint64 indexed subId, address owner);
+  event SubscriptionFunded(uint64 indexed subId, uint256 oldBalance, uint256 newBalance);
+  event SubscriptionCanceled(uint64 indexed subId, address to, uint256 amount);
+
+  uint64 s_currentSubId;
+  uint256 s_nextRequestId = 1;
+  uint256 s_nextPreSeed = 100;
+  struct Subscription {
+    address owner;
+    uint96 balance;
+  }
+  mapping(uint64 => Subscription) s_subscriptions; /* subId */ /* subscription */
+
+  struct Request {
+    uint64 subId;
+    uint32 callbackGasLimit;
+    uint32 numWords;
+  }
+  mapping(uint256 => Request) s_requests; /* requestId */ /* request */
+
+  constructor(uint96 _baseFee, uint96 _gasPriceLink) {
+    BASE_FEE = _baseFee;
+    GAS_PRICE_LINK = _gasPriceLink;
+  }
+
+  /**
+   * @notice fulfillRandomWords fulfills the given request, sending the random words to the supplied
+   * @notice consumer.
+   *
+   * @dev This mock uses a simplified formula for calculating payment amount and gas usage, and does
+   * @dev not account for all edge cases handled in the real VRF coordinator. When making requests
+   * @dev against the real coordinator a small amount of additional LINK is required.
+   *
+   * @param _requestId the request to fulfill
+   * @param _consumer the VRF randomness consumer to send the result to
+   */
+  function fulfillRandomWords(uint256 _requestId, address _consumer) external {
+    uint256 startGas = gasleft();
+    if (s_requests[_requestId].subId == 0) {
+      revert("nonexistent request");
+    }
+    Request memory req = s_requests[_requestId];
+
+    uint256[] memory words = new uint256[](req.numWords);
+    for (uint256 i = 0; i < req.numWords; i++) {
+      words[i] = uint256(keccak256(abi.encode(_requestId, i)));
+    }
+
+    VRFConsumerBaseV2 v;
+    bytes memory callReq = abi.encodeWithSelector(v.rawFulfillRandomWords.selector, _requestId, words);
+    (bool success, ) = _consumer.call{gas: req.callbackGasLimit}(callReq);
+
+    uint96 payment = uint96(BASE_FEE + ((startGas - gasleft()) * GAS_PRICE_LINK));
+    if (s_subscriptions[req.subId].balance < payment) {
+      revert InsufficientBalance();
+    }
+    s_subscriptions[req.subId].balance -= payment;
+    delete (s_requests[_requestId]);
+    emit RandomWordsFulfilled(_requestId, _requestId, payment, success);
+  }
+
+  /**
+   * @notice fundSubscription allows funding a subscription with an arbitrary amount for testing.
+   *
+   * @param _subId the subscription to fund
+   * @param _amount the amount to fund
+   */
+  function fundSubscription(uint64 _subId, uint96 _amount) public {
+    if (s_subscriptions[_subId].owner == address(0)) {
+      revert InvalidSubscription();
+    }
+    uint96 oldBalance = s_subscriptions[_subId].balance;
+    s_subscriptions[_subId].balance += _amount;
+    emit SubscriptionFunded(_subId, oldBalance, oldBalance + _amount);
+  }
+
+  function requestRandomWords(
+    bytes32 _keyHash,
+    uint64 _subId,
+    uint16 _minimumRequestConfirmations,
+    uint32 _callbackGasLimit,
+    uint32 _numWords
+  ) external override returns (uint256) {
+    if (s_subscriptions[_subId].owner == address(0)) {
+      revert InvalidSubscription();
+    }
+
+    uint256 requestId = s_nextRequestId++;
+    uint256 preSeed = s_nextPreSeed++;
+
+    s_requests[requestId] = Request({subId: _subId, callbackGasLimit: _callbackGasLimit, numWords: _numWords});
+
+    emit RandomWordsRequested(
+      _keyHash,
+      requestId,
+      preSeed,
+      _subId,
+      _minimumRequestConfirmations,
+      _callbackGasLimit,
+      _numWords,
+      msg.sender
+    );
+    return requestId;
+  }
+
+  function createSubscription() external override returns (uint64 _subId) {
+    s_currentSubId++;
+    s_subscriptions[s_currentSubId] = Subscription({owner: msg.sender, balance: 0});
+    emit SubscriptionCreated(s_currentSubId, msg.sender);
+    return s_currentSubId;
+  }
+
+  function getSubscription(uint64 _subId)
+    external
+    view
+    override
+    returns (
+      uint96 balance,
+      uint64 reqCount,
+      address owner,
+      address[] memory consumers
+    )
+  {
+    if (s_subscriptions[_subId].owner == address(0)) {
+      revert InvalidSubscription();
+    }
+    return (s_subscriptions[_subId].balance, 0, s_subscriptions[_subId].owner, new address[](0));
+  }
+
+  function cancelSubscription(uint64 _subId, address _to) external override onlySubOwner(_subId) {
+    emit SubscriptionCanceled(_subId, _to, s_subscriptions[_subId].balance);
+    delete (s_subscriptions[_subId]);
+  }
+
+  modifier onlySubOwner(uint64 _subId) {
+    address owner = s_subscriptions[_subId].owner;
+    if (owner == address(0)) {
+      revert InvalidSubscription();
+    }
+    if (msg.sender != owner) {
+      revert MustBeSubOwner(owner);
+    }
+    _;
+  }
+
+  function getRequestConfig()
+    external
+    pure
+    override
+    returns (
+      uint16,
+      uint32,
+      bytes32[] memory
+    )
+  {
+    return (3, 2000000, new bytes32[](0));
+  }
+
+  function addConsumer(uint64 _subId, address _consumer) external pure override {
+    revert("not implemented");
+  }
+
+  function removeConsumer(uint64 _subId, address _consumer) external pure override {
+    revert("not implemented");
+  }
+
+  function requestSubscriptionOwnerTransfer(uint64 _subId, address _newOwner) external pure override {
+    revert("not implemented");
+  }
+
+  function acceptSubscriptionOwnerTransfer(uint64 _subId) external pure override {
+    revert("not implemented");
+  }
+}
+
+
+// File contracts/mocks/VRFCoordinatorV2Mock.sol
+
+pragma solidity ^0.8.0;
+
 
 // File @openzeppelin/contracts/utils/Context.sol@v4.6.0
 
@@ -1108,279 +1609,182 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 }
 
 
-// File @chainlink/contracts/src/v0.8/interfaces/LinkTokenInterface.sol@v0.4.1
+// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.6.0
+
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)
 
 pragma solidity ^0.8.0;
 
-interface LinkTokenInterface {
-  function allowance(address owner, address spender) external view returns (uint256 remaining);
-
-  function approve(address spender, uint256 value) external returns (bool success);
-
-  function balanceOf(address owner) external view returns (uint256 balance);
-
-  function decimals() external view returns (uint8 decimalPlaces);
-
-  function decreaseApproval(address spender, uint256 addedValue) external returns (bool success);
-
-  function increaseApproval(address spender, uint256 subtractedValue) external;
-
-  function name() external view returns (string memory tokenName);
-
-  function symbol() external view returns (string memory tokenSymbol);
-
-  function totalSupply() external view returns (uint256 totalTokensIssued);
-
-  function transfer(address to, uint256 value) external returns (bool success);
-
-  function transferAndCall(
-    address to,
-    uint256 value,
-    bytes calldata data
-  ) external returns (bool success);
-
-  function transferFrom(
-    address from,
-    address to,
-    uint256 value
-  ) external returns (bool success);
-}
-
-
-// File @chainlink/contracts/src/v0.8/VRFRequestIDBase.sol@v0.4.1
-
-pragma solidity ^0.8.0;
-
-contract VRFRequestIDBase {
-  /**
-   * @notice returns the seed which is actually input to the VRF coordinator
-   *
-   * @dev To prevent repetition of VRF output due to repetition of the
-   * @dev user-supplied seed, that seed is combined in a hash with the
-   * @dev user-specific nonce, and the address of the consuming contract. The
-   * @dev risk of repetition is mostly mitigated by inclusion of a blockhash in
-   * @dev the final seed, but the nonce does protect against repetition in
-   * @dev requests which are included in a single block.
-   *
-   * @param _userSeed VRF seed input provided by user
-   * @param _requester Address of the requesting contract
-   * @param _nonce User-specific nonce at the time of the request
-   */
-  function makeVRFInputSeed(
-    bytes32 _keyHash,
-    uint256 _userSeed,
-    address _requester,
-    uint256 _nonce
-  ) internal pure returns (uint256) {
-    return uint256(keccak256(abi.encode(_keyHash, _userSeed, _requester, _nonce)));
-  }
-
-  /**
-   * @notice Returns the id for this request
-   * @param _keyHash The serviceAgreement ID to be used for this request
-   * @param _vRFInputSeed The seed to be passed directly to the VRF
-   * @return The id for this request
-   *
-   * @dev Note that _vRFInputSeed is not the seed passed by the consuming
-   * @dev contract, but the one generated by makeVRFInputSeed
-   */
-  function makeRequestId(bytes32 _keyHash, uint256 _vRFInputSeed) internal pure returns (bytes32) {
-    return keccak256(abi.encodePacked(_keyHash, _vRFInputSeed));
-  }
-}
-
-
-// File @chainlink/contracts/src/v0.8/VRFConsumerBase.sol@v0.4.1
-
-pragma solidity ^0.8.0;
-
-/** ****************************************************************************
- * @notice Interface for contracts using VRF randomness
- * *****************************************************************************
- * @dev PURPOSE
- *
- * @dev Reggie the Random Oracle (not his real job) wants to provide randomness
- * @dev to Vera the verifier in such a way that Vera can be sure he's not
- * @dev making his output up to suit himself. Reggie provides Vera a public key
- * @dev to which he knows the secret key. Each time Vera provides a seed to
- * @dev Reggie, he gives back a value which is computed completely
- * @dev deterministically from the seed and the secret key.
- *
- * @dev Reggie provides a proof by which Vera can verify that the output was
- * @dev correctly computed once Reggie tells it to her, but without that proof,
- * @dev the output is indistinguishable to her from a uniform random sample
- * @dev from the output space.
- *
- * @dev The purpose of this contract is to make it easy for unrelated contracts
- * @dev to talk to Vera the verifier about the work Reggie is doing, to provide
- * @dev simple access to a verifiable source of randomness.
- * *****************************************************************************
- * @dev USAGE
- *
- * @dev Calling contracts must inherit from VRFConsumerBase, and can
- * @dev initialize VRFConsumerBase's attributes in their constructor as
- * @dev shown:
- *
- * @dev   contract VRFConsumer {
- * @dev     constructor(<other arguments>, address _vrfCoordinator, address _link)
- * @dev       VRFConsumerBase(_vrfCoordinator, _link) public {
- * @dev         <initialization with other arguments goes here>
- * @dev       }
- * @dev   }
- *
- * @dev The oracle will have given you an ID for the VRF keypair they have
- * @dev committed to (let's call it keyHash), and have told you the minimum LINK
- * @dev price for VRF service. Make sure your contract has sufficient LINK, and
- * @dev call requestRandomness(keyHash, fee, seed), where seed is the input you
- * @dev want to generate randomness from.
- *
- * @dev Once the VRFCoordinator has received and validated the oracle's response
- * @dev to your request, it will call your contract's fulfillRandomness method.
- *
- * @dev The randomness argument to fulfillRandomness is the actual random value
- * @dev generated from your seed.
- *
- * @dev The requestId argument is generated from the keyHash and the seed by
- * @dev makeRequestId(keyHash, seed). If your contract could have concurrent
- * @dev requests open, you can use the requestId to track which seed is
- * @dev associated with which randomness. See VRFRequestIDBase.sol for more
- * @dev details. (See "SECURITY CONSIDERATIONS" for principles to keep in mind,
- * @dev if your contract could have multiple requests in flight simultaneously.)
- *
- * @dev Colliding `requestId`s are cryptographically impossible as long as seeds
- * @dev differ. (Which is critical to making unpredictable randomness! See the
- * @dev next section.)
- *
- * *****************************************************************************
- * @dev SECURITY CONSIDERATIONS
- *
- * @dev A method with the ability to call your fulfillRandomness method directly
- * @dev could spoof a VRF response with any random value, so it's critical that
- * @dev it cannot be directly called by anything other than this base contract
- * @dev (specifically, by the VRFConsumerBase.rawFulfillRandomness method).
- *
- * @dev For your users to trust that your contract's random behavior is free
- * @dev from malicious interference, it's best if you can write it so that all
- * @dev behaviors implied by a VRF response are executed *during* your
- * @dev fulfillRandomness method. If your contract must store the response (or
- * @dev anything derived from it) and use it later, you must ensure that any
- * @dev user-significant behavior which depends on that stored value cannot be
- * @dev manipulated by a subsequent VRF request.
- *
- * @dev Similarly, both miners and the VRF oracle itself have some influence
- * @dev over the order in which VRF responses appear on the blockchain, so if
- * @dev your contract could have multiple VRF requests in flight simultaneously,
- * @dev you must ensure that the order in which the VRF responses arrive cannot
- * @dev be used to manipulate your contract's user-significant behavior.
- *
- * @dev Since the ultimate input to the VRF is mixed with the block hash of the
- * @dev block in which the request is made, user-provided seeds have no impact
- * @dev on its economic security properties. They are only included for API
- * @dev compatability with previous versions of this contract.
- *
- * @dev Since the block hash of the block which contains the requestRandomness
- * @dev call is mixed into the input to the VRF *last*, a sufficiently powerful
- * @dev miner could, in principle, fork the blockchain to evict the block
- * @dev containing the request, forcing the request to be included in a
- * @dev different block with a different hash, and therefore a different input
- * @dev to the VRF. However, such an attack would incur a substantial economic
- * @dev cost. This cost scales with the number of blocks the VRF oracle waits
- * @dev until it calls responds to a request.
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
  */
-abstract contract VRFConsumerBase is VRFRequestIDBase {
-  /**
-   * @notice fulfillRandomness handles the VRF response. Your contract must
-   * @notice implement it. See "SECURITY CONSIDERATIONS" above for important
-   * @notice principles to keep in mind when implementing your fulfillRandomness
-   * @notice method.
-   *
-   * @dev VRFConsumerBase expects its subcontracts to have a method with this
-   * @dev signature, and will call it once it has verified the proof
-   * @dev associated with the randomness. (It is triggered via a call to
-   * @dev rawFulfillRandomness, below.)
-   *
-   * @param requestId The Id initially returned by requestRandomness
-   * @param randomness the VRF output
-   */
-  function fulfillRandomness(bytes32 requestId, uint256 randomness) internal virtual;
+interface IERC20 {
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
 
-  /**
-   * @dev In order to keep backwards compatibility we have kept the user
-   * seed field around. We remove the use of it because given that the blockhash
-   * enters later, it overrides whatever randomness the used seed provides.
-   * Given that it adds no security, and can easily lead to misunderstandings,
-   * we have removed it from usage and can now provide a simpler API.
-   */
-  uint256 private constant USER_SEED_PLACEHOLDER = 0;
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 
-  /**
-   * @notice requestRandomness initiates a request for VRF output given _seed
-   *
-   * @dev The fulfillRandomness method receives the output, once it's provided
-   * @dev by the Oracle, and verified by the vrfCoordinator.
-   *
-   * @dev The _keyHash must already be registered with the VRFCoordinator, and
-   * @dev the _fee must exceed the fee specified during registration of the
-   * @dev _keyHash.
-   *
-   * @dev The _seed parameter is vestigial, and is kept only for API
-   * @dev compatibility with older versions. It can't *hurt* to mix in some of
-   * @dev your own randomness, here, but it's not necessary because the VRF
-   * @dev oracle will mix the hash of the block containing your request into the
-   * @dev VRF seed it ultimately uses.
-   *
-   * @param _keyHash ID of public key against which randomness is generated
-   * @param _fee The amount of LINK to send with the request
-   *
-   * @return requestId unique ID for this request
-   *
-   * @dev The returned requestId can be used to distinguish responses to
-   * @dev concurrent requests. It is passed as the first argument to
-   * @dev fulfillRandomness.
-   */
-  function requestRandomness(bytes32 _keyHash, uint256 _fee) internal returns (bytes32 requestId) {
-    LINK.transferAndCall(vrfCoordinator, _fee, abi.encode(_keyHash, USER_SEED_PLACEHOLDER));
-    // This is the seed passed to VRFCoordinator. The oracle will mix this with
-    // the hash of the block containing this request to obtain the seed/input
-    // which is finally passed to the VRF cryptographic machinery.
-    uint256 vRFSeed = makeVRFInputSeed(_keyHash, USER_SEED_PLACEHOLDER, address(this), nonces[_keyHash]);
-    // nonces[_keyHash] must stay in sync with
-    // VRFCoordinator.nonces[_keyHash][this], which was incremented by the above
-    // successful LINK.transferAndCall (in VRFCoordinator.randomnessRequest).
-    // This provides protection against the user repeating their input seed,
-    // which would result in a predictable/duplicate output, if multiple such
-    // requests appeared in the same block.
-    nonces[_keyHash] = nonces[_keyHash] + 1;
-    return makeRequestId(_keyHash, vRFSeed);
-  }
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
 
-  LinkTokenInterface internal immutable LINK;
-  address private immutable vrfCoordinator;
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
 
-  // Nonces for each VRF key from which randomness has been requested.
-  //
-  // Must stay in sync with VRFCoordinator[_keyHash][this]
-  mapping(bytes32 => uint256) /* keyHash */ /* nonce */
-    private nonces;
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address to, uint256 amount) external returns (bool);
 
-  /**
-   * @param _vrfCoordinator address of VRFCoordinator contract
-   * @param _link address of LINK token contract
-   *
-   * @dev https://docs.chain.link/docs/link-token-contracts
-   */
-  constructor(address _vrfCoordinator, address _link) {
-    vrfCoordinator = _vrfCoordinator;
-    LINK = LinkTokenInterface(_link);
-  }
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
 
-  // rawFulfillRandomness is called by VRFCoordinator when it receives a valid VRF
-  // proof. rawFulfillRandomness then calls fulfillRandomness, after validating
-  // the origin of the call
-  function rawFulfillRandomness(bytes32 requestId, uint256 randomness) external {
-    require(msg.sender == vrfCoordinator, "Only VRFCoordinator can fulfill");
-    fulfillRandomness(requestId, randomness);
-  }
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Moves `amount` tokens from `from` to `to` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
+}
+
+
+// File @openzeppelin/contracts/utils/Base64.sol@v4.6.0
+
+// OpenZeppelin Contracts (last updated v4.5.0) (utils/Base64.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Provides a set of functions to operate with Base64 strings.
+ *
+ * _Available since v4.5._
+ */
+library Base64 {
+    /**
+     * @dev Base64 Encoding/Decoding Table
+     */
+    string internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    /**
+     * @dev Converts a `bytes` to its Bytes64 `string` representation.
+     */
+    function encode(bytes memory data) internal pure returns (string memory) {
+        /**
+         * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
+         * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
+         */
+        if (data.length == 0) return "";
+
+        // Loads the table into memory
+        string memory table = _TABLE;
+
+        // Encoding takes 3 bytes chunks of binary data from `bytes` data parameter
+        // and split into 4 numbers of 6 bits.
+        // The final Base64 length should be `bytes` data length multiplied by 4/3 rounded up
+        // - `data.length + 2`  -> Round up
+        // - `/ 3`              -> Number of 3-bytes chunks
+        // - `4 *`              -> 4 characters for each chunk
+        string memory result = new string(4 * ((data.length + 2) / 3));
+
+        assembly {
+            // Prepare the lookup table (skip the first "length" byte)
+            let tablePtr := add(table, 1)
+
+            // Prepare result pointer, jump over length
+            let resultPtr := add(result, 32)
+
+            // Run over the input, 3 bytes at a time
+            for {
+                let dataPtr := data
+                let endPtr := add(data, mload(data))
+            } lt(dataPtr, endPtr) {
+
+            } {
+                // Advance 3 bytes
+                dataPtr := add(dataPtr, 3)
+                let input := mload(dataPtr)
+
+                // To write each character, shift the 3 bytes (18 bits) chunk
+                // 4 times in blocks of 6 bits for each character (18, 12, 6, 0)
+                // and apply logical AND with 0x3F which is the number of
+                // the previous character in the ASCII table prior to the Base64 Table
+                // The result is then added to the table to get the character to write,
+                // and finally write it in the result pointer but with a left shift
+                // of 256 (1 byte) - 8 (1 ASCII char) = 248 bits
+
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(6, input), 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+            }
+
+            // When data `bytes` is not exactly 3 bytes long
+            // it is padded with `=` characters at the end
+            switch mod(mload(data), 3)
+            case 1 {
+                mstore8(sub(resultPtr, 1), 0x3d)
+                mstore8(sub(resultPtr, 2), 0x3d)
+            }
+            case 2 {
+                mstore8(sub(resultPtr, 1), 0x3d)
+            }
+        }
+
+        return result;
+    }
 }
 
 
@@ -1464,148 +1868,6 @@ pragma solidity ^0.8.0;
 abstract contract KeeperCompatible is KeeperBase, KeeperCompatibleInterface {}
 
 
-// File base64-sol/base64.sol@v1.1.0
-
-
-pragma solidity >=0.6.0;
-
-/// @title Base64
-/// @author Brecht Devos - <brecht@loopring.org>
-/// @notice Provides functions for encoding/decoding base64
-library Base64 {
-    string internal constant TABLE_ENCODE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-    bytes  internal constant TABLE_DECODE = hex"0000000000000000000000000000000000000000000000000000000000000000"
-                                            hex"00000000000000000000003e0000003f3435363738393a3b3c3d000000000000"
-                                            hex"00000102030405060708090a0b0c0d0e0f101112131415161718190000000000"
-                                            hex"001a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132330000000000";
-
-    function encode(bytes memory data) internal pure returns (string memory) {
-        if (data.length == 0) return '';
-
-        // load the table into memory
-        string memory table = TABLE_ENCODE;
-
-        // multiply by 4/3 rounded up
-        uint256 encodedLen = 4 * ((data.length + 2) / 3);
-
-        // add some extra buffer at the end required for the writing
-        string memory result = new string(encodedLen + 32);
-
-        assembly {
-            // set the actual output length
-            mstore(result, encodedLen)
-
-            // prepare the lookup table
-            let tablePtr := add(table, 1)
-
-            // input ptr
-            let dataPtr := data
-            let endPtr := add(dataPtr, mload(data))
-
-            // result ptr, jump over length
-            let resultPtr := add(result, 32)
-
-            // run over the input, 3 bytes at a time
-            for {} lt(dataPtr, endPtr) {}
-            {
-                // read 3 bytes
-                dataPtr := add(dataPtr, 3)
-                let input := mload(dataPtr)
-
-                // write 4 characters
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
-                resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
-                resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(shr( 6, input), 0x3F))))
-                resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(        input,  0x3F))))
-                resultPtr := add(resultPtr, 1)
-            }
-
-            // padding with '='
-            switch mod(mload(data), 3)
-            case 1 { mstore(sub(resultPtr, 2), shl(240, 0x3d3d)) }
-            case 2 { mstore(sub(resultPtr, 1), shl(248, 0x3d)) }
-        }
-
-        return result;
-    }
-
-    function decode(string memory _data) internal pure returns (bytes memory) {
-        bytes memory data = bytes(_data);
-
-        if (data.length == 0) return new bytes(0);
-        require(data.length % 4 == 0, "invalid base64 decoder input");
-
-        // load the table into memory
-        bytes memory table = TABLE_DECODE;
-
-        // every 4 characters represent 3 bytes
-        uint256 decodedLen = (data.length / 4) * 3;
-
-        // add some extra buffer at the end required for the writing
-        bytes memory result = new bytes(decodedLen + 32);
-
-        assembly {
-            // padding with '='
-            let lastBytes := mload(add(data, mload(data)))
-            if eq(and(lastBytes, 0xFF), 0x3d) {
-                decodedLen := sub(decodedLen, 1)
-                if eq(and(lastBytes, 0xFFFF), 0x3d3d) {
-                    decodedLen := sub(decodedLen, 1)
-                }
-            }
-
-            // set the actual output length
-            mstore(result, decodedLen)
-
-            // prepare the lookup table
-            let tablePtr := add(table, 1)
-
-            // input ptr
-            let dataPtr := data
-            let endPtr := add(dataPtr, mload(data))
-
-            // result ptr, jump over length
-            let resultPtr := add(result, 32)
-
-            // run over the input, 4 characters at a time
-            for {} lt(dataPtr, endPtr) {}
-            {
-               // read 4 characters
-               dataPtr := add(dataPtr, 4)
-               let input := mload(dataPtr)
-
-               // write 3 bytes
-               let output := add(
-                   add(
-                       shl(18, and(mload(add(tablePtr, and(shr(24, input), 0xFF))), 0xFF)),
-                       shl(12, and(mload(add(tablePtr, and(shr(16, input), 0xFF))), 0xFF))),
-                   add(
-                       shl( 6, and(mload(add(tablePtr, and(shr( 8, input), 0xFF))), 0xFF)),
-                               and(mload(add(tablePtr, and(        input , 0xFF))), 0xFF)
-                    )
-                )
-                mstore(resultPtr, shl(232, output))
-                resultPtr := add(resultPtr, 3)
-            }
-        }
-
-        return result;
-    }
-}
-
-
-// File contracts/interfaces/IERC20.sol
-
-pragma solidity ^0.8.0;
-
-interface IERC20 {
-    function balanceOf(address user) external returns (uint256);
-}
-
-
 // File contracts/NFTCollection.sol
 
 pragma solidity 0.8.4;
@@ -1615,10 +1877,12 @@ pragma solidity 0.8.4;
 
 
 
+
+
 contract NFTCollection is
     Ownable,
     ERC721,
-    VRFConsumerBase,
+    VRFConsumerBaseV2,
     KeeperCompatibleInterface
 {
     // STRUCTS
@@ -1631,261 +1895,4 @@ contract NFTCollection is
 
     // IMMUTABLE STORAGE
 
-    uint256 public immutable maxSupply;
-    uint256 public immutable mintCost;
-    address public immutable linkToken;
-    uint256 internal immutable linkFee;
-    bytes32 internal immutable keyHash;
-
-    // MUTABLE STORAGE
-
-    uint256 public totalSupply = 0;
-    uint256 public revealedCount = 0;
-    uint256 public revealBatchSize;
-    uint256 public revealInterval;
-    uint256 public lastRevealed;
-    bool public pendingReveal = false;
-    Metadata[] public metadatas;
-
-    // ERRORS
-
-    error InvalidAmount();
-    error MaxSupplyReached();
-    error InsufficientFunds();
-    error RevealCriteriaNotMet();
-    error InsufficientLINK();
-    error WithdrawProceedsFailed();
-
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        uint256 _maxSupply,
-        uint256 _mintCost,
-        uint256 _revealBatchSize,
-        uint256 _revealInterval,
-        address _vrfCoordinator,
-        address _linkToken,
-        uint256 _linkFee,
-        bytes32 _linkKeyHash
-    ) ERC721(_name, _symbol) VRFConsumerBase(_vrfCoordinator, _linkToken) {
-        maxSupply = _maxSupply;
-        mintCost = _mintCost;
-        revealBatchSize = _revealBatchSize;
-        revealInterval = _revealInterval;
-        linkToken = _linkToken;
-        linkFee = _linkFee;
-        keyHash = _linkKeyHash;
-    }
-
-    // ACTIONS
-
-    function mint(uint256 _amount) external payable {
-        if (_amount == 0) {
-            revert InvalidAmount();
-        }
-        if (totalSupply + _amount >= maxSupply) {
-            revert MaxSupplyReached();
-        }
-        if (msg.value < mintCost * _amount) {
-            revert InsufficientFunds();
-        }
-        for (uint256 i = 1; i <= _amount; i++) {
-            _safeMint(msg.sender, totalSupply + i);
-        }
-        totalSupply += _amount;
-    }
-
-    function withdrawProceeds() external onlyOwner {
-        (bool sent, ) = payable(owner()).call{value: address(this).balance}("");
-        if (!sent) {
-            revert WithdrawProceedsFailed();
-        }
-    }
-
-    // GETTERS
-
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override
-        returns (string memory)
-    {
-        (uint256 randomness, bool metadataCleared) = _getTokenRandomness(tokenId);
-        string memory svg = _generateSVG(randomness, metadataCleared);
-        string memory svgEncoded = _svgToImageURI(svg);
-        return _formatTokenURI(svgEncoded);
-    }
-
-    function _getTokenRandomness(uint256 tokenId)
-        internal
-        view
-        returns (uint256 randomness, bool metadataCleared)
-    {
-        for (uint256 i = 0; i < metadatas.length; i++) {
-            if (
-                tokenId >= metadatas[i].startIndex &&
-                tokenId < metadatas[i].endIndex
-            ) {
-                randomness = uint256(
-                    keccak256(
-                        abi.encode(metadatas[i].entropy, msg.sender, tokenId)
-                    )
-                );
-                metadataCleared = true;
-            }
-        }
-    }
-
-    function _formatTokenURI(string memory imageURI)
-        internal
-        pure
-        returns (string memory)
-    {
-        return
-            string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    Base64.encode(
-                        bytes(
-                            abi.encodePacked(
-                                '{"name":"',
-                                "NFT", // You can add whatever name here
-                                '", "description":"Batch-revealed NFT!", "attributes":"", "image":"',
-                                imageURI,
-                                '"}'
-                            )
-                        )
-                    )
-                )
-            );
-    }
-
-    function _generateSVG(uint256 _randomness, bool _metadataCleared)
-        public
-        pure
-        returns (string memory)
-    {
-        string[3] memory parts;
-
-        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 8px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
-
-        if (_metadataCleared) {
-            parts[1] = _toString(_randomness);
-        } else {
-            parts[1] = "No randomness assigned";
-        }
-
-        parts[2] = "</text></svg>";
-
-        return string(abi.encodePacked(parts[0], parts[1], parts[2]));
-    }
-
-    function _svgToImageURI(string memory svg)
-        internal
-        pure
-        returns (string memory)
-    {
-        string memory baseURL = "data:image/svg+xml;base64,";
-        string memory svgBase64Encoded = Base64.encode(bytes(string(abi.encodePacked(svg))));
-        return string(abi.encodePacked(baseURL, svgBase64Encoded));
-    }
-
-    function _canReveal() internal view returns (bool) {
-        uint256 unrevealedCount = totalSupply - revealedCount;
-        if (unrevealedCount == 0) {
-            return false;
-        }
-        bool batchSizeCriteria = false;
-        if (revealBatchSize > 0 && unrevealedCount >= revealBatchSize) {
-            batchSizeCriteria = true;
-        }
-        bool intervalCriteria = false;
-        if (
-            revealInterval > 0 &&
-            block.timestamp - lastRevealed > revealInterval
-        ) {
-            intervalCriteria = true;
-        }
-        return (batchSizeCriteria || intervalCriteria);
-    }
-
-    // VRF
-
-    function revealPendingMetadata() public returns (bytes32 requestId) {
-        if (!_canReveal()) {
-            revert RevealCriteriaNotMet();
-        }
-        if (IERC20(linkToken).balanceOf(address(this)) < linkFee) {
-            revert InsufficientLINK();
-        }
-        requestId = requestRandomness(keyHash, linkFee);
-        pendingReveal = true;
-    }
-
-    function _fulfillRandomnessForMetadata(uint256 randomness) internal {
-        metadatas.push(
-            Metadata({
-                startIndex: revealedCount + 1,
-                endIndex: totalSupply + 1,
-                entropy: randomness
-            })
-        );
-        revealedCount = totalSupply;
-        lastRevealed = block.timestamp;
-        pendingReveal = false;
-    }
-
-    function fulfillRandomness(bytes32, uint256 randomness)
-        internal
-        virtual
-        override
-    {
-        _fulfillRandomnessForMetadata(randomness);
-    }
-
-    // KEEPERS
-
-    function checkUpkeep(bytes calldata)
-        external
-        view
-        override
-        returns (bool upkeepNeeded, bytes memory)
-    {
-        upkeepNeeded = !pendingReveal && _canReveal();
-    }
-
-    function performUpkeep(bytes calldata) external override {
-        revealPendingMetadata();
-    }
-
-    // SETTERS
-
-    function setRevealBatchSize(uint256 _revealBatchSize) external onlyOwner {
-        revealBatchSize = _revealBatchSize;
-    }
-
-    function setRevealInterval(uint256 _revealInterval) external onlyOwner {
-        revealInterval = _revealInterval;
-    }
-
-    // HELPERS
-
-    function _toString(uint256 value) internal pure returns (string memory) {
-        if (value == 0) {
-            return "0";
-        }
-        uint256 temp = value;
-        uint256 digits;
-        while (temp != 0) {
-            digits++;
-            temp /= 10;
-        }
-        bytes memory buffer = new bytes(digits);
-        while (value != 0) {
-            digits -= 1;
-            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
-            value /= 10;
-        }
-        return string(buffer);
-    }
-}
+    uint256 pr

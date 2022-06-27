@@ -3,11 +3,12 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Base64.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
-import "base64-sol/base64.sol";
-import "./interfaces/IERC20.sol";
 
 contract NFTCollection is
     Ownable,
@@ -23,29 +24,30 @@ contract NFTCollection is
         uint256 entropy;
     }
 
-    // CONSTANTS
+    // IMMUTABLE STORAGE
+
+    uint256 private immutable MAX_SUPPLY;
+    uint256 private immutable MINT_COST;
+
+    // MUTABLE STORAGE
+
+    uint256 private s_totalSupply;
+    uint256 private s_revealedCount;
+    uint256 private s_revealBatchSize;
+    uint256 private s_revealInterval;
+    uint256 private s_lastRevealed = block.timestamp;
+    bool private s_pendingReveal;
+    Metadata[] private s_metadatas;
+
+    // VRF CONSTANTS & IMMUTABLE
 
     uint16 private constant VRF_REQUEST_CONFIRMATIONS = 3;
     uint32 private constant VRF_NUM_WORDS = 1;
 
-    // IMMUTABLE STORAGE
-
-    uint256 public immutable maxSupply;
-    uint256 public immutable mintCost;
-    VRFCoordinatorV2Interface private immutable vrfCoordinatorV2;
-    uint64 private immutable vrfSubscriptionId;
-    bytes32 private immutable vrfGasLane;
-    uint32 private immutable vrfCallbackGasLimit;
-
-    // MUTABLE STORAGE
-
-    uint256 public totalSupply = 0;
-    uint256 public revealedCount = 0;
-    uint256 public revealBatchSize;
-    uint256 public revealInterval;
-    uint256 public lastRevealed = block.timestamp;
-    bool public pendingReveal = false;
-    Metadata[] public metadatas;
+    VRFCoordinatorV2Interface private immutable VRF_COORDINATOR_V2;
+    uint64 private immutable VRF_SUBSCRIPTION_ID;
+    bytes32 private immutable VRF_GAS_LANE;
+    uint32 private immutable VRF_CALLBACK_GAS_LIMIT;
 
     // EVENTS
 
@@ -73,14 +75,14 @@ contract NFTCollection is
         bytes32 _vrfGasLane,
         uint32 _vrfCallbackGasLimit
     ) ERC721(_name, _symbol) VRFConsumerBaseV2(_vrfCoordinatorV2) {
-        maxSupply = _maxSupply;
-        mintCost = _mintCost;
-        revealBatchSize = _revealBatchSize;
-        revealInterval = _revealInterval;
-        vrfCoordinatorV2 = VRFCoordinatorV2Interface(_vrfCoordinatorV2);
-        vrfSubscriptionId = _vrfSubscriptionId;
-        vrfGasLane = _vrfGasLane;
-        vrfCallbackGasLimit = _vrfCallbackGasLimit;
+        MAX_SUPPLY = _maxSupply;
+        MINT_COST = _mintCost;
+        VRF_COORDINATOR_V2 = VRFCoordinatorV2Interface(_vrfCoordinatorV2);
+        VRF_SUBSCRIPTION_ID = _vrfSubscriptionId;
+        VRF_GAS_LANE = _vrfGasLane;
+        VRF_CALLBACK_GAS_LIMIT = _vrfCallbackGasLimit;
+        s_revealBatchSize = _revealBatchSize;
+        s_revealInterval = _revealInterval;
     }
 
     // ACTIONS
@@ -89,16 +91,16 @@ contract NFTCollection is
         if (_amount == 0) {
             revert InvalidAmount();
         }
-        if (totalSupply + _amount > maxSupply) {
+        if (s_totalSupply + _amount > MAX_SUPPLY) {
             revert MaxSupplyReached();
         }
-        if (msg.value < mintCost * _amount) {
+        if (msg.value < MINT_COST * _amount) {
             revert InsufficientFunds();
         }
         for (uint256 i = 1; i <= _amount; i++) {
-            _safeMint(msg.sender, totalSupply + i);
+            _safeMint(msg.sender, s_totalSupply + i);
         }
-        totalSupply += _amount;
+        s_totalSupply += _amount;
     }
 
     function withdrawProceeds() external onlyOwner {
@@ -122,18 +124,24 @@ contract NFTCollection is
         return _formatTokenURI(svgEncoded);
     }
 
+    function totalSupply() public view returns (uint256) {
+        return s_totalSupply;
+    }
+
+    // HELPERS
+
     function _getTokenRandomness(uint256 tokenId)
         internal
         view
         returns (uint256 randomness, bool metadataCleared)
     {
-        for (uint256 i = 0; i < metadatas.length; i++) {
+        for (uint256 i = 0; i < s_metadatas.length; i++) {
             if (
-                tokenId >= metadatas[i].startIndex &&
-                tokenId < metadatas[i].endIndex
+                tokenId >= s_metadatas[i].startIndex &&
+                tokenId < s_metadatas[i].endIndex
             ) {
                 randomness = uint256(
-                    keccak256(abi.encode(metadatas[i].entropy, tokenId))
+                    keccak256(abi.encode(s_metadatas[i].entropy, tokenId))
                 );
                 metadataCleared = true;
             }
@@ -152,11 +160,12 @@ contract NFTCollection is
                     Base64.encode(
                         bytes(
                             abi.encodePacked(
-                                '{"name":"',
-                                "NFT", // You can add whatever name here
-                                '", "description":"Batch-revealed NFT!", "attributes":"", "image":"',
-                                imageURI,
-                                '"}'
+                                '{',
+                                    '"name":"NFT", ',
+                                    '"description":"Batch-revealed NFT!", ',
+                                    '"attributes":"", ',
+                                    '"image":"', imageURI, '"',
+                                '}'
                             )
                         )
                     )
@@ -174,7 +183,7 @@ contract NFTCollection is
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 8px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
 
         if (_metadataCleared) {
-            parts[1] = _toString(_randomness);
+            parts[1] = Strings.toString(_randomness);
         } else {
             parts[1] = "No randomness assigned";
         }
@@ -194,60 +203,62 @@ contract NFTCollection is
         return string(abi.encodePacked(baseURL, svgBase64Encoded));
     }
 
+    // REVEAL
+
     function _canReveal() internal view returns (bool) {
-        if (pendingReveal) {
+        if (s_pendingReveal) {
             return false;
         }
-        uint256 unrevealedCount = totalSupply - revealedCount;
+        uint256 unrevealedCount = s_totalSupply - s_revealedCount;
         if (unrevealedCount == 0) {
             return false;
         }
         bool batchSizeCriteria = false;
-        if (revealBatchSize > 0 && unrevealedCount >= revealBatchSize) {
+        if (s_revealBatchSize > 0 && unrevealedCount >= s_revealBatchSize) {
             batchSizeCriteria = true;
         }
         bool intervalCriteria = false;
         if (
-            revealInterval > 0 &&
-            block.timestamp - lastRevealed > revealInterval
+            s_revealInterval > 0 &&
+            block.timestamp - s_lastRevealed > s_revealInterval
         ) {
             intervalCriteria = true;
         }
         return (batchSizeCriteria || intervalCriteria);
     }
 
-    // VRF
-
     function revealPendingMetadata() public returns (uint256 requestId) {
         if (!_canReveal()) {
             revert RevealCriteriaNotMet();
         }
-        requestId = vrfCoordinatorV2.requestRandomWords(
-            vrfGasLane,
-            vrfSubscriptionId,
+        requestId = VRF_COORDINATOR_V2.requestRandomWords(
+            VRF_GAS_LANE,
+            VRF_SUBSCRIPTION_ID,
             VRF_REQUEST_CONFIRMATIONS,
-            vrfCallbackGasLimit,
+            VRF_CALLBACK_GAS_LIMIT,
             VRF_NUM_WORDS
         );
-        pendingReveal = true;
+        s_pendingReveal = true;
         emit BatchRevealRequested(requestId);
     }
 
     function _fulfillRandomnessForMetadata(uint256 randomness) internal {
-        uint256 startIndex = revealedCount + 1;
-        uint256 endIndex = totalSupply + 1;
-        metadatas.push(
+        uint256 startIndex = s_revealedCount + 1;
+        uint256 endIndex = s_totalSupply + 1;
+        s_metadatas.push(
             Metadata({
                 startIndex: startIndex,
                 endIndex: endIndex,
                 entropy: randomness
             })
         );
-        revealedCount = totalSupply;
-        lastRevealed = block.timestamp;
-        pendingReveal = false;
+        s_revealedCount = s_totalSupply;
+        s_lastRevealed = block.timestamp;
+        s_pendingReveal = false;
         emit BatchRevealFinished(startIndex, endIndex);
     }
+
+    // VRF
 
     function fulfillRandomWords(uint256, uint256[] memory randomWords)
         internal
@@ -274,31 +285,10 @@ contract NFTCollection is
     // SETTERS
 
     function setRevealBatchSize(uint256 _revealBatchSize) external onlyOwner {
-        revealBatchSize = _revealBatchSize;
+        s_revealBatchSize = _revealBatchSize;
     }
 
     function setRevealInterval(uint256 _revealInterval) external onlyOwner {
-        revealInterval = _revealInterval;
-    }
-
-    // HELPERS
-
-    function _toString(uint256 value) internal pure returns (string memory) {
-        if (value == 0) {
-            return "0";
-        }
-        uint256 temp = value;
-        uint256 digits;
-        while (temp != 0) {
-            digits++;
-            temp /= 10;
-        }
-        bytes memory buffer = new bytes(digits);
-        while (value != 0) {
-            digits -= 1;
-            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
-            value /= 10;
-        }
-        return string(buffer);
+        s_revealInterval = _revealInterval;
     }
 }
