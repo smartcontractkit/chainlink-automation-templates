@@ -89,7 +89,7 @@ contract NFTCollection is
         if (_amount == 0) {
             revert InvalidAmount();
         }
-        if (totalSupply + _amount >= maxSupply) {
+        if (totalSupply + _amount > maxSupply) {
             revert MaxSupplyReached();
         }
         if (msg.value < mintCost * _amount) {

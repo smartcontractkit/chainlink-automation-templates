@@ -2,9 +2,10 @@ import fs from "fs";
 import { ethers, deployments, network } from "hardhat";
 import { expect } from "chai";
 import { NFTCollection, VRFCoordinatorV2Mock } from "../typechain";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber } from "ethers";
 
-const { parseEther } = ethers.utils;
-const { HashZero } = ethers.constants;
+const { HashZero, AddressZero } = ethers.constants;
 
 const NFT_NAME = "Your Collection Name";
 const NFT_SYMBOL = "ABC";
@@ -26,6 +27,14 @@ Object.assign(process.env, {
 describe("NFTCollection", async function () {
   let nftCollection: NFTCollection;
   let vrfCoordinatorV2Mock: VRFCoordinatorV2Mock;
+  let owner: SignerWithAddress;
+  let user: SignerWithAddress;
+
+  const NFT_MINT_COST_ETH: BigNumber = ethers.utils.parseEther(NFT_MINT_COST);
+
+  before(async function () {
+    [owner, user] = await ethers.getSigners();
+  });
 
   beforeEach(async function () {
     await deployments.fixture(["mocks", "all"]);
@@ -33,7 +42,44 @@ describe("NFTCollection", async function () {
     vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock");
   });
 
-  // todo: describe("Sale", async function () {});
+  describe("Sale", async function () {
+    it("should allow anyone to mint", async function () {
+      await expect(
+        nftCollection.connect(user).mint(1, {
+          value: NFT_MINT_COST_ETH,
+        })
+      )
+        .to.emit(nftCollection, "Transfer")
+        .withArgs(AddressZero, user.address, 1);
+    });
+
+    it("should require minting at least 1 NFT", async function () {
+      await expect(nftCollection.mint(0)).to.be.revertedWith("InvalidAmount");
+    });
+
+    it("should fail if user mints more than max supply", async function () {
+      // Mint all tokens available
+      const TOTAL_COLLECTION_PRICE =
+        BigNumber.from(NFT_MAX_SUPPLY).mul(NFT_MINT_COST_ETH);
+
+      await nftCollection.mint(NFT_MAX_SUPPLY, {
+        value: TOTAL_COLLECTION_PRICE,
+      });
+
+      await expect(nftCollection.mint(1)).to.be.revertedWith(
+        "MaxSupplyReached"
+      );
+    });
+
+    it("should fail if user mints for less than token's cost", async function () {
+      const INSUFFICIENT_VALUE_ETH = NFT_MINT_COST_ETH.mul(5).sub(1);
+      await expect(
+        nftCollection.mint(5, {
+          value: INSUFFICIENT_VALUE_ETH,
+        })
+      ).to.be.revertedWith("InsufficientFunds");
+    });
+  });
 
   describe("Reveal", async function () {
     it("should allow reveal when batch size criteria is met", async function () {
@@ -42,9 +88,7 @@ describe("NFTCollection", async function () {
 
       // Mint enough NFTs to satisfy the batch size criteria
       await nftCollection.mint(NFT_REVEAL_BATCH_SIZE, {
-        value: ethers.utils
-          .parseEther(NFT_MINT_COST)
-          .mul(NFT_REVEAL_BATCH_SIZE),
+        value: NFT_MINT_COST_ETH.mul(NFT_REVEAL_BATCH_SIZE),
       });
 
       const [upkeepNeededAfter] = await nftCollection.checkUpkeep(HashZero);
@@ -57,7 +101,7 @@ describe("NFTCollection", async function () {
 
       // Mint 1 NFT to be revealed
       await nftCollection.mint(1, {
-        value: parseEther(NFT_MINT_COST),
+        value: NFT_MINT_COST_ETH,
       });
 
       await network.provider.send("evm_increaseTime", [
@@ -75,7 +119,7 @@ describe("NFTCollection", async function () {
 
       // Mint 1 NFT to be revealed
       await nftCollection.mint(1, {
-        value: parseEther(NFT_MINT_COST),
+        value: NFT_MINT_COST_ETH,
       });
 
       const [upkeepNeededAfter] = await nftCollection.checkUpkeep(HashZero);
@@ -92,9 +136,7 @@ describe("NFTCollection", async function () {
     it("should not allow reveal when reveal is already requested", async function () {
       // Mint enough NFTs to satisfy the batch size criteria
       await nftCollection.mint(NFT_REVEAL_BATCH_SIZE, {
-        value: ethers.utils
-          .parseEther(NFT_MINT_COST)
-          .mul(NFT_REVEAL_BATCH_SIZE),
+        value: NFT_MINT_COST_ETH.mul(NFT_REVEAL_BATCH_SIZE),
       });
 
       await nftCollection.revealPendingMetadata();
@@ -110,9 +152,7 @@ describe("NFTCollection", async function () {
     it("should request batch reveal", async function () {
       // Mint enough NFTs to satisfy the batch size criteria
       await nftCollection.mint(NFT_REVEAL_BATCH_SIZE, {
-        value: ethers.utils
-          .parseEther(NFT_MINT_COST)
-          .mul(NFT_REVEAL_BATCH_SIZE),
+        value: NFT_MINT_COST_ETH.mul(NFT_REVEAL_BATCH_SIZE),
       });
 
       await expect(nftCollection.revealPendingMetadata()).to.emit(
@@ -124,9 +164,7 @@ describe("NFTCollection", async function () {
     it("should finish batch reveal", async function () {
       // Mint enough NFTs to satisfy the batch size criteria
       await nftCollection.mint(NFT_REVEAL_BATCH_SIZE, {
-        value: ethers.utils
-          .parseEther(NFT_MINT_COST)
-          .mul(NFT_REVEAL_BATCH_SIZE),
+        value: NFT_MINT_COST_ETH.mul(NFT_REVEAL_BATCH_SIZE),
       });
 
       const revealTx = await nftCollection.revealPendingMetadata();
@@ -160,9 +198,7 @@ describe("NFTCollection", async function () {
     it("should show randomness when revealed", async function () {
       // Mint enough NFTs to satisfy the batch size criteria
       await nftCollection.mint(NFT_REVEAL_BATCH_SIZE, {
-        value: ethers.utils
-          .parseEther(NFT_MINT_COST)
-          .mul(NFT_REVEAL_BATCH_SIZE),
+        value: NFT_MINT_COST_ETH.mul(NFT_REVEAL_BATCH_SIZE),
       });
 
       const revealTx = await nftCollection.revealPendingMetadata();
@@ -186,5 +222,53 @@ describe("NFTCollection", async function () {
     });
   });
 
-  // todo: describe("Owner", async function () {});
+  describe("Owner", async function () {
+    it("should fail if regular user tries to withdraw funds", async function () {
+      await expect(
+        nftCollection.connect(user).withdrawProceeds()
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("should withdraw if owner tries to withdraw funds", async function () {
+      await nftCollection.connect(user).mint(1, { value: NFT_MINT_COST_ETH });
+      await expect(() =>
+        nftCollection.connect(owner).withdrawProceeds()
+      ).to.changeEtherBalance(owner, NFT_MINT_COST_ETH);
+    });
+
+    it("should allow admin to change reveal batch size", async function () {
+      const [upkeepNeeded] = await nftCollection.checkUpkeep(HashZero);
+      expect(upkeepNeeded).to.eq(false);
+
+      const NEW_BATCH_SIZE = 10;
+      await nftCollection.connect(owner).setRevealBatchSize(NEW_BATCH_SIZE);
+      await nftCollection.mint(NEW_BATCH_SIZE, {
+        value: NFT_MINT_COST_ETH.mul(NEW_BATCH_SIZE),
+      });
+      const [upkeepNeededAfter] = await nftCollection.checkUpkeep(HashZero);
+      expect(upkeepNeededAfter).to.equal(true);
+    });
+
+    it("should allow admin to change reveal interval time", async function () {
+      const NEW_NFT_REVEAL_INTERVAL = 2 * parseInt(NFT_REVEAL_INTERVAL);
+
+      await nftCollection.setRevealInterval(NEW_NFT_REVEAL_INTERVAL);
+      const [upkeepNeeded] = await nftCollection.checkUpkeep(HashZero);
+      expect(upkeepNeeded).to.eq(false);
+
+      // Mint 1 NFT to be revealed
+      await nftCollection.mint(1, {
+        value: NFT_MINT_COST_ETH,
+      });
+
+      // 2 virtual hours pass
+      await network.provider.send("evm_increaseTime", [
+        parseInt(NFT_REVEAL_INTERVAL) * 2,
+      ]);
+      await network.provider.send("evm_mine");
+
+      const [upkeepNeededAfter] = await nftCollection.checkUpkeep(HashZero);
+      expect(upkeepNeededAfter).to.eq(true);
+    });
+  });
 });
