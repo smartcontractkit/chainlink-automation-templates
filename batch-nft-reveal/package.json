@@ -22,7 +22,6 @@
     "@types/node": "^12.20.54",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
-    "base64-sol": "^1.1.0",
     "chai": "^4.3.6",
     "dotenv": "^16.0.1",
     "eslint": "^7.32.0",
