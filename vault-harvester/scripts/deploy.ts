@@ -1,5 +1,5 @@
-import { ethers } from "hardhat";
-import { ContractFactory } from "ethers";
+import { ethers, network, run } from "hardhat";
+import { Contract, ContractFactory } from "ethers";
 
 // Sample address of KeeperRegistry contract deployed on Polygon
 // Change to the KeeperRegistry contract for your target network
@@ -46,30 +46,36 @@ const deployHarvester = async () => {
     keeperRegistryGasOverhead,
   ];
 
-  await deployContract(
+  const contract = await deployContract(
     config.harvester.contractName,
     HarvesterFactory,
     harvesterConstructorArguments
   );
+
+  if (network.name !== "hardhat" && network.name !== "localhost") {
+    console.log("Waiting to verify...");
+    await contract.deployTransaction.wait(6);
+    console.log(`Verifying ${config.harvester.contractName}...`);
+    await run("verify:verify", {
+      address: contract.address,
+      contract: `contracts/test/${config.harvester.contractName}.sol:${config.harvester.contractName}`,
+      constructorArguments: harvesterConstructorArguments,
+    });
+  }
 };
 
 const deployContract = async (
   name: string,
   contractFactory: ContractFactory,
   constructorArgs: any[]
-): Promise<{ contract: string; impl: string }> => {
+): Promise<Contract> => {
   console.log("Deploying:", name);
-  const ret = {
-    contract: "",
-    impl: "",
-  };
+
   const deployTx = await contractFactory.deploy(...constructorArgs);
   await deployTx.deployed();
   console.log(`${name}: ${deployTx.address}`);
-  const contract = await ethers.getContractAt(name, deployTx.address);
-  ret.contract = contract.address;
 
-  return ret;
+  return deployTx;
 };
 
 deploy()
