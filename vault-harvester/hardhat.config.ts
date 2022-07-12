@@ -33,12 +33,23 @@ const config: HardhatUserConfig = {
       },
       {
         version: "0.6.12",
-      }
+      },
     ],
   },
   networks: {
-    ropsten: {
-      url: process.env.ROPSTEN_URL || "",
+    hardhat: {},
+    kovan: {
+      url: process.env.KOVAN_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    rinkeby: {
+      url: process.env.RINKEBY_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+    mumbai: {
+      url: process.env.MUMBAI_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
