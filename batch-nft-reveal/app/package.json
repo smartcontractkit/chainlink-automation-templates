@@ -1,0 +1,66 @@
+{
+  "name": "chainlink-fullstack-frontend",
+  "author": "@hackbg",
+  "license": "MIT",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next export",
+    "start": "next start",
+    "type-check": "tsc --pretty --noEmit",
+    "format": "prettier --write .",
+    "lint": "eslint . --ext ts --ext tsx --ext js",
+    "test": "jest",
+    "test-all": "yarn lint && yarn type-check && yarn test"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "yarn run type-check"
+    }
+  },
+  "lint-staged": {
+    "*.@(ts|tsx)": [
+      "yarn lint"
+    ]
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^1.1.1",
+    "@chakra-ui/react": "^1.7.4",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "@usedapp/core": "0.7.3",
+    "@web3-react/walletconnect-connector": "^6.2.8",
+    "blockies-ts": "^1.0.0",
+    "deepmerge": "^4.2.2",
+    "ethers": "5.5.2",
+    "framer-motion": "^5",
+    "lodash": "4.17.21",
+    "next": "^12.0.7",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-gtm-module": "^2.0.11"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^12.1.2",
+    "@types/jest": "^27.4.0",
+    "@types/node": "^17.0.8",
+    "@types/react": "^17.0.38",
+    "@typescript-eslint/eslint-plugin": "^5.9.0",
+    "@typescript-eslint/parser": "^5.9.0",
+    "babel-jest": "^27.4.6",
+    "eslint": "^8.6.0",
+    "eslint-config-next": "^12.0.7",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "husky": "^7.0.4",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^27.4.6",
+    "jest-watch-typeahead": "^1.0.0",
+    "lint-staged": "^12.1.5",
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.4"
+  }
+}
