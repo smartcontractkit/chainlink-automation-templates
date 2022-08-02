@@ -51,7 +51,7 @@ Additionally, you need to set variables required for the Hardhat project:
 | Name                | Description                                                                                                                                                          |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `NETWORK_RPC_URL`   | Required to deploy to public networks. You can obtain this from websites like [Infura](https://infura.io), [Alchemy](https://www.alchemy.com) or host your own node. |
-| `PRIVATE_KEY`       | Deployer's account private key. Can be exported from wallets, i.e. Metamask.                                                                                         |
+| `PRIVATE_KEY`       | Deployer's account private key. Can be exported from wallets, i.e. MetaMask.                                                                                         |
 | `ETHERSCAN_API_KEY` | Verify contract code on Etherscan.                                                                                                                                   |
 
 The easiest way to complete this step is by copying the `.env.example` file into `.env` and replacing the values with your own.
@@ -81,6 +81,10 @@ To have a fully working solution, both [Chainlink VRF](https://docs.chain.link/d
 ## Register Upkeep
 
 To automate the metadata reveal with Chainlink’s network of keepers, you need to [register new Upkeeep](https://keepers.chain.link/new) by following this [step-by-step guide](https://docs.chain.link/docs/chainlink-keepers/register-upkeep/).
+
+## User Interface
+
+An [app](/app) is included in this repo which helps you configure and deploy collections from the browser using MetaMask or WalletConnect. It then generates a shareable collection page to mint, monitor when the next reveal is, and browse through the collection of NFTs.
 
 ## Misc
 

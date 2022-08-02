@@ -144,7 +144,7 @@ describe("NFTCollection", async function () {
       expect(upkeepNeeded).to.eq(false);
 
       await expect(nftCollection.revealPendingMetadata()).to.be.revertedWith(
-        "RevealCriteriaNotMet"
+        "RevealInProgress"
       );
     });
 
@@ -168,11 +168,13 @@ describe("NFTCollection", async function () {
 
   describe("Metadata", async function () {
     it("should show unrevealed message", async function () {
+      await mint(nftCollection, 1);
+
       const expectedUri = fs.readFileSync(
         "./test/data/unrevealed_metadata.txt",
         "utf8"
       );
-      const uri = await nftCollection.tokenURI(0);
+      const uri = await nftCollection.tokenURI(1);
       expect(uri).to.equal(expectedUri);
     });
 
@@ -185,8 +187,14 @@ describe("NFTCollection", async function () {
         "./test/data/revealed_metadata.txt",
         "utf8"
       );
-      const uri = await nftCollection.tokenURI(0);
+      const uri = await nftCollection.tokenURI(1);
       expect(uri).to.equal(expectedUri);
+    });
+
+    it("should revert when getting tokenUri on nonexitent token", async function () {
+      await expect(nftCollection.tokenURI(1)).to.be.revertedWith(
+        "NonExistentToken"
+      );
     });
   });
 
