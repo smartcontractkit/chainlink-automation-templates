@@ -8,3 +8,8 @@ typechain
 cache
 artifacts
 deployments
+
+#Frontend
+app/.next
+app/out
+app/build
