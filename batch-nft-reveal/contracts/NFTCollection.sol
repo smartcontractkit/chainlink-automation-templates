@@ -2,7 +2,7 @@
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
@@ -12,7 +12,7 @@ import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
 contract NFTCollection is
     Ownable,
-    ERC721,
+    ERC721Enumerable,
     VRFConsumerBaseV2,
     KeeperCompatibleInterface
 {
@@ -31,7 +31,6 @@ contract NFTCollection is
 
     // MUTABLE STORAGE
 
-    uint256 private s_totalSupply;
     uint256 private s_revealedCount;
     uint256 private s_revealBatchSize;
     uint256 private s_revealInterval;
@@ -88,19 +87,19 @@ contract NFTCollection is
     // ACTIONS
 
     function mint(uint256 _amount) external payable {
+        uint256 totalSupply = totalSupply();
         if (_amount == 0) {
             revert InvalidAmount();
         }
-        if (s_totalSupply + _amount > MAX_SUPPLY) {
+        if (totalSupply + _amount > MAX_SUPPLY) {
             revert MaxSupplyReached();
         }
         if (msg.value < MINT_COST * _amount) {
             revert InsufficientFunds();
         }
         for (uint256 i = 1; i <= _amount; i++) {
-            _safeMint(msg.sender, s_totalSupply + i);
+            _safeMint(msg.sender, totalSupply + i);
         }
-        s_totalSupply += _amount;
     }
 
     function withdrawProceeds() external onlyOwner {
@@ -122,10 +121,6 @@ contract NFTCollection is
         string memory svg = _generateSVG(randomness, metadataCleared);
         string memory svgEncoded = _svgToImageURI(svg);
         return _formatTokenURI(svgEncoded);
-    }
-
-    function totalSupply() public view returns (uint256) {
-        return s_totalSupply;
     }
 
     // HELPERS
@@ -209,7 +204,7 @@ contract NFTCollection is
         if (s_pendingReveal) {
             return false;
         }
-        uint256 unrevealedCount = s_totalSupply - s_revealedCount;
+        uint256 unrevealedCount = totalSupply() - s_revealedCount;
         if (unrevealedCount == 0) {
             return false;
         }
@@ -243,8 +238,9 @@ contract NFTCollection is
     }
 
     function _fulfillRandomnessForMetadata(uint256 randomness) internal {
+        uint256 totalSupply = totalSupply();
         uint256 startIndex = s_revealedCount + 1;
-        uint256 endIndex = s_totalSupply + 1;
+        uint256 endIndex = totalSupply + 1;
         s_metadatas.push(
             Metadata({
                 startIndex: startIndex,
@@ -252,7 +248,7 @@ contract NFTCollection is
                 entropy: randomness
             })
         );
-        s_revealedCount = s_totalSupply;
+        s_revealedCount = totalSupply;
         s_lastRevealed = block.timestamp;
         s_pendingReveal = false;
         emit BatchRevealFinished(startIndex, endIndex);
