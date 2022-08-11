@@ -101,6 +101,11 @@ export const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
                   Home
                 </Link>
               </NextLink>
+              <NextLink href="/load" passHref>
+                <Link px="4" py="1">
+                  Load
+                </Link>
+              </NextLink>
             </Flex>
             {account ? (
               <Flex
