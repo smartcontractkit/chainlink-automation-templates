@@ -6,7 +6,6 @@ typechain
 
 #Hardhat files
 cache
-artifacts
 deployments
 
 #Frontend
