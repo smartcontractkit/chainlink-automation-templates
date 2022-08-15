@@ -3,12 +3,15 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { DAppProvider } from '@usedapp/core'
 import type { AppProps } from 'next/app'
 import config from '../conf/config';
+import { Layout } from '../components/layout';
 
 const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   return (
     <DAppProvider config={config}>
       <ChakraProvider>
-        <Component {...pageProps} />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
       </ChakraProvider>
     </DAppProvider>
   )
