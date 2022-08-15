@@ -1,217 +1,266 @@
+import React, { useState } from 'react'
+import { useRouter } from 'next/router'
+import { Field, FormikProvider, useFormik } from 'formik'
 import {
   Button,
-  Container,
-  Divider,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
   Tooltip,
+  Divider,
+  Center,
+  Heading,
 } from '@chakra-ui/react'
 import { useEthers } from '@usedapp/core'
-import { useState } from 'react'
-import { Error } from '../../components/Error'
+// TODO: uncomment when connect with deploy function
+// import { ethers } from 'ethers'
+// import { deployNFTCollection } from '../../lib/deploy'
+// import NFTCollectionParams from '../../lib/types/NFTCollectionParams'
+import { Error } from '../Error'
 
-export function Create(): JSX.Element {
-  const { account } = useEthers()
+export const Create = (): JSX.Element => {
+  const { account, chainId, library, error } = useEthers()
+  const router = useRouter()
+  const [deployError, setDeployError] = useState('')
 
-  const [hasError, setHasError] = useState(false)
+  const formik = useFormik({
+    initialValues: {
+      tokenName: '',
+      symbol: '',
+      maxSupply: '',
+      mintCost: '',
+      revealBatchSize: '',
+      revealInterval: '',
+      vrfSubscriptionId: '',
+    },
+    onSubmit: async (values) => {
+      console.log(`Send create request with params: ${values.tokenName}, ${values.symbol}, ${values.maxSupply}, 
+        ${values.mintCost}, ${values.revealBatchSize}, ${values.revealInterval}, ${values.vrfSubscriptionId}`)
+      // TODO: call function for deploy contract here
+      // const nftCollectionParams: NFTCollectionParams = {
+      //   nftName: values.tokenName,
+      //   nftSymbol: values.symbol,
+      //   nftMaxSupply: values.maxSupply,
+      //   nftMintCost: ethers.utils.parseEther(values.mintCost),
+      //   nftRevealBatchSize: values.revealBatchSize,
+      //   nftRevealInterval: values.revealInterval,
+      //   vrfSubscriptionId: values.vrfSubscriptionId,
+      // }
 
-  const [tokenName, setTokenName] = useState('')
-  const [symbol, setSymbol] = useState('')
-  const [maxSupply, setMaxSupply] = useState('')
-  const [mintCost, setMintCost] = useState('')
-  const [revealBatchSize, setRevealBatchSize] = useState('')
-  const [revealInterval, setRevealInterval] = useState('')
-  const [vrfSubscriptionId, setVrfSubscriptionId] = useState('')
+      // const { address, tx } = await deployNFTCollection( // const contract = ...
+      //   nftCollectionParams,
+      //   library?.getSigner(),
+      //   chainId
+      // ).catch((err) => setDeployError(err))
 
-  const [tokenNameEntered, setTokenNameEntered] = useState(false)
-  const [symbolEntered, setSymbolEntered] = useState(false)
-  const [maxSupplyEntered, setMaxSupplyEntered] = useState(false)
-  const [mintCostEntered, setMintCostEntered] = useState(false)
-  const [revealBatchSizeEntered, setRevealBatchSizeEntered] = useState(false)
-  const [revealIntervalEntered, setRevealIntervalEntered] = useState(false)
-  const [vrfSubscriptionIdEntered, setVrfSubscriptionIdEntered] =
-    useState(false)
+      // router.push(`/collection?address=${address}&tx=${tx}`); // /collection/${contract.address}
+    },
+  })
 
-  const sendRequest = async () => {
-    // TODO: call function for deploy contract here
-    console.log(`Send create request with params: ${tokenName}, ${symbol}, ${maxSupply}, ${mintCost}, ${revealBatchSize},
-    ${revealInterval}, ${vrfSubscriptionId}`)
+  const isNotEmpty = (value: string): string => {
+    let error: string
+    if (!value) {
+      error = 'is required'
+    }
+    return error
   }
 
   const isNotNumber = (value: string) => {
-    return !value || !/^[0-9]*$/.test(value)
+    let error: string
+    if (!value) {
+      error = 'is required'
+    } else if (!value || !/^[0-9]*$/.test(value)) {
+      error = 'must be a positive number'
+    }
+    return error
+  }
+
+  const isNotPositiveNumber = (value: string) => {
+    let error: string = isNotNumber(value)
+    if (!error && Number(value) <= 0) {
+      error = 'must be greater then zero'
+    }
+    return error
   }
 
   const isNotFractualNumber = (value: string) => {
-    return !value || !/^(0|([1-9][0-9]*))(\.[0-9]{0,18})?$/.test(value)
+    let error: string
+    if (!value) {
+      error = 'is required'
+    } else if (!value || !/^(0|([1-9][0-9]*))(\.[0-9]{0,18})?$/.test(value)) {
+      error = 'must be positive fractional number'
+    }
+    return error
   }
 
-  const isInvalidName = !tokenName
-  const isInvalidSymbol = !symbol
-  const isInvalidMaxSupply = isNotNumber(maxSupply) || Number(maxSupply) <= 0
-  const isInvalidMintCost = isNotFractualNumber(mintCost)
-  const isInvalidRevealBatchSize = isNotNumber(revealBatchSize)
-  const isInvalidRevealInterval = isNotNumber(revealInterval)
-  const isInvalidVrfSubscriptionId = isNotNumber(vrfSubscriptionId)
-
-  const isInvalid =
-    isInvalidName ||
-    isInvalidSymbol ||
-    isInvalidMaxSupply ||
-    isInvalidMintCost ||
-    isInvalidRevealBatchSize ||
-    isInvalidRevealInterval ||
-    isInvalidVrfSubscriptionId
-
   return (
-    <Container maxW="mt" centerContent>
-      {hasError && <Error message="Error. TODO: real error here." />}
-      <FormControl mt="4" isInvalid={tokenNameEntered && isInvalidName}>
-        <FormLabel htmlFor="url">Name</FormLabel>
-        <Input
-          value={tokenName}
-          id="tokenName"
-          bgColor="white"
-          onChange={(event) => setTokenName(event.target.value)}
-          onKeyUp={() => setTokenNameEntered(true)}
-          onPaste={() => setTokenNameEntered(true)}
-        />
-        {isInvalidName && (
-          <FormErrorMessage>Name is not valid.</FormErrorMessage>
-        )}
-      </FormControl>
-
-      <FormControl mt="4" isInvalid={symbolEntered && isInvalidSymbol}>
-        <FormLabel htmlFor="url">Symbol</FormLabel>
-        <Input
-          value={symbol}
-          id="symbol"
-          bgColor="white"
-          onChange={(event) => setSymbol(event.target.value)}
-          onKeyUp={() => setSymbolEntered(true)}
-          onPaste={() => setSymbolEntered(true)}
-        />
-        {isInvalidSymbol && (
-          <FormErrorMessage>Symbol is not valid.</FormErrorMessage>
-        )}
-      </FormControl>
-
-      <FormControl mt="4" isInvalid={maxSupplyEntered && isInvalidMaxSupply}>
-        <FormLabel htmlFor="path">Max supply</FormLabel>
-        <Input
-          value={maxSupply}
-          id="maxSupply"
-          bgColor="white"
-          onChange={(event) => setMaxSupply(event.target.value)}
-          onKeyUp={() => setMaxSupplyEntered(true)}
-          onPaste={() => setMaxSupplyEntered(true)}
-        />
-        {isInvalidMaxSupply && (
-          <FormErrorMessage>Max supplay must be positive number.</FormErrorMessage>
-        )}
-      </FormControl>
-
-      <FormControl mt="4" isInvalid={mintCostEntered && isInvalidMintCost}>
-        <FormLabel htmlFor="path">Cost (ETH)</FormLabel>
-        <Input
-          value={mintCost}
-          id="mintCost"
-          bgColor="white"
-          onChange={(event) => setMintCost(event.target.value)}
-          onKeyUp={() => setMintCostEntered(true)}
-          onPaste={() => setMintCostEntered(true)}
-        />
-        {isInvalidMintCost && (
-          <FormErrorMessage>Cost(ETH) must be positive fractional number.</FormErrorMessage>
-        )}
-      </FormControl>
-
-      <FormControl
-        mt="4"
-        isInvalid={vrfSubscriptionIdEntered && isInvalidVrfSubscriptionId}
-      >
-        <FormLabel htmlFor="path">VRF ID</FormLabel>
-        <Tooltip
-          label="Chainkink VRF subscription ID"
-          placement="right-start"
-          fontSize="xs"
-          hasArrow
+    <form onSubmit={formik.handleSubmit}>
+      <FormikProvider value={formik}>
+        <Heading as="h1" mb="8" size="lg">
+          Create NFT Collection
+        </Heading>
+        <FormControl
+          mt="4"
+          isInvalid={formik.touched.tokenName && !!formik.errors.tokenName}
         >
-          <Input
-            value={vrfSubscriptionId}
-            id="vrfSubscriptionId"
-            bgColor="white"
-            onChange={(event) => setVrfSubscriptionId(event.target.value)}
-            onKeyUp={() => setVrfSubscriptionIdEntered(true)}
-            onPaste={() => setVrfSubscriptionIdEntered(true)}
+          <FormLabel htmlFor="tokenName">Name</FormLabel>
+          <Field as={Input} bg="white" name="tokenName" validate={isNotEmpty} />
+          {formik.errors.tokenName && formik.touched.tokenName && (
+            <FormErrorMessage>Name {formik.errors.tokenName}</FormErrorMessage>
+          )}
+        </FormControl>
+        <FormControl
+          mt="4"
+          isInvalid={formik.touched.symbol && !!formik.errors.symbol}
+        >
+          <FormLabel htmlFor="symbol">Symbol</FormLabel>
+          <Field as={Input} bg="white" name="symbol" validate={isNotEmpty} />
+          {formik.errors.symbol && formik.touched.symbol && (
+            <FormErrorMessage>Symbol {formik.errors.symbol}</FormErrorMessage>
+          )}
+        </FormControl>
+        <FormControl
+          mt="4"
+          isInvalid={formik.touched.maxSupply && !!formik.errors.maxSupply}
+        >
+          <FormLabel htmlFor="maxSupply">Max supply</FormLabel>
+          <Field
+            as={Input}
+            bg="white"
+            name="maxSupply"
+            validate={isNotPositiveNumber}
           />
+          {formik.errors.maxSupply && formik.touched.maxSupply && (
+            <FormErrorMessage>
+              Max supply {formik.errors.maxSupply}
+            </FormErrorMessage>
+          )}
+        </FormControl>
+        <FormControl
+          mt="4"
+          isInvalid={formik.touched.mintCost && !!formik.errors.mintCost}
+        >
+          <FormLabel htmlFor="mintCost">Cost(ETH)</FormLabel>
+          <Field
+            as={Input}
+            bg="white"
+            name="mintCost"
+            validate={isNotFractualNumber}
+          />
+          {formik.errors.mintCost && formik.touched.mintCost && (
+            <FormErrorMessage>
+              Cost(ETH) {formik.errors.mintCost}
+            </FormErrorMessage>
+          )}
+        </FormControl>
+        <FormControl
+          mt="4"
+          isInvalid={
+            formik.touched.vrfSubscriptionId &&
+            !!formik.errors.vrfSubscriptionId
+          }
+        >
+          <FormLabel htmlFor="vrfSubscriptionId">VRF ID</FormLabel>
+          <Tooltip
+            label="Chainlink VRF subscription ID"
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            <div>
+              <Field
+                as={Input}
+                bg="white"
+                name="vrfSubscriptionId"
+                validate={isNotNumber}
+              />
+            </div>
+          </Tooltip>
+          {formik.errors.vrfSubscriptionId &&
+            formik.touched.vrfSubscriptionId && (
+              <FormErrorMessage>
+                VRF ID {formik.errors.vrfSubscriptionId}
+              </FormErrorMessage>
+            )}
+        </FormControl>
+        <Divider
+          id="create-divider"
+          orientation="horizontal"
+          margin="40px 20px 20px 0px"
+          border="width 10px"
+        />
+        <Center>
+          <Tooltip
+            label="If the following conditions are met, batch reveal will be fulfilled."
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            Batch Reveal
+          </Tooltip>
+        </Center>
+        <FormControl
+          mt="4"
+          isInvalid={
+            formik.touched.revealBatchSize && !!formik.errors.revealBatchSize
+          }
+        >
+          <FormLabel htmlFor="revealBatchSize">Batch Size</FormLabel>
+          <Field
+            as={Input}
+            bg="white"
+            name="revealBatchSize"
+            validate={isNotNumber}
+          />
+          {formik.errors.revealBatchSize && formik.touched.revealBatchSize && (
+            <FormErrorMessage>
+              Batch Size {formik.errors.revealBatchSize}
+            </FormErrorMessage>
+          )}
+        </FormControl>
+        <FormControl
+          mt="4"
+          isInvalid={
+            formik.touched.revealInterval && !!formik.errors.revealInterval
+          }
+        >
+          <FormLabel htmlFor="revealInterval">Interval(Seconds)</FormLabel>
+          <Field
+            as={Input}
+            bg="white"
+            name="revealInterval"
+            validate={isNotNumber}
+          />
+          {formik.errors.revealInterval && formik.touched.revealInterval && (
+            <FormErrorMessage>
+              Interval(Seconds) {formik.errors.revealInterval}
+            </FormErrorMessage>
+          )}
+        </FormControl>
+        <Tooltip
+          hasArrow
+          label="Connect to a wallet."
+          shouldWrapChildren
+          isDisabled={!!account}
+        >
+          <Button
+            mt="4"
+            colorScheme="teal"
+            type="submit"
+            disabled={
+              !account ||
+              !!error ||
+              !formik.dirty ||
+              Array.isArray(formik.errors) ||
+              Object.values(formik.errors).toString() != ''
+            }
+          >
+            Submit
+          </Button>
         </Tooltip>
-        {isInvalidVrfSubscriptionId && (
-          <FormErrorMessage>VRF ID must be no negative number.</FormErrorMessage>
-        )}
-      </FormControl>
-
-      <Divider
-        id="create-divider"
-        orientation="horizontal"
-        margin="20px 20px 20px 20px"
-      />
-      <Tooltip
-        label="If the following conditions are met, batch reveal will be fulfilled."
-        placement="right-start"
-        fontSize="xs"
-        hasArrow
-      >
-        <p>Batch Reveal</p>
-      </Tooltip>
-
-      <FormControl
-        mt="4"
-        isInvalid={revealBatchSizeEntered && isInvalidRevealBatchSize}
-      >
-        <FormLabel htmlFor="path">Batch Size</FormLabel>
-
-        <Input
-          value={revealBatchSize}
-          id="revealBatchSize"
-          bgColor="white"
-          onChange={(event) => setRevealBatchSize(event.target.value)}
-          onKeyUp={() => setRevealBatchSizeEntered(true)}
-          onPaste={() => setRevealBatchSizeEntered(true)}
-        />
-        {isInvalidRevealBatchSize && (
-          <FormErrorMessage>Batch size must be positive number.</FormErrorMessage>
-        )}
-      </FormControl>
-
-      <FormControl
-        mt="4"
-        isInvalid={revealIntervalEntered && isInvalidRevealInterval}
-      >
-        <FormLabel htmlFor="path">Interval (Seconds)</FormLabel>
-        <Input
-          value={revealInterval}
-          id="revealInterval"
-          bgColor="white"
-          onChange={(event) => setRevealInterval(event.target.value)}
-          onKeyUp={() => setRevealIntervalEntered(true)}
-          onPaste={() => setRevealIntervalEntered(true)}
-        />
-        {isInvalidRevealInterval && (
-          <FormErrorMessage>Reveal interval must be no negative number.</FormErrorMessage>
-        )}
-      </FormControl>
-
-      <Button
-        mt="4"
-        onClick={sendRequest}
-        colorScheme="teal"
-        disabled={isInvalid || !account}
-      >
-        Deploy
-      </Button>
-    </Container>
+        {deployError && <Error message={deployError} />}
+      </FormikProvider>
+    </form>
   )
 }
