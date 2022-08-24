@@ -15,11 +15,11 @@ import {
 } from '@chakra-ui/react'
 import { useEthers } from '@usedapp/core'
 import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons'
+import { Error } from './Error'
 // TODO: uncomment when connect with deploy function
 // import { ethers } from 'ethers'
 // import { deployNFTCollection } from '../../lib/deploy'
 // import NFTCollectionParams from '../../lib/types/NFTCollectionParams'
-import { Error } from './Error'
 
 const isEmpty = (value: string): string => {
   let error: string
