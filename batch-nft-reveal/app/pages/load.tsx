@@ -5,14 +5,14 @@ import { Section, Layout } from '../components/layout'
 
 function LoadPage(): JSX.Element {
   return (
-    <Layout>
+    <>
       <Heading as="h1" mb="8">
         Load NFT Collection
       </Heading>
       <Section>
         <Load />
       </Section>
-    </Layout>
+    </>
   )
 }
 
