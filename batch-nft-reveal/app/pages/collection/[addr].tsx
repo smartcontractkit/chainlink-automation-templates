@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { Section } from '../../components/layout'
-import { RevealInfo, Mint } from '../../components/collection/Index'
+import { RevealInfo, Mint, Gallery } from '../../components/collection/Index'
 import { Text } from '@chakra-ui/react'
 
 function Collection(): JSX.Element {
@@ -15,6 +15,9 @@ function Collection(): JSX.Element {
         </Section>
         <Section>
           <RevealInfo contractAddress={addr}></RevealInfo>
+        </Section>
+        <Section>
+          <Gallery contractAddress={addr}></Gallery>
         </Section>
       </>
     )
