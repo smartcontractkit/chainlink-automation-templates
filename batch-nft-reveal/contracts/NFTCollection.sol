@@ -123,6 +123,34 @@ contract NFTCollection is
         return _formatTokenURI(svgEncoded);
     }
 
+    function revealedCount() external view returns(uint256) {
+        return s_revealedCount;
+    }
+
+    function lastRevealed() external view returns(uint256) {
+        return s_lastRevealed;
+    }
+
+    function batchSize() external view returns(uint256) {
+        return s_revealBatchSize;
+    }
+
+    function revealedInterval() external view returns(uint256) {
+        return s_revealInterval;
+    }
+
+    function mintCost() public view returns (uint256) {
+        return MINT_COST;
+    }
+
+    function maxSupply() public view returns (uint256){
+        return MAX_SUPPLY;
+    }
+
+    function pendingReveal() public view returns (bool){
+        return s_pendingReveal;
+    }
+
     // HELPERS
 
     function _getTokenRandomness(uint256 tokenId)
