@@ -106,7 +106,7 @@ export const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
                   Create
                 </Link>
               </NextLink>
-              <NextLink href="/load" passHref>
+              <NextLink href="/open" passHref>
                 <Link px="4" py="1">
                   Open
                 </Link>

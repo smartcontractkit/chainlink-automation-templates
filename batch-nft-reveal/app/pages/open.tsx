@@ -1,9 +1,9 @@
 import React from 'react'
 import { Heading, Text } from '@chakra-ui/react'
-import { Load } from '../components/load'
-import { Section, Layout } from '../components/layout'
+import { OpenForm } from '../components/OpenForm'
+import { Section } from '../components/layout'
 
-function LoadPage(): JSX.Element {
+function OpenPage(): JSX.Element {
   return (
     <>
       <Heading as="h1" mb="8">
@@ -13,10 +13,10 @@ function LoadPage(): JSX.Element {
         Navigate to the page of a previously deployed collection.
       </Text>
       <Section>
-        <Load />
+        <OpenForm />
       </Section>
     </>
   )
 }
 
-export default LoadPage
+export default OpenPage
