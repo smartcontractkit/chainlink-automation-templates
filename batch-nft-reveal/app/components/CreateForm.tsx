@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
 import { Field, FormikProvider, useFormik } from 'formik'
 import {
@@ -15,11 +15,9 @@ import {
 } from '@chakra-ui/react'
 import { useEthers } from '@usedapp/core'
 import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons'
-import { Error } from './Error'
-// TODO: uncomment when connect with deploy function
-// import { ethers } from 'ethers'
-// import { deployNFTCollection } from '../../lib/deploy'
-// import NFTCollectionParams from '../../lib/types/NFTCollectionParams'
+import { ethers } from 'ethers'
+import { deployNFTCollection } from '../lib/deploy'
+import NFTCollectionParams from '../types//NFTCollectionParams'
 
 const isEmpty = (value: string): string => {
   let error: string
@@ -60,39 +58,38 @@ const isFractionalNumber = (value: string) => {
 export const CreateForm = (): JSX.Element => {
   const { account, chainId, library, error } = useEthers()
   const router = useRouter()
-  const [deployError, setDeployError] = useState('')
 
   const formik = useFormik({
     initialValues: {
       tokenName: '',
       symbol: '',
-      maxSupply: '',
+      maxSupply: 0,
       mintCost: '',
-      revealBatchSize: '',
-      revealInterval: '',
-      vrfSubscriptionId: '',
+      revealBatchSize: 0,
+      revealInterval: 0,
+      vrfSubscriptionId: 0,
     },
     onSubmit: async (values) => {
-      console.log(`Send create request with params: ${values.tokenName}, ${values.symbol}, ${values.maxSupply}, 
-        ${values.mintCost}, ${values.revealBatchSize}, ${values.revealInterval}, ${values.vrfSubscriptionId}`)
-      // TODO: call function for deploy contract here
-      // const nftCollectionParams: NFTCollectionParams = {
-      //   nftName: values.tokenName,
-      //   nftSymbol: values.symbol,
-      //   nftMaxSupply: values.maxSupply,
-      //   nftMintCost: ethers.utils.parseEther(values.mintCost),
-      //   nftRevealBatchSize: values.revealBatchSize,
-      //   nftRevealInterval: values.revealInterval,
-      //   vrfSubscriptionId: values.vrfSubscriptionId,
-      // }
+      const nftCollectionParams: NFTCollectionParams = {
+        nftName: values.tokenName,
+        nftSymbol: values.symbol,
+        nftMaxSupply: values.maxSupply,
+        nftMintCost: ethers.utils.parseEther(values.mintCost),
+        nftRevealBatchSize: values.revealBatchSize,
+        nftRevealInterval: values.revealInterval,
+        vrfSubscriptionId: values.vrfSubscriptionId,
+      }
 
-      // const { address, tx } = await deployNFTCollection( // const contract = ...
-      //   nftCollectionParams,
-      //   library?.getSigner(),
-      //   chainId
-      // ).catch((err) => setDeployError(err))
+      const tx = await deployNFTCollection(
+        // const contract = ...
+        nftCollectionParams,
+        library?.getSigner(),
+        chainId
+      )
 
-      // router.push(`/collection?address=${address}&tx=${tx}`); // /collection/${contract.address}
+      router.push(
+        `/success?address=${tx.contractAddress}&tx=${tx.transactionHash}`
+      )
     },
   })
 
@@ -287,7 +284,6 @@ export const CreateForm = (): JSX.Element => {
             Deploy
           </Button>
         </Tooltip>
-        {deployError && <Error message={deployError} />}
       </FormikProvider>
     </form>
   )
