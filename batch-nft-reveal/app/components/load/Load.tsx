@@ -1,5 +1,5 @@
 import React from 'react'
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/router'
 import { Field, FormikProvider, useFormik } from 'formik'
 import {
   Button,
@@ -8,17 +8,18 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  Tooltip,
 } from '@chakra-ui/react'
 
 export const Load = (): JSX.Element => {
-  const router = useRouter();
+  const router = useRouter()
 
   const formik = useFormik({
     initialValues: {
       address: '',
     },
     onSubmit: (values) => {
-      router.push(`/collection/${values.address}`);
+      router.push(`/collection/${values.address}`)
       console.log(values)
     },
   })
@@ -38,16 +39,24 @@ export const Load = (): JSX.Element => {
       <Container>
         <FormikProvider value={formik}>
           <FormControl
-            mt="4"
             isInvalid={formik.touched.address && !!formik.errors.address}
           >
             <FormLabel htmlFor="address">Address</FormLabel>
-            <Field
-              as={Input}
-              bg="white"
-              name="address"
-              validate={validateAddress}
-            />
+            <Tooltip
+              label="Deployed NFT collection contract from this app."
+              placement="right-start"
+              fontSize="xs"
+              hasArrow
+            >
+              <div>
+                <Field
+                  as={Input}
+                  bg="white"
+                  name="address"
+                  validate={validateAddress}
+                />
+              </div>
+            </Tooltip>
             {formik.errors.address && formik.touched.address && (
               <FormErrorMessage>{formik.errors.address}</FormErrorMessage>
             )}
@@ -62,7 +71,7 @@ export const Load = (): JSX.Element => {
               Object.values(formik.errors).toString() != ''
             }
           >
-            Submit
+            Go to Collection
           </Button>
         </FormikProvider>
       </Container>

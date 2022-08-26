@@ -108,7 +108,7 @@ export const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
               </NextLink>
               <NextLink href="/load" passHref>
                 <Link px="4" py="1">
-                  Load
+                  Open
                 </Link>
               </NextLink>
             </Flex>
