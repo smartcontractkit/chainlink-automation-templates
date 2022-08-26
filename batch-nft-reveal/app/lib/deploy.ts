@@ -1,4 +1,5 @@
 import { ContractFactory, Signer } from 'ethers'
+import { TransactionReceipt } from '@ethersproject/abstract-provider/lib/index'
 
 import NFTCollection from '../artifacts/contracts/NFTCollection.sol/NFTCollection.json'
 import {
@@ -12,7 +13,7 @@ export async function deployNFTCollection(
   nftParams: NFTCollectionParams,
   signer: Signer,
   chainId: number
-) {
+): Promise<TransactionReceipt> {
   const nftCollection = new ContractFactory(
     NFTCollection.abi,
     NFTCollection.bytecode,
