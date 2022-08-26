@@ -11,6 +11,7 @@ import {
   Divider,
   Center,
   Heading,
+  Link,
 } from '@chakra-ui/react'
 import { useEthers } from '@usedapp/core'
 // TODO: uncomment when connect with deploy function
@@ -18,6 +19,7 @@ import { useEthers } from '@usedapp/core'
 // import { deployNFTCollection } from '../../lib/deploy'
 // import NFTCollectionParams from '../../lib/types/NFTCollectionParams'
 import { Error } from '../Error'
+import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons'
 
 export const Create = (): JSX.Element => {
   const { account, chainId, library, error } = useEthers()
@@ -97,11 +99,7 @@ export const Create = (): JSX.Element => {
   return (
     <form onSubmit={formik.handleSubmit}>
       <FormikProvider value={formik}>
-        <Heading as="h1" mb="8" size="lg">
-          Create NFT Collection
-        </Heading>
         <FormControl
-          mt="4"
           isInvalid={formik.touched.tokenName && !!formik.errors.tokenName}
         >
           <FormLabel htmlFor="tokenName">Name</FormLabel>
@@ -141,7 +139,7 @@ export const Create = (): JSX.Element => {
           mt="4"
           isInvalid={formik.touched.mintCost && !!formik.errors.mintCost}
         >
-          <FormLabel htmlFor="mintCost">Cost(ETH)</FormLabel>
+          <FormLabel htmlFor="mintCost">Cost to mint (ETH)</FormLabel>
           <Field
             as={Input}
             bg="white"
@@ -150,54 +148,66 @@ export const Create = (): JSX.Element => {
           />
           {formik.errors.mintCost && formik.touched.mintCost && (
             <FormErrorMessage>
-              Cost(ETH) {formik.errors.mintCost}
+              Cost to mint {formik.errors.mintCost}
             </FormErrorMessage>
           )}
         </FormControl>
-        <FormControl
-          mt="4"
-          isInvalid={
-            formik.touched.vrfSubscriptionId &&
-            !!formik.errors.vrfSubscriptionId
-          }
-        >
-          <FormLabel htmlFor="vrfSubscriptionId">VRF ID</FormLabel>
-          <Tooltip
-            label="Chainlink VRF subscription ID"
-            placement="right-start"
-            fontSize="xs"
-            hasArrow
-          >
-            <div>
-              <Field
-                as={Input}
-                bg="white"
-                name="vrfSubscriptionId"
-                validate={isNotNumber}
-              />
-            </div>
-          </Tooltip>
-          {formik.errors.vrfSubscriptionId &&
-            formik.touched.vrfSubscriptionId && (
-              <FormErrorMessage>
-                VRF ID {formik.errors.vrfSubscriptionId}
-              </FormErrorMessage>
-            )}
-        </FormControl>
         <Divider
-          id="create-divider"
           orientation="horizontal"
           margin="40px 20px 20px 0px"
           border="width 10px"
         />
         <Center>
           <Tooltip
-            label="If the following conditions are met, batch reveal will be fulfilled."
+            label="Using Chainlink VRF in generative art NFT collections is de-facto the standard approach for getting provably random source in smart contracts. By batching the reveal process, instead of making VRF calls for each NFT we can save cost up to 100x (in a collection of 10,000 with batch size of 100)."
             placement="right-start"
             fontSize="xs"
             hasArrow
           >
-            Batch Reveal
+            <Heading as="h2" size="s" mb="2">
+              Chainlink VRF <QuestionIcon w="4" h="4" mx="2" />
+            </Heading>
+          </Tooltip>
+        </Center>
+        <FormControl
+          my="4"
+          isInvalid={
+            formik.touched.vrfSubscriptionId &&
+            !!formik.errors.vrfSubscriptionId
+          }
+        >
+          <FormLabel htmlFor="vrfSubscriptionId">Subscription ID</FormLabel>
+          <Field
+            as={Input}
+            bg="white"
+            name="vrfSubscriptionId"
+            validate={isNotNumber}
+          />
+          {formik.errors.vrfSubscriptionId &&
+            formik.touched.vrfSubscriptionId && (
+              <FormErrorMessage>
+                Subscription ID {formik.errors.vrfSubscriptionId}
+              </FormErrorMessage>
+            )}
+        </FormControl>
+        <Link href="https://vrf.chain.link" isExternal fontSize="small">
+          How to Create and Fund a Subscription <ExternalLinkIcon mx="2px" />
+        </Link>
+        <Divider
+          orientation="horizontal"
+          margin="40px 20px 20px 0px"
+          border="width 10px"
+        />
+        <Center>
+          <Tooltip
+            label="The reveal process can be automated and further decentralized by asking Chainlink Keepers to call the reveal function when any of the criterias below is met."
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            <Heading as="h2" size="s" mb="2">
+              Chainlink Keepers <QuestionIcon w="4" h="4" mx="2" />
+            </Heading>
           </Tooltip>
         </Center>
         <FormControl
@@ -206,16 +216,25 @@ export const Create = (): JSX.Element => {
             formik.touched.revealBatchSize && !!formik.errors.revealBatchSize
           }
         >
-          <FormLabel htmlFor="revealBatchSize">Batch Size</FormLabel>
-          <Field
-            as={Input}
-            bg="white"
-            name="revealBatchSize"
-            validate={isNotNumber}
-          />
+          <FormLabel htmlFor="revealBatchSize">Batch size</FormLabel>
+          <Tooltip
+            label="Number of unrevealed NFTs in the queue to trigger the reveal process."
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            <div>
+              <Field
+                as={Input}
+                bg="white"
+                name="revealBatchSize"
+                validate={isNotNumber}
+              />
+            </div>
+          </Tooltip>
           {formik.errors.revealBatchSize && formik.touched.revealBatchSize && (
             <FormErrorMessage>
-              Batch Size {formik.errors.revealBatchSize}
+              Batch size {formik.errors.revealBatchSize}
             </FormErrorMessage>
           )}
         </FormControl>
@@ -225,27 +244,36 @@ export const Create = (): JSX.Element => {
             formik.touched.revealInterval && !!formik.errors.revealInterval
           }
         >
-          <FormLabel htmlFor="revealInterval">Interval(Seconds)</FormLabel>
-          <Field
-            as={Input}
-            bg="white"
-            name="revealInterval"
-            validate={isNotNumber}
-          />
+          <FormLabel htmlFor="revealInterval">Interval (seconds)</FormLabel>
+          <Tooltip
+            label="Number of seconds since the last reveal needed to trigger the reveal process. Please note at least 1 unrevealed NFT is required for this criteria to apply."
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            <div>
+              <Field
+                as={Input}
+                bg="white"
+                name="revealInterval"
+                validate={isNotNumber}
+              />
+            </div>
+          </Tooltip>
           {formik.errors.revealInterval && formik.touched.revealInterval && (
             <FormErrorMessage>
-              Interval(Seconds) {formik.errors.revealInterval}
+              Interval {formik.errors.revealInterval}
             </FormErrorMessage>
           )}
         </FormControl>
         <Tooltip
           hasArrow
-          label="Connect to a wallet."
+          label="Connect to a wallet"
           shouldWrapChildren
           isDisabled={!!account}
         >
           <Button
-            mt="4"
+            mt="8"
             colorScheme="teal"
             type="submit"
             disabled={
@@ -256,7 +284,7 @@ export const Create = (): JSX.Element => {
               Object.values(formik.errors).toString() != ''
             }
           >
-            Submit
+            Deploy
           </Button>
         </Tooltip>
         {deployError && <Error message={deployError} />}
