@@ -20,7 +20,7 @@ function HomeIndex(): JSX.Element {
         <Text mb="4">
           All NFTs in a collection have a unique set of traits which determine
           their value, so it&apos;s important they&apos;re randomly distributed amongst
-          participants of the drop.
+          the participants of the drop.
         </Text>
         <Text mb="4">
           Using Chainlink VRF in generative art NFT collections is de-facto the
