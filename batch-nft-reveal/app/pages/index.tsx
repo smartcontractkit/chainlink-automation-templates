@@ -27,7 +27,7 @@ function HomeIndex(): JSX.Element {
           standard approach for getting provably random source in smart
           contracts. By batching the reveal process, instead of making VRF calls
           for each NFT we can save cost up to 100x (in a collection of 10,000
-          with batch size of 100).
+          with a batch size of 100).
         </Text>
         <Link
           href="https://docs.chain.link/docs/vrf/v2/introduction/"
