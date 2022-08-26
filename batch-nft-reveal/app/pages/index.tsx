@@ -18,7 +18,7 @@ function HomeIndex(): JSX.Element {
           VRF
         </Heading>
         <Text mb="4">
-          All NFTs in a collection have unique set of traits which determine
+          All NFTs in a collection have a unique set of traits which determine
           their value, so it&apos;s important they&apos;re randomly distributed amongst
           participants of the drop.
         </Text>
