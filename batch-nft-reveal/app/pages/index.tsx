@@ -19,7 +19,7 @@ function HomeIndex(): JSX.Element {
         </Heading>
         <Text mb="4">
           All NFTs in a collection have unique set of traits which determine
-          their value, so it's important they're randomly distributed amongst
+          their value, so it&apos;s important they&apos;re randomly distributed amongst
           participants of the drop.
         </Text>
         <Text mb="4">
