@@ -1,6 +1,6 @@
 import React from 'react'
 import { Text, Heading } from '@chakra-ui/react'
-import { Create } from '../components/create'
+import { CreateForm } from '../components/CreateForm'
 import { Section } from '../components/layout'
 
 function CreatePage(): JSX.Element {
@@ -13,7 +13,7 @@ function CreatePage(): JSX.Element {
         Setup batch-revealed NFT collection from a pre-built standard contract.
       </Text>
       <Section>
-        <Create />
+        <CreateForm />
       </Section>
     </>
   )

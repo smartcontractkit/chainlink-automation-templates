@@ -14,14 +14,50 @@ import {
   Link,
 } from '@chakra-ui/react'
 import { useEthers } from '@usedapp/core'
+import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons'
 // TODO: uncomment when connect with deploy function
 // import { ethers } from 'ethers'
 // import { deployNFTCollection } from '../../lib/deploy'
 // import NFTCollectionParams from '../../lib/types/NFTCollectionParams'
-import { Error } from '../Error'
-import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons'
+import { Error } from './Error'
 
-export const Create = (): JSX.Element => {
+const isEmpty = (value: string): string => {
+  let error: string
+  if (!value) {
+    error = 'is required'
+  }
+  return error
+}
+
+const isNumber = (value: string) => {
+  let error: string
+  if (!value) {
+    error = 'is required'
+  } else if (!value || !/^[0-9]*$/.test(value)) {
+    error = 'must be a positive number'
+  }
+  return error
+}
+
+const isPositiveNumber = (value: string) => {
+  let error: string = isNumber(value)
+  if (!error && Number(value) <= 0) {
+    error = 'must be greater then zero'
+  }
+  return error
+}
+
+const isFractionalNumber = (value: string) => {
+  let error: string
+  if (!value) {
+    error = 'is required'
+  } else if (!value || !/^(0|([1-9][0-9]*))(\.[0-9]{0,18})?$/.test(value)) {
+    error = 'must be positive fractional number'
+  }
+  return error
+}
+
+export const CreateForm = (): JSX.Element => {
   const { account, chainId, library, error } = useEthers()
   const router = useRouter()
   const [deployError, setDeployError] = useState('')
@@ -60,42 +96,6 @@ export const Create = (): JSX.Element => {
     },
   })
 
-  const isNotEmpty = (value: string): string => {
-    let error: string
-    if (!value) {
-      error = 'is required'
-    }
-    return error
-  }
-
-  const isNotNumber = (value: string) => {
-    let error: string
-    if (!value) {
-      error = 'is required'
-    } else if (!value || !/^[0-9]*$/.test(value)) {
-      error = 'must be a positive number'
-    }
-    return error
-  }
-
-  const isNotPositiveNumber = (value: string) => {
-    let error: string = isNotNumber(value)
-    if (!error && Number(value) <= 0) {
-      error = 'must be greater then zero'
-    }
-    return error
-  }
-
-  const isNotFractualNumber = (value: string) => {
-    let error: string
-    if (!value) {
-      error = 'is required'
-    } else if (!value || !/^(0|([1-9][0-9]*))(\.[0-9]{0,18})?$/.test(value)) {
-      error = 'must be positive fractional number'
-    }
-    return error
-  }
-
   return (
     <form onSubmit={formik.handleSubmit}>
       <FormikProvider value={formik}>
@@ -103,7 +103,7 @@ export const Create = (): JSX.Element => {
           isInvalid={formik.touched.tokenName && !!formik.errors.tokenName}
         >
           <FormLabel htmlFor="tokenName">Name</FormLabel>
-          <Field as={Input} bg="white" name="tokenName" validate={isNotEmpty} />
+          <Field as={Input} bg="white" name="tokenName" validate={isEmpty} />
           {formik.errors.tokenName && formik.touched.tokenName && (
             <FormErrorMessage>Name {formik.errors.tokenName}</FormErrorMessage>
           )}
@@ -113,7 +113,7 @@ export const Create = (): JSX.Element => {
           isInvalid={formik.touched.symbol && !!formik.errors.symbol}
         >
           <FormLabel htmlFor="symbol">Symbol</FormLabel>
-          <Field as={Input} bg="white" name="symbol" validate={isNotEmpty} />
+          <Field as={Input} bg="white" name="symbol" validate={isEmpty} />
           {formik.errors.symbol && formik.touched.symbol && (
             <FormErrorMessage>Symbol {formik.errors.symbol}</FormErrorMessage>
           )}
@@ -127,7 +127,7 @@ export const Create = (): JSX.Element => {
             as={Input}
             bg="white"
             name="maxSupply"
-            validate={isNotPositiveNumber}
+            validate={isPositiveNumber}
           />
           {formik.errors.maxSupply && formik.touched.maxSupply && (
             <FormErrorMessage>
@@ -144,7 +144,7 @@ export const Create = (): JSX.Element => {
             as={Input}
             bg="white"
             name="mintCost"
-            validate={isNotFractualNumber}
+            validate={isFractionalNumber}
           />
           {formik.errors.mintCost && formik.touched.mintCost && (
             <FormErrorMessage>
@@ -181,7 +181,7 @@ export const Create = (): JSX.Element => {
             as={Input}
             bg="white"
             name="vrfSubscriptionId"
-            validate={isNotNumber}
+            validate={isNumber}
           />
           {formik.errors.vrfSubscriptionId &&
             formik.touched.vrfSubscriptionId && (
@@ -228,7 +228,7 @@ export const Create = (): JSX.Element => {
                 as={Input}
                 bg="white"
                 name="revealBatchSize"
-                validate={isNotNumber}
+                validate={isNumber}
               />
             </div>
           </Tooltip>
@@ -256,7 +256,7 @@ export const Create = (): JSX.Element => {
                 as={Input}
                 bg="white"
                 name="revealInterval"
-                validate={isNotNumber}
+                validate={isNumber}
               />
             </div>
           </Tooltip>
