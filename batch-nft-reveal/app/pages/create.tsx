@@ -17,11 +17,13 @@ function CreatePage(): JSX.Element {
   const [deployedContract, setDeployedContract] = useState<
     DeployedContract | undefined
   >()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const onSubmit = useCallback(
     async (args: CreateFormValues) => {
+      setIsLoading(true)
       const tx = await deployNFTCollection(args, library?.getSigner(), chainId)
-
+      setIsLoading(false)
       setDeployedContract({
         address: tx.contractAddress,
         txHash: tx.transactionHash,
@@ -45,7 +47,9 @@ function CreatePage(): JSX.Element {
             deployTxHash={deployedContract.txHash}
           />
         )}
-        {!deployedContract && <CreateForm onSubmit={onSubmit} />}
+        {!deployedContract && (
+          <CreateForm onSubmit={onSubmit} isLoading={isLoading} />
+        )}
       </Section>
     </>
   )

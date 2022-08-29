@@ -60,12 +60,16 @@ const isFractionalNumber = (value: string) => {
  */
 interface CreateFormProps {
   onSubmit: (args: CreateFormValues) => Promise<void>
+  isLoading: boolean
 }
 
 /**
  * Component
  */
-export const CreateForm = ({ onSubmit }: CreateFormProps): JSX.Element => {
+export const CreateForm = ({
+  onSubmit,
+  isLoading,
+}: CreateFormProps): JSX.Element => {
   const { account, error } = useEthers()
 
   const formik = useFormik({
@@ -259,9 +263,11 @@ export const CreateForm = ({ onSubmit }: CreateFormProps): JSX.Element => {
             mt="8"
             colorScheme="teal"
             type="submit"
+            isLoading={isLoading}
             disabled={
               !account ||
               !!error ||
+              isLoading ||
               !formik.dirty ||
               Array.isArray(formik.errors) ||
               Object.values(formik.errors).toString() != ''
