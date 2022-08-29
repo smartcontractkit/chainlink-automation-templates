@@ -41,8 +41,8 @@ declare global {
 
 // Title text for the various transaction notifications.
 const TRANSACTION_TYPE_TITLES = {
-  transactionStarted: 'Started',
-  transactionSucceed: 'Completed',
+  transactionStarted: 'Mint started',
+  transactionSucceed: 'Mint completed',
 }
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID
