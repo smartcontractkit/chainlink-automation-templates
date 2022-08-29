@@ -10,6 +10,7 @@
     // Is not enabled right now to avoid issues with the Next.js repo
     // "prettier",
   ],
+  "root": true,
   "env": {
     "es6": true,
     "browser": true,
