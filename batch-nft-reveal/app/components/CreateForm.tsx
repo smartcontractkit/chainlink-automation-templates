@@ -1,5 +1,5 @@
 import React from 'react'
-import { useRouter } from 'next/router'
+import { useEthers } from '@usedapp/core'
 import { Field, FormikProvider, useFormik } from 'formik'
 import {
   Button,
@@ -13,12 +13,12 @@ import {
   Heading,
   Link,
 } from '@chakra-ui/react'
-import { useEthers } from '@usedapp/core'
 import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons'
-import { ethers } from 'ethers'
-import { deployNFTCollection } from '../lib/deploy'
-import NFTCollectionParams from '../types//NFTCollectionParams'
+import CreateFormValues from '../types/CreateFormValues'
 
+/**
+ * Constants & Helpers
+ */
 const isEmpty = (value: string): string => {
   let error: string
   if (!value) {
@@ -55,54 +55,40 @@ const isFractionalNumber = (value: string) => {
   return error
 }
 
-export const CreateForm = (): JSX.Element => {
-  const { account, chainId, library, error } = useEthers()
-  const router = useRouter()
+/**
+ * Prop Types
+ */
+interface CreateFormProps {
+  onSubmit: (args: CreateFormValues) => Promise<void>
+}
+
+/**
+ * Component
+ */
+export const CreateForm = ({ onSubmit }: CreateFormProps): JSX.Element => {
+  const { account, error } = useEthers()
 
   const formik = useFormik({
     initialValues: {
-      tokenName: '',
+      name: '',
       symbol: '',
-      maxSupply: 0,
+      maxSupply: '',
       mintCost: '',
-      revealBatchSize: 0,
-      revealInterval: 0,
-      vrfSubscriptionId: 0,
+      revealBatchSize: '',
+      revealInterval: '',
+      vrfSubscriptionId: '',
     },
-    onSubmit: async (values) => {
-      const nftCollectionParams: NFTCollectionParams = {
-        nftName: values.tokenName,
-        nftSymbol: values.symbol,
-        nftMaxSupply: values.maxSupply,
-        nftMintCost: ethers.utils.parseEther(values.mintCost),
-        nftRevealBatchSize: values.revealBatchSize,
-        nftRevealInterval: values.revealInterval,
-        vrfSubscriptionId: values.vrfSubscriptionId,
-      }
-
-      const tx = await deployNFTCollection(
-        // const contract = ...
-        nftCollectionParams,
-        library?.getSigner(),
-        chainId
-      )
-
-      router.push(
-        `/success?address=${tx.contractAddress}&tx=${tx.transactionHash}`
-      )
-    },
+    onSubmit,
   })
 
   return (
     <form onSubmit={formik.handleSubmit}>
       <FormikProvider value={formik}>
-        <FormControl
-          isInvalid={formik.touched.tokenName && !!formik.errors.tokenName}
-        >
-          <FormLabel htmlFor="tokenName">Name</FormLabel>
-          <Field as={Input} bg="white" name="tokenName" validate={isEmpty} />
-          {formik.errors.tokenName && formik.touched.tokenName && (
-            <FormErrorMessage>Name {formik.errors.tokenName}</FormErrorMessage>
+        <FormControl isInvalid={formik.touched.name && !!formik.errors.name}>
+          <FormLabel htmlFor="name">Name</FormLabel>
+          <Field as={Input} bg="white" name="name" validate={isEmpty} />
+          {formik.errors.name && formik.touched.name && (
+            <FormErrorMessage>Name {formik.errors.name}</FormErrorMessage>
           )}
         </FormControl>
         <FormControl

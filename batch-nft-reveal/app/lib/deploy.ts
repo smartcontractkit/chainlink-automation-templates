@@ -1,4 +1,4 @@
-import { ContractFactory, Signer } from 'ethers'
+import { ContractFactory, ethers, Signer } from 'ethers'
 import { TransactionReceipt } from '@ethersproject/abstract-provider/lib/index'
 
 import NFTCollection from '../artifacts/contracts/NFTCollection.sol/NFTCollection.json'
@@ -7,10 +7,10 @@ import {
   VRF_COORDINATOR_V2_ADDRESS,
   VRF_GAS_LANE,
 } from '../conf/config'
-import NFTCollectionParams from '../types/NFTCollectionParams'
+import CreateFormValues from '../types/CreateFormValues'
 
 export async function deployNFTCollection(
-  nftParams: NFTCollectionParams,
+  nftParams: CreateFormValues,
   signer: Signer,
   chainId: number
 ): Promise<TransactionReceipt> {
@@ -20,12 +20,12 @@ export async function deployNFTCollection(
     signer
   )
   const deployedContract = await nftCollection.deploy(
-    nftParams.nftName,
-    nftParams.nftSymbol,
-    nftParams.nftMaxSupply,
-    nftParams.nftMintCost,
-    nftParams.nftRevealBatchSize,
-    nftParams.nftRevealInterval,
+    nftParams.name,
+    nftParams.symbol,
+    nftParams.maxSupply,
+    ethers.utils.parseEther(nftParams.mintCost),
+    nftParams.revealBatchSize,
+    nftParams.revealInterval,
     VRF_COORDINATOR_V2_ADDRESS[chainId],
     nftParams.vrfSubscriptionId,
     VRF_GAS_LANE[chainId],

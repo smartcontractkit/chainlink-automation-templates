@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import { useEthers } from '@usedapp/core'
 import {
   Button,
-  Container,
   HStack,
   Text,
   Link,
@@ -17,14 +17,26 @@ import {
   ExternalLinkIcon,
   QuestionOutlineIcon,
 } from '@chakra-ui/icons'
-import { useEthers } from '@usedapp/core'
 
-export const Success = (): JSX.Element => {
+/**
+ * Prop Types
+ */
+interface SuccessDialogProps {
+  contractAddress: string
+  deployTxHash: string
+}
+
+/**
+ * Component
+ */
+export const SuccessDialog = ({
+  contractAddress,
+  deployTxHash,
+}: SuccessDialogProps): JSX.Element => {
   const { library } = useEthers()
-  const [network, setNetwork] = useState('rinkeby')
   const router = useRouter()
-  const { address, tx } = router.query
-  const { hasCopied, onCopy } = useClipboard(address as string, 3000)
+  const [network, setNetwork] = useState('rinkeby')
+  const { hasCopied, onCopy } = useClipboard(contractAddress, 3000)
 
   useEffect(() => {
     const setNetworkName = async () => {
@@ -38,17 +50,17 @@ export const Success = (): JSX.Element => {
   }, [library, setNetwork])
 
   const viewColleciton = () => {
-    router.push(`/collection/${address}`)
+    router.push(`/collection/${contractAddress}`)
   }
 
   return (
-    <Container maxW="container.lg">
+    <>
       <Heading as="h1" mb="8" size="lg">
         Sample NFT Collection successfully deployed
       </Heading>
       <HStack>
         <Text fontSize="xl">Address:</Text>
-        {address && <Text fontSize="xl">{address}</Text>}
+        <Text fontSize="xl">{contractAddress}</Text>
         <Tooltip
           label={hasCopied ? 'Copied' : 'Copy to clipboard'}
           placement="right-start"
@@ -66,7 +78,7 @@ export const Success = (): JSX.Element => {
           <Link
             href={`https://${
               network === 'mainnet' ? '' : `${network}.`
-            }etherscan.io/tx/${tx}`}
+            }etherscan.io/tx/${deployTxHash}`}
             isExternal
           >
             Deploy Tx <ExternalLinkIcon mx="2px" />
@@ -99,6 +111,6 @@ export const Success = (): JSX.Element => {
           </ButtonGroup>
         </HStack>
       </Center>
-    </Container>
+    </>
   )
 }
