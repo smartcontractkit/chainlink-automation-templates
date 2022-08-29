@@ -8,15 +8,12 @@ import {
   Link,
   useClipboard,
   Tooltip,
-  Center,
-  ButtonGroup,
   Heading,
+  Stack,
+  Checkbox,
+  Code,
 } from '@chakra-ui/react'
-import {
-  CopyIcon,
-  ExternalLinkIcon,
-  QuestionOutlineIcon,
-} from '@chakra-ui/icons'
+import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 
 /**
  * Prop Types
@@ -33,11 +30,20 @@ export const SuccessDialog = ({
   contractAddress,
   deployTxHash,
 }: SuccessDialogProps): JSX.Element => {
-  const { library } = useEthers()
-  const router = useRouter()
-  const [network, setNetwork] = useState('rinkeby')
+  const [checkedSteps, setCheckedSteps] = React.useState([false, false])
+  const allChecked = checkedSteps.every(Boolean)
+
   const { hasCopied, onCopy } = useClipboard(contractAddress, 3000)
 
+  const router = useRouter()
+
+  const viewColleciton = () => {
+    router.push(`/collection/${contractAddress}`)
+  }
+
+  // todo: remove and use chainId + https://usedapp-docs.netlify.app/docs/API%20Reference/Helpers#getchainname-deprecated
+  const { library } = useEthers()
+  const [network, setNetwork] = useState('rinkeby')
   useEffect(() => {
     const setNetworkName = async () => {
       const name = (await library.getNetwork()).name
@@ -49,20 +55,16 @@ export const SuccessDialog = ({
     }
   }, [library, setNetwork])
 
-  const viewColleciton = () => {
-    router.push(`/collection/${contractAddress}`)
-  }
-
   return (
     <>
-      <Heading as="h1" mb="8" size="lg">
-        Sample NFT Collection successfully deployed
+      <Heading as="h2" mb="4" size="md">
+        Sample NFT Collection successfully deployed!
       </Heading>
       <HStack>
-        <Text fontSize="xl">Address:</Text>
-        <Text fontSize="xl">{contractAddress}</Text>
+        <Text>Address:</Text>
+        <Code>{contractAddress}</Code>
         <Tooltip
-          label={hasCopied ? 'Copied' : 'Copy to clipboard'}
+          label={hasCopied ? 'Copied' : 'Copy to Clipboard'}
           placement="right-start"
           fontSize="xs"
           hasArrow
@@ -72,45 +74,63 @@ export const SuccessDialog = ({
             <CopyIcon onClick={onCopy} mx="2px" />
           </Link>
         </Tooltip>
-      </HStack>
-      <Center>
-        <HStack>
+        <Tooltip
+          label="Open in Explorer"
+          placement="right-start"
+          fontSize="xs"
+          hasArrow
+        >
           <Link
             href={`https://${
               network === 'mainnet' ? '' : `${network}.`
             }etherscan.io/tx/${deployTxHash}`}
             isExternal
           >
-            Deploy Tx <ExternalLinkIcon mx="2px" />
+            <ExternalLinkIcon />
+          </Link>
+        </Tooltip>
+      </HStack>
+      <Heading as="h3" mt="8" size="sm">
+        Next Steps
+      </Heading>
+      <Stack mt="4" spacing="4">
+        <HStack>
+          <Checkbox
+            size="lg"
+            background="white"
+            isChecked={checkedSteps[0]}
+            onChange={(e) =>
+              setCheckedSteps([e.target.checked, checkedSteps[1]])
+            }
+          />
+          <Text>1. Add contract as consumer to your VRF subscription</Text>
+          <Link href="https://vrf.chain.link" isExternal>
+            <ExternalLinkIcon />
           </Link>
         </HStack>
-      </Center>
-      <Center>
-        <HStack spacing="10px">
-          <Link
-            _focus={{ boxShadow: 'none' }}
-            href="https://docs.chain.link/docs/chainlink-keepers/register-upkeep/"
-            isExternal
-          >
-            <QuestionOutlineIcon />
+        <HStack>
+          <Checkbox
+            size="lg"
+            background="white"
+            isChecked={checkedSteps[1]}
+            onChange={(e) =>
+              setCheckedSteps([checkedSteps[0], e.target.checked])
+            }
+          />
+          <Text>2. Register new Upkeep</Text>
+          <Link href="https://keepers.chain.link" isExternal>
+            <ExternalLinkIcon />
           </Link>
-          <ButtonGroup gap="2">
-            <Link
-              style={{ textDecoration: 'none' }}
-              _focus={{ boxShadow: 'none' }}
-              href="https://keepers.chain.link/new"
-              isExternal
-            >
-              <Button mt="4" colorScheme="teal">
-                Register Upkeep
-              </Button>
-            </Link>
-            <Button mt="4" colorScheme="teal" onClick={viewColleciton}>
-              View Collection
-            </Button>
-          </ButtonGroup>
         </HStack>
-      </Center>
+      </Stack>
+      <Button
+        mt="8"
+        colorScheme="teal"
+        disabled={!allChecked}
+        onClick={viewColleciton}
+      >
+        View Collection
+      </Button>
     </>
   )
 }
