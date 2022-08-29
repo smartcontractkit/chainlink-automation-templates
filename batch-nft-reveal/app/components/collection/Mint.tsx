@@ -80,7 +80,7 @@ export const Mint = (props: AddressProp): JSX.Element => {
             setMintAmount(valueAsNumber)
           }}
         >
-          <NumberInputField />
+          <NumberInputField bg="white" />
           <NumberInputStepper>
             <NumberIncrementStepper />
             <NumberDecrementStepper />
