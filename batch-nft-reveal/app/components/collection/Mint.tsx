@@ -55,6 +55,7 @@ export const Mint = (props: AddressProp): JSX.Element => {
 
   return (
     <Container maxWidth="100%" centerContent>
+      {state.errorMessage && <Error message={state.errorMessage} />}
       <Heading>
         {name || ''}
         {symbol ? `(${symbol})` : '...'}
@@ -80,7 +81,7 @@ export const Mint = (props: AddressProp): JSX.Element => {
             setMintAmount(valueAsNumber)
           }}
         >
-          <NumberInputField />
+          <NumberInputField bg="white" />
           <NumberInputStepper>
             <NumberIncrementStepper />
             <NumberDecrementStepper />
@@ -106,7 +107,6 @@ export const Mint = (props: AddressProp): JSX.Element => {
         {totalSupply ? totalSupply.toString() : 0}/
         {maxSupply ? maxSupply.toString() : 0} minted{' '}
       </Text>
-      {state.errorMessage && <Error message={state.errorMessage} />}
     </Container>
   )
 }
