@@ -13,7 +13,7 @@ export const RevealInfo = (props: AddressProp): JSX.Element => {
   const isPending = useContractCall('isPending', [], contractAddress)
 
   return (
-    <Container mt={5} maxWidth="100%" textAlign="center">
+    <Container maxWidth="100%" textAlign="center">
       {isPending ? (
         <Heading>Pending</Heading>
       ) : (
