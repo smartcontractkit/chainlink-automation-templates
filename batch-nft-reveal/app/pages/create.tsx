@@ -4,6 +4,7 @@ import { Text, Heading } from '@chakra-ui/react'
 import { Section } from '../components/layout'
 import { CreateForm } from '../components/CreateForm'
 import { SuccessDialog } from '../components/SuccessDialog'
+import { Error } from '../components/Error'
 import { deployNFTCollection } from '../lib/deploy'
 import CreateFormValues from '../types//CreateFormValues'
 
@@ -18,26 +19,28 @@ function CreatePage(): JSX.Element {
   const [deployedContract, setDeployedContract] = useState<
     DeployedContract | undefined
   >()
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [error, setError] = useState('')
 
   const onSubmit = useCallback(
     async (args: CreateFormValues) => {
+      setError('')
       setIsLoading(true)
+      let tx
       try {
-        const tx = await deployNFTCollection(
-          args,
-          library?.getSigner(),
-          chainId
-        )
+        tx = await deployNFTCollection(args, library?.getSigner(), chainId)
+      } catch (ex) {
+        ex.message ? setError(ex.message) : setError("Unsuccessful deployment")
         setIsLoading(false)
-        setDeployedContract({
-          address: tx.contractAddress,
-          txHash: tx.transactionHash,
-          name: args.name,
-        })
-      } catch (err) {
-        setIsLoading(false)
+        return
       }
+      setDeployedContract({
+        address: tx.contractAddress,
+        txHash: tx.transactionHash,
+        name: args.name,
+      })
+      setIsLoading(false)
     },
     [library, chainId]
   )
@@ -51,6 +54,7 @@ function CreatePage(): JSX.Element {
         Setup batch-revealed NFT collection from a pre-built standard contract.
       </Text>
       <Section>
+        {error && <Error message={error} />}
         {deployedContract && (
           <SuccessDialog
             contractAddress={deployedContract.address}
