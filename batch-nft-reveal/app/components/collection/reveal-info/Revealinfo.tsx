@@ -15,7 +15,7 @@ export const RevealInfo = (props: AddressProp): JSX.Element => {
   return (
     <Container maxWidth="100%" textAlign="center">
       {isPending ? (
-        <Heading>Pending</Heading>
+        <Heading>Pending batch reveal</Heading>
       ) : (
         <>
           <Heading>Next reveal after</Heading>
