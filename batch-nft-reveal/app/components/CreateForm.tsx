@@ -252,6 +252,7 @@ export const CreateForm = ({ onSubmit }: CreateFormProps): JSX.Element => {
         <Tooltip
           hasArrow
           label="Connect to a wallet"
+          placement="top"
           shouldWrapChildren
           isDisabled={!!account}
         >
