@@ -254,6 +254,7 @@ export const CreateForm = ({ onSubmit }: CreateFormProps): JSX.Element => {
           label="Connect to a wallet"
           shouldWrapChildren
           isDisabled={!!account}
+          placement='top'
         >
           <Button
             mt="8"
