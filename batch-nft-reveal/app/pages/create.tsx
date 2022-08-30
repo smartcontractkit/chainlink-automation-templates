@@ -6,6 +6,7 @@ import { CreateForm } from '../components/CreateForm'
 import { SuccessDialog } from '../components/SuccessDialog'
 import { deployNFTCollection } from '../lib/deploy'
 import CreateFormValues from '../types//CreateFormValues'
+import { ethers } from '@usedapp/core/node_modules/ethers'
 
 interface DeployedContract {
   address: string
@@ -17,15 +18,25 @@ function CreatePage(): JSX.Element {
   const [deployedContract, setDeployedContract] = useState<
     DeployedContract | undefined
   >()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const onSubmit = useCallback(
     async (args: CreateFormValues) => {
-      const tx = await deployNFTCollection(args, library?.getSigner(), chainId)
-
-      setDeployedContract({
-        address: tx.contractAddress,
-        txHash: tx.transactionHash,
-      })
+      setIsLoading(true)
+      try {
+        const tx = await deployNFTCollection(
+          args,
+          library?.getSigner(),
+          chainId
+        )
+        setIsLoading(false)
+        setDeployedContract({
+          address: tx.contractAddress,
+          txHash: tx.transactionHash,
+        })
+      } catch (err) {
+        setIsLoading(false)
+      }
     },
     [library, chainId]
   )
@@ -45,7 +56,9 @@ function CreatePage(): JSX.Element {
             deployTxHash={deployedContract.txHash}
           />
         )}
-        {!deployedContract && <CreateForm onSubmit={onSubmit} />}
+        {!deployedContract && (
+          <CreateForm onSubmit={onSubmit} isLoading={isLoading} />
+        )}
       </Section>
     </>
   )
