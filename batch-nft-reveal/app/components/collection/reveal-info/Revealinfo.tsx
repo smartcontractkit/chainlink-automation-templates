@@ -10,7 +10,7 @@ export const RevealInfo = (props: AddressProp): JSX.Element => {
 
   const nextRevealBatchSize = useNextRevealAmount(contractAddress)
   const nextRevealTime = useNextRevealTime(contractAddress)
-  const isPending = useContractCall('isPending', [], contractAddress)
+  const isPending = useContractCall('pendingReveal', [], contractAddress)
 
   return (
     <Container maxWidth="100%" textAlign="center">
