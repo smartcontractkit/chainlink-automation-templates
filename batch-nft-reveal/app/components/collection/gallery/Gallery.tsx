@@ -17,15 +17,15 @@ export const Gallery = (props: AddressProp): JSX.Element => {
     <Container mt={5} maxWidth="100%" textAlign="center">
       <Tabs>
         <TabList>
-          <Tab _selected={{ color: 'white', bg: 'teal' }}>Owned</Tab>
           <Tab _selected={{ color: 'white', bg: 'teal' }}>All</Tab>
+          <Tab _selected={{ color: 'white', bg: 'teal' }}>Owned</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
-            <OwnedTokens contractAddress={contractAddress}></OwnedTokens>
+            <AllTokens contractAddress={contractAddress}></AllTokens>
           </TabPanel>
           <TabPanel>
-            <AllTokens contractAddress={contractAddress}></AllTokens>
+            <OwnedTokens contractAddress={contractAddress}></OwnedTokens>
           </TabPanel>
         </TabPanels>
       </Tabs>
