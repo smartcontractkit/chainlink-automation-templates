@@ -170,15 +170,17 @@ export const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
       </main>
       <footer>
         <Container mt="8" py="8" maxWidth="container.xl">
-          <Link
-            href="https://github.com/hackbg/chainlink-keepers-templates"
-            isExternal
-          >
-            <HStack>
-              <Image src="/images/github.svg" width="20px" />
-              <Text>GitHub</Text>
-            </HStack>
-          </Link>
+          <HStack>
+            <Link
+              href="https://github.com/hackbg/chainlink-keepers-templates"
+              isExternal
+            >
+              <HStack>
+                <Image src="images/github.svg" width="20px" />
+                <Text>GitHub</Text>
+              </HStack>
+            </Link>
+          </HStack>
         </Container>
       </footer>
     </>
