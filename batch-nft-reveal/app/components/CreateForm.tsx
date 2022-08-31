@@ -256,6 +256,7 @@ export const CreateForm = ({
         <Tooltip
           hasArrow
           label="Connect to a wallet"
+          placement="top"
           shouldWrapChildren
           isDisabled={!!account}
         >
