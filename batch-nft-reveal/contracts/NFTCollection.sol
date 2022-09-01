@@ -201,19 +201,42 @@ contract NFTCollection is
         pure
         returns (string memory)
     {
-        string[3] memory parts;
-
-        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 8px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
-
+        string[4] memory parts;
+        parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">';
         if (_metadataCleared) {
-            parts[1] = Strings.toString(_randomness);
+            parts[1] = '<style>.base { fill: white; font-family: serif; font-size: 54px; }</style><rect width="100%" height="100%" fill="black" /><text class="base">';
+            string[7] memory slicedRandomness;
+            string memory randomnessString = Strings.toString(_randomness);
+
+            for (uint8 i = 0; i < 7; i++) {
+                string memory partialNumber = substring(randomnessString,i*11,(i+1)*11);
+                slicedRandomness[i] = string(
+                    abi.encodePacked(
+                        '<tspan x="12" dy="48">',
+                        partialNumber,
+                        "</tspan>"
+                    )
+                );
+            }
+            parts[2] = string(
+                abi.encodePacked(
+                    slicedRandomness[0],
+                    slicedRandomness[1],
+                    slicedRandomness[2],
+                    slicedRandomness[3],
+                    slicedRandomness[4],
+                    slicedRandomness[5],
+                    slicedRandomness[6]
+                )
+            );
         } else {
-            parts[1] = "No randomness assigned";
+            parts[1] = '<style>.base { fill: white; font-family: serif; font-size: 350px; }</style><rect width="100%" height="100%" fill="black" /><text x="100" y="295" class="base">';
+            parts[2] = "?";
         }
 
-        parts[2] = "</text></svg>";
+        parts[3] = "</text></svg>";
 
-        return string(abi.encodePacked(parts[0], parts[1], parts[2]));
+        return string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]));
     }
 
     function _svgToImageURI(string memory svg)
@@ -224,6 +247,19 @@ contract NFTCollection is
         string memory baseURL = "data:image/svg+xml;base64,";
         string memory svgBase64Encoded = Base64.encode(bytes(string(abi.encodePacked(svg))));
         return string(abi.encodePacked(baseURL, svgBase64Encoded));
+    }
+
+    function substring(
+        string memory str,
+        uint256 startIndex,
+        uint256 endIndex
+    ) public pure returns (string memory) {
+        bytes memory strBytes = bytes(str);
+        bytes memory result = new bytes(endIndex - startIndex);
+        for (uint256 i = startIndex; i < endIndex; i++) {
+            result[i - startIndex] = strBytes[i];
+        }
+        return string(result);
     }
 
     // REVEAL
