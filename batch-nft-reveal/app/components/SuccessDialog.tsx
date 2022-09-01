@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
-import { useEthers } from '@usedapp/core'
+import { DEFAULT_SUPPORTED_CHAINS, useEthers } from '@usedapp/core'
 import {
   Button,
   HStack,
@@ -41,19 +41,11 @@ export const SuccessDialog = ({
     router.push(`/collection/${contractAddress}`)
   }
 
-  // todo: remove and use chainId + https://usedapp-docs.netlify.app/docs/API%20Reference/Helpers#getchainname-deprecated
-  const { library } = useEthers()
-  const [network, setNetwork] = useState('rinkeby')
-  useEffect(() => {
-    const setNetworkName = async () => {
-      const name = (await library.getNetwork()).name
-      setNetwork(name)
-    }
+  const { chainId } = useEthers()
 
-    if (library) {
-      setNetworkName()
-    }
-  }, [library, setNetwork])
+  const network = DEFAULT_SUPPORTED_CHAINS
+      .find((network) => network.chainId === chainId)
+      ?.chainName
 
   return (
     <>
