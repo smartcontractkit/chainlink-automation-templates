@@ -9,7 +9,6 @@ export const NextReveal = (props: RevealProp): JSX.Element => {
 
   const nextRevealBatchSize =
     props.nextRevealBatchSize && props.nextRevealBatchSize.toString()
-  console.log(nextRevealBatchSize + ' NFTS' || '... ')
   return (
     <>
       <Box marginTop="5">
