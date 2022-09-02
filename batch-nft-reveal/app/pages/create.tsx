@@ -10,6 +10,7 @@ import CreateFormValues from '../types//CreateFormValues'
 interface DeployedContract {
   address: string
   txHash: string
+  name: string
 }
 
 function CreatePage(): JSX.Element {
@@ -32,6 +33,7 @@ function CreatePage(): JSX.Element {
         setDeployedContract({
           address: tx.contractAddress,
           txHash: tx.transactionHash,
+          name: args.name,
         })
       } catch (err) {
         setIsLoading(false)
@@ -53,6 +55,7 @@ function CreatePage(): JSX.Element {
           <SuccessDialog
             contractAddress={deployedContract.address}
             deployTxHash={deployedContract.txHash}
+            collectionName={deployedContract.name}
           />
         )}
         {!deployedContract && (

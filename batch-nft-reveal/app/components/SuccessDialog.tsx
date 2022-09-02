@@ -21,6 +21,7 @@ import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 interface SuccessDialogProps {
   contractAddress: string
   deployTxHash: string
+  collectionName: string
 }
 
 /**
@@ -29,6 +30,7 @@ interface SuccessDialogProps {
 export const SuccessDialog = ({
   contractAddress,
   deployTxHash,
+  collectionName
 }: SuccessDialogProps): JSX.Element => {
   const [checkedSteps, setCheckedSteps] = React.useState([false, false])
   const allChecked = checkedSteps.every(Boolean)
@@ -50,7 +52,7 @@ export const SuccessDialog = ({
   return (
     <>
       <Heading as="h2" mb="4" size="md">
-        Sample NFT Collection successfully deployed!
+        {collectionName} successfully deployed!
       </Heading>
       <HStack>
         <Text>Address:</Text>
