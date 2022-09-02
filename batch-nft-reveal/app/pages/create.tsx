@@ -6,7 +6,6 @@ import { CreateForm } from '../components/CreateForm'
 import { SuccessDialog } from '../components/SuccessDialog'
 import { deployNFTCollection } from '../lib/deploy'
 import CreateFormValues from '../types//CreateFormValues'
-import { ethers } from '@usedapp/core/node_modules/ethers'
 
 interface DeployedContract {
   address: string
