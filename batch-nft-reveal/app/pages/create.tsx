@@ -29,9 +29,14 @@ function CreatePage(): JSX.Element {
       setIsLoading(true)
       let tx
       try {
-        tx = await deployNFTCollection(args, library?.getSigner(), chainId)
+        const contract = await deployNFTCollection(
+          args,
+          library?.getSigner(),
+          chainId
+        )
+        tx = await contract.deployTransaction.wait(0)
       } catch (ex) {
-        ex.message ? setError(ex.message) : setError("Unsuccessful deployment")
+        ex.message ? setError(ex.message) : setError('Unsuccessful deployment')
         setIsLoading(false)
         return
       }
