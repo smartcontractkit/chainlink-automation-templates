@@ -230,7 +230,7 @@ contract NFTCollection is
                 )
             );
         } else {
-            parts[1] = '<style>.base { fill: white; font-family: serif; font-size: 350px; }</style><rect width="100%" height="100%" fill="black" /><text x="100" y="295" class="base">';
+            parts[1] = '<style>.base { fill: white; font-family: serif; font-size: 350px; }</style><rect width="100%" height="100%" fill="black" /><text x="90" y="295" class="base">';
             parts[2] = "?";
         }
 
