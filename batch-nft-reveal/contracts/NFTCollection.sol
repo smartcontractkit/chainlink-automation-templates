@@ -35,7 +35,7 @@ contract NFTCollection is
     uint256 private s_revealBatchSize;
     uint256 private s_revealInterval;
     uint256 private s_lastRevealed = block.timestamp;
-    bool private s_pendingReveal;
+    bool private s_revealInProgress;
     Metadata[] private s_metadatas;
 
     // VRF CONSTANTS & IMMUTABLE
@@ -59,6 +59,7 @@ contract NFTCollection is
     error MaxSupplyReached();
     error InsufficientFunds();
     error RevealCriteriaNotMet();
+    error RevealInProgress();
     error InsufficientLINK();
     error WithdrawProceedsFailed();
 
@@ -145,10 +146,6 @@ contract NFTCollection is
 
     function maxSupply() public view returns (uint256){
         return MAX_SUPPLY;
-    }
-
-    function pendingReveal() public view returns (bool){
-        return s_pendingReveal;
     }
 
     // HELPERS
@@ -264,14 +261,7 @@ contract NFTCollection is
 
     // REVEAL
 
-    function _canReveal() internal view returns (bool) {
-        if (s_pendingReveal) {
-            return false;
-        }
-        return revealCriteriaMatched();
-    }
-
-    function revealCriteriaMatched() public view returns (bool){
+    function shouldReveal() public view returns (bool){
         uint256 unrevealedCount = totalSupply() - s_revealedCount;
         if (unrevealedCount == 0) {
             return false;
@@ -291,7 +281,10 @@ contract NFTCollection is
     }
 
     function revealPendingMetadata() public returns (uint256 requestId) {
-        if (!_canReveal()) {
+        if (s_revealInProgress) {
+            revert RevealInProgress();
+        }
+        if (!shouldReveal()) {
             revert RevealCriteriaNotMet();
         }
         requestId = VRF_COORDINATOR_V2.requestRandomWords(
@@ -301,7 +294,7 @@ contract NFTCollection is
             VRF_CALLBACK_GAS_LIMIT,
             VRF_NUM_WORDS
         );
-        s_pendingReveal = true;
+        s_revealInProgress = true;
         emit BatchRevealRequested(requestId);
     }
 
@@ -318,7 +311,7 @@ contract NFTCollection is
         );
         s_revealedCount = totalSupply;
         s_lastRevealed = block.timestamp;
-        s_pendingReveal = false;
+        s_revealInProgress = false;
         emit BatchRevealFinished(startIndex, endIndex);
     }
 
@@ -339,7 +332,7 @@ contract NFTCollection is
         override
         returns (bool upkeepNeeded, bytes memory)
     {
-        upkeepNeeded = _canReveal();
+        upkeepNeeded = !s_revealInProgress && shouldReveal();
     }
 
     function performUpkeep(bytes calldata) external override {
