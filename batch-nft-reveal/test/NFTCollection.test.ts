@@ -144,7 +144,7 @@ describe("NFTCollection", async function () {
       expect(upkeepNeeded).to.eq(false);
 
       await expect(nftCollection.revealPendingMetadata()).to.be.revertedWith(
-        "RevealCriteriaNotMet"
+        "RevealInProgress"
       );
     });
 
