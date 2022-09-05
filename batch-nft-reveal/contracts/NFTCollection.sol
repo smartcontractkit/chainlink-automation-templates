@@ -268,6 +268,10 @@ contract NFTCollection is
         if (s_pendingReveal) {
             return false;
         }
+        return revealCriteriaMatched();
+    }
+
+    function revealCriteriaMatched() public view returns (bool){
         uint256 unrevealedCount = totalSupply() - s_revealedCount;
         if (unrevealedCount == 0) {
             return false;
