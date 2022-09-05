@@ -1,5 +1,5 @@
-import { useContractCall as useDappContractCall } from '@usedapp/core'
-import { utils } from 'ethers'
+import { useCall } from '@usedapp/core'
+import { Contract, utils } from 'ethers'
 import json from '../artifacts/contracts/NFTCollection.sol/NFTCollection.json'
 
 export function useContractCall<T>(
@@ -8,12 +8,11 @@ export function useContractCall<T>(
   addr: string
 ): T | undefined {
   const { abi } = json
-  const [result] =
-    useDappContractCall({
-      abi: new utils.Interface(abi),
-      address: addr,
+  const { value } =
+    useCall({
+      contract: new Contract(addr, new utils.Interface(abi)),
       method,
       args,
-    }) ?? []
-  return result as T
+    }) ?? {}
+  return value?.[0] as T
 }

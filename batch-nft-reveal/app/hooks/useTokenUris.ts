@@ -1,21 +1,21 @@
 import json from '../artifacts/contracts/NFTCollection.sol/NFTCollection.json'
-import { useContractCalls } from '@usedapp/core'
-import { BigNumber, utils } from 'ethers'
+import { useCalls } from '@usedapp/core'
+import { BigNumber, Contract, utils } from 'ethers'
 
 export function useTokenUris(
   tokens: Array<Array<BigNumber>>,
   contractAddr: string
 ): Array<any> {
   const { abi } = json
-  const tokenUrisCalls = tokens.map((ownedToken) => {
+  const abiInterface = new utils.Interface(abi)
+  const tokenUrisCalls = tokens?.map((ownedToken) => {
     return {
-      abi: new utils.Interface(abi),
-      address: contractAddr,
+      contract: new Contract(contractAddr, abiInterface),
       method: 'tokenURI',
       args: [ownedToken && ownedToken.toString()],
     }
-  })
+  }) ?? []
 
-  const tokenUris = useContractCalls(tokenUrisCalls)
-  return tokenUris
+  const tokenUris = useCalls(tokenUrisCalls) ?? []
+  return tokenUris.map(result => result?.value?.[0])
 }

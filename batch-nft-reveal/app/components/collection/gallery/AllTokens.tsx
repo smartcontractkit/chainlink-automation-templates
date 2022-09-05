@@ -13,7 +13,7 @@ export const AllTokens = (props: AddressProp): JSX.Element => {
     allTokensUris
       .slice()
       .reverse()
-      .map((tokenUri: Array<string>, index: number) => {
+      .map((tokenUri: string, index: number) => {
         return (
           <GridItem colSpan={1} rowSpan={1} key={index}>
             {<Image src={tokenUri && decodeBase64ToImageSrc(tokenUri)} />}

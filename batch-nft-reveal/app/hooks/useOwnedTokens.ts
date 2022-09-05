@@ -1,7 +1,7 @@
 import { useContractCall } from '../hooks/useContractCall'
-import { useContractCalls } from '@usedapp/core'
+import { useCalls } from '@usedapp/core'
 import json from '../artifacts/contracts/NFTCollection.sol/NFTCollection.json'
-import { BigNumber, utils } from 'ethers'
+import { BigNumber, Contract, utils } from 'ethers'
 
 export function useOwnedTokens(
   contractAddr: string,
@@ -16,14 +16,14 @@ export function useOwnedTokens(
   const { abi } = json
 
   const ownerBalance = ownerBalanceCall && ownerBalanceCall.toNumber()
+  const abiInterface = new utils.Interface(abi)
   for (let i = 0; i < ownerBalance; i++) {
     ownedTokensCalls.push({
-      abi: new utils.Interface(abi),
-      address: contractAddr,
+      contract: new Contract(contractAddr, abiInterface),
       method: 'tokenOfOwnerByIndex',
       args: [account, i],
     })
   }
-  const tokensOfOwners = useContractCalls(ownedTokensCalls)
-  return tokensOfOwners
+  const tokensOfOwners = useCalls(ownedTokensCalls) ?? []
+  return tokensOfOwners.map(result => result?.value?.[0])
 }

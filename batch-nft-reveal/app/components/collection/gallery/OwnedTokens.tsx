@@ -12,7 +12,7 @@ export const OwnedTokens = (props: AddressProp): JSX.Element => {
   const ownedTokens = useOwnedTokens(contractAddress, account)
   const ownedTokenUris = useTokenUris(ownedTokens, contractAddress).reverse()
   const imgOwnedTokenUris = ownedTokenUris.map(
-    (tokenUri: Array<string>, index: number) => (
+    (tokenUri: string, index: number) => (
       <GridItem colSpan={1} rowSpan={1} key={index}>
         <Image src={tokenUri && decodeBase64ToImageSrc(tokenUri)} />
       </GridItem>
