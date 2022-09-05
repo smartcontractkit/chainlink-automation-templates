@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-domain=example.com
+domain=keepers.chainlink-demo.app
 yarn_project="$GITHUB_WORKSPACE/batch-nft-reveal/app"
 repo_uri="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 source_branch="feature/batch-nft-app"
