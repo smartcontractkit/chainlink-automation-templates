@@ -34,7 +34,7 @@ function CreatePage(): JSX.Element {
           library?.getSigner(),
           chainId
         )
-        tx = await contract.deployTransaction.wait(0)
+        tx = await contract.deployTransaction.wait()
       } catch (ex) {
         ex.message ? setError(ex.message) : setError('Unsuccessful deployment')
         setIsLoading(false)
