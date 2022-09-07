@@ -64,14 +64,8 @@ interface LayoutProps {
  * Component
  */
 export const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
-  const { account, deactivate, error, setError } = useEthers()
+  const { account, deactivate, error } = useEthers()
   const { notifications } = useNotifications()
-
-  useEffect(() => {
-    if (error) {
-      setError(error)
-    }
-  }, [error, setError])
 
   useEffect(() => {
     if (GTM_ID) {
@@ -181,7 +175,7 @@ export const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
             isExternal
           >
             <HStack>
-              <Image src="images/github.svg" width="20px" />
+              <Image src="/images/github.svg" width="20px" />
               <Text>GitHub</Text>
             </HStack>
           </Link>

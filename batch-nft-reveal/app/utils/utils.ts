@@ -1,3 +1,3 @@
-export function decodeBase64ToImageSrc(tokenUri: Array<string>): string {
-  return JSON.parse(atob(tokenUri[0].split(',')[1])).image
+export function decodeBase64ToImageSrc(tokenUri: string): string {
+  return JSON.parse(atob(tokenUri.split(',')[1])).image
 }
