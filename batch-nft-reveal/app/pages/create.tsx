@@ -26,7 +26,6 @@ function CreatePage(): JSX.Element {
   const onSubmit = useCallback(
     async (args: CreateFormValues) => {
       setError('')
-      setIsLoading(true)
       let tx
       try {
         const contract = await deployNFTCollection(
@@ -34,6 +33,7 @@ function CreatePage(): JSX.Element {
           library?.getSigner(),
           chainId
         )
+        setIsLoading(true)
         tx = await contract.deployTransaction.wait()
       } catch (ex) {
         ex.message ? setError(ex.message) : setError('Unsuccessful deployment')
