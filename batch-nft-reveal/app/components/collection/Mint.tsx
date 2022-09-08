@@ -43,7 +43,7 @@ export const Mint = ({ contractAddress }: MintProps): JSX.Element => {
   const isLoading = state.status === 'Mining'
 
   return (
-    <Container maxWidth="100%" centerContent>
+    <Container centerContent>
       {state.errorMessage && <Error message={state.errorMessage} />}
       <Heading>
         {name || ''}

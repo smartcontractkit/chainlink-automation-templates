@@ -45,18 +45,17 @@ export const RevealInfo = ({
   )
 
   return (
-    <Container maxWidth="100%" textAlign="center">
-      {shouldReveal ? (
-        <Heading>Pending batch reveal</Heading>
-      ) : (
+    <Container textAlign="center">
+      {shouldReveal && <Heading>Pending batch reveal</Heading>}
+      {!shouldReveal && (
         <>
           <Heading>Next reveal after</Heading>
           <Box mt="5">
-            <Text fontWeight="bold" as="span" marginRight="3">
+            <Text fontWeight="bold" as="span" mr="3">
               {nextRevealBatchSize ? `${nextRevealBatchSize} NFTS` : '... '}
             </Text>
             <Text as="span">or</Text>
-            <Text fontWeight="bold" as="span" marginLeft="3">
+            <Text fontWeight="bold" as="span" ml="3">
               {(nextRevealTime && formatTime(nextRevealTime)) || '...'}
             </Text>
           </Box>
