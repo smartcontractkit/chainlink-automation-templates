@@ -145,11 +145,11 @@ contract NFTCollection is
         return s_revealInterval;
     }
 
-    function mintCost() public view override returns (uint256) {
+    function mintCost() external view override returns (uint256) {
         return MINT_COST;
     }
 
-    function maxSupply() public view override returns (uint256) {
+    function maxSupply() external view override returns (uint256) {
         return MAX_SUPPLY;
     }
 
