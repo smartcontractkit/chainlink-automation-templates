@@ -1,26 +1,21 @@
-import { useContractCall } from '../hooks/useContractCall'
 import { useCalls } from '@usedapp/core'
-import json from '../artifacts/contracts/NFTCollection.sol/NFTCollection.json'
-import { BigNumber, Contract, utils } from 'ethers'
+import { useCollectionCall } from './useCollectionCall'
+import { useCollectionContract } from './useCollectionContract'
 
-export function useAllTokens(contractAddr: string): Array<string> {
-  const totalSupplyCall: BigNumber = useContractCall(
-    'totalSupply',
-    [],
-    contractAddr
-  )
-  const ownedTokensCalls = []
-  const { abi } = json
+export function useAllTokens(contractAddress: string): string[] {
+  const contract = useCollectionContract(contractAddress)
 
-  const totalSupply = totalSupplyCall && totalSupplyCall.toNumber()
-  const abiInterface = new utils.Interface(abi)
+  const totalSupply = useCollectionCall<number>(contractAddress, 'totalSupply')
+
+  const allTokensCalls = []
   for (let i = 1; i <= totalSupply; i++) {
-    ownedTokensCalls.push({
-      contract: new Contract(contractAddr, abiInterface),
+    allTokensCalls.push({
+      contract,
       method: 'tokenURI',
       args: [i],
     })
   }
-  const tokensOfOwners = useCalls(ownedTokensCalls)
-  return tokensOfOwners.map(result => result?.value?.[0])
+  const allTokens = useCalls(allTokensCalls)
+
+  return allTokens.map((result) => result?.value?.[0])
 }

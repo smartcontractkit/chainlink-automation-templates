@@ -1,3 +1,4 @@
+import { useEthers } from '@usedapp/core'
 import {
   Container,
   Tabs,
@@ -10,12 +11,22 @@ import {
   Link,
 } from '@chakra-ui/react'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { AddressProp } from '../../../types/AddressProp'
-import { AllTokens } from './'
-import { OwnedTokens } from './'
+import { useAllTokens } from '../../hooks/useAllTokens'
+import { useOwnedTokens } from '../../hooks/useOwnedTokens'
+import { TokenGrid } from './TokenGrid'
 
-export const Gallery = (props: AddressProp): JSX.Element => {
-  const { contractAddress } = props
+interface GalleryProps {
+  contractAddress: string
+}
+
+export const Gallery = ({ contractAddress }: GalleryProps): JSX.Element => {
+  const { account } = useEthers()
+
+  const ownedTokenUris = useOwnedTokens(contractAddress, account)
+  const ownedTokenUrisSorted = [...ownedTokenUris].reverse()
+
+  const allTokenUris = useAllTokens(contractAddress)
+  const allTokenUrisSorted = [...allTokenUris].reverse()
 
   return (
     <Container mt={5}>
@@ -42,10 +53,10 @@ export const Gallery = (props: AddressProp): JSX.Element => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <AllTokens contractAddress={contractAddress}></AllTokens>
+            <TokenGrid tokenUris={allTokenUrisSorted} />
           </TabPanel>
           <TabPanel>
-            <OwnedTokens contractAddress={contractAddress}></OwnedTokens>
+            <TokenGrid tokenUris={ownedTokenUrisSorted} />
           </TabPanel>
         </TabPanels>
       </Tabs>

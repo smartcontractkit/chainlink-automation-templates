@@ -1,3 +1,3 @@
 export { Mint } from './Mint'
-export { RevealInfo } from './reveal-info/index'
-export { Gallery } from './gallery/index'
+export { RevealInfo } from './RevealInfo'
+export { Gallery } from './Gallery'

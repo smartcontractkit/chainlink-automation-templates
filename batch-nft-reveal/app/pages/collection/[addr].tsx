@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
-import { Section } from '../../components/layout'
-import { RevealInfo, Mint, Gallery } from '../../components/collection/Index'
 import { Text } from '@chakra-ui/react'
+import { Section } from '../../components/layout'
+import { RevealInfo, Mint, Gallery } from '../../components/collection'
 
 function Collection(): JSX.Element {
   const router = useRouter()

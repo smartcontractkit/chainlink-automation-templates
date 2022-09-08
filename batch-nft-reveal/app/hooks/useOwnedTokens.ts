@@ -1,29 +1,38 @@
-import { useContractCall } from '../hooks/useContractCall'
 import { useCalls } from '@usedapp/core'
-import json from '../artifacts/contracts/NFTCollection.sol/NFTCollection.json'
-import { BigNumber, Contract, utils } from 'ethers'
+import { useCollectionCall } from './useCollectionCall'
+import { useCollectionContract } from './useCollectionContract'
 
 export function useOwnedTokens(
-  contractAddr: string,
+  contractAddress: string,
   account: string
-): Array<Array<BigNumber>> {
-  const ownerBalanceCall: BigNumber = useContractCall(
-    'balanceOf',
-    [account],
-    contractAddr
-  )
-  const ownedTokensCalls = []
-  const { abi } = json
+): string[] {
+  const contract = useCollectionContract(contractAddress)
 
-  const ownerBalance = ownerBalanceCall && ownerBalanceCall.toNumber()
-  const abiInterface = new utils.Interface(abi)
+  const ownerBalance = useCollectionCall<number>(contractAddress, 'balanceOf', [
+    account,
+  ])
+
+  const ownedTokensCalls = []
   for (let i = 0; i < ownerBalance; i++) {
     ownedTokensCalls.push({
-      contract: new Contract(contractAddr, abiInterface),
+      contract,
       method: 'tokenOfOwnerByIndex',
       args: [account, i],
     })
   }
-  const tokensOfOwners = useCalls(ownedTokensCalls) ?? []
-  return tokensOfOwners.map(result => result?.value?.[0])
+  const ownedTokensResult = useCalls(ownedTokensCalls) ?? []
+  const ownedTokenIds = ownedTokensResult.map((result) => result?.value?.[0])
+
+  const tokenUrisCalls =
+    ownedTokenIds?.map((tokenId) => {
+      return {
+        contract,
+        method: 'tokenURI',
+        args: [tokenId],
+      }
+    }) ?? []
+
+  const tokenUris = useCalls(tokenUrisCalls) ?? []
+
+  return tokenUris.map((result) => result?.value?.[0])
 }
