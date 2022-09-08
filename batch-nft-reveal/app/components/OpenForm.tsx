@@ -10,6 +10,9 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 
+/**
+ * Constants & Helpers
+ */
 const validateAddress = (value: string): string => {
   let error: string
   if (!value) {
@@ -20,6 +23,9 @@ const validateAddress = (value: string): string => {
   return error
 }
 
+/**
+ * Component
+ */
 export const OpenForm = (): JSX.Element => {
   const router = useRouter()
 

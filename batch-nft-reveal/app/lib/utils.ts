@@ -1,11 +1,11 @@
 export function getErrorMessage(error: Error): string {
-  if (error.message.includes("No injected provider available") ) {
+  if (error.message.includes('No injected provider available')) {
     return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.'
-  } else if (error.name === "ChainIdError") {
+  } else if (error.name === 'ChainIdError') {
     return "You're connected to an unsupported network. Please switch to Goerli or Rinkeby."
   } else if (
-    error.message.includes("The user rejected the request") ||
-    error.message.includes("User rejected the request")
+    error.message.includes('The user rejected the request') ||
+    error.message.includes('User rejected the request')
   ) {
     return 'Please authorize this website to access your Ethereum account.'
   } else {
@@ -20,4 +20,8 @@ export function getContractError(msg: string): string {
   } else {
     return msg
   }
+}
+
+export function decodeBase64ToImageSrc(tokenUri: string): string {
+  return JSON.parse(atob(tokenUri.split(',')[1])).image
 }

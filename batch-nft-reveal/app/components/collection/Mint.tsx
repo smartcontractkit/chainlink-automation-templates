@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { useEthers } from '@usedapp/core'
+import { BigNumber } from 'ethers'
 import {
   Box,
   Button,
@@ -10,51 +13,43 @@ import {
   NumberInputStepper,
   Text,
 } from '@chakra-ui/react'
-import { useState } from 'react'
-import { useContractFunction, useEthers } from '@usedapp/core'
-import { Contract } from '@ethersproject/contracts'
-import { useContractCall } from '../../hooks/useContractCall'
-import { providers, utils, BigNumber } from 'ethers'
-import json from '../../artifacts/contracts/NFTCollection.sol/NFTCollection.json'
-import { AddressProp } from '../../types/AddressProp'
 import { Error } from '../Error'
+import { useCollectionCall } from '../../hooks/useCollectionCall'
+import { useCollectionFunction } from '../../hooks/useCollectionFunction'
 
-export const Mint = (props: AddressProp): JSX.Element => {
-  let contract: Contract
+/**
+ * Prop Types
+ */
+interface MintProps {
+  contractAddress: string
+}
 
+/**
+ * Component
+ */
+export const Mint = ({ contractAddress }: MintProps): JSX.Element => {
   const { account } = useEthers()
-  const { contractAddress } = props
-  const { abi } = json
-
-  const name: string = useContractCall('name', [], contractAddress)
-  const symbol: string = useContractCall('symbol', [], contractAddress)
-  const totalSupply: BigNumber = useContractCall(
-    'totalSupply',
-    [],
-    contractAddress
-  )
-  const costToMint: BigNumber = useContractCall('mintCost', [], contractAddress)
-  const maxSupply: BigNumber = useContractCall('maxSupply', [], contractAddress)
-
-  const hasReachedMaxSupply =
-    totalSupply && maxSupply && totalSupply.gte(maxSupply) ? true : false
 
   const [mintAmount, setMintAmount] = useState(1)
   const [isMintDisabled, setIsMintDisabled] = useState(false)
 
-  if (contractAddress) {
-    contract = new Contract(
-      contractAddress,
-      new utils.Interface(abi),
-      providers.getDefaultProvider()
-    )
-  }
+  const name = useCollectionCall<string>(contractAddress, 'name')
+  const symbol = useCollectionCall<string>(contractAddress, 'symbol')
+  const totalSupply = useCollectionCall<BigNumber>(
+    contractAddress,
+    'totalSupply'
+  )
+  const mintCost = useCollectionCall<BigNumber>(contractAddress, 'mintCost')
+  const maxSupply = useCollectionCall<BigNumber>(contractAddress, 'maxSupply')
 
-  const { send, state } = useContractFunction(contract, 'mint', {})
+  const hasReachedMaxSupply =
+    totalSupply && maxSupply && totalSupply.gte(maxSupply)
+
+  const { send, state } = useCollectionFunction(contractAddress, 'mint')
   const isLoading = state.status === 'Mining'
 
   return (
-    <Container maxWidth="100%" centerContent>
+    <Container centerContent>
       {state.errorMessage && <Error message={state.errorMessage} />}
       <Heading>
         {name || ''}
@@ -96,7 +91,7 @@ export const Mint = (props: AddressProp): JSX.Element => {
           marginLeft="4"
           onClick={() => {
             send(mintAmount, {
-              value: costToMint.mul(mintAmount),
+              value: mintCost.mul(mintAmount),
             })
           }}
         >
