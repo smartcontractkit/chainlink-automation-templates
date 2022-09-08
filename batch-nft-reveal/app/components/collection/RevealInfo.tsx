@@ -3,13 +3,22 @@ import { BigNumber } from 'ethers'
 import { Container, Heading, Text, Box } from '@chakra-ui/react'
 import { useCollectionCall } from '../../hooks/useCollectionCall'
 
+/**
+ * Constants & Helpers
+ */
+const formatTime = (timestamp: BigNumber) =>
+  moment.unix(timestamp.toNumber()).fromNow()
+
+/**
+ * Prop Types
+ */
 interface RevealInfoProps {
   contractAddress: string
 }
 
-const formatTime = (timestamp: BigNumber) =>
-  moment.unix(timestamp.toNumber()).fromNow()
-
+/**
+ * Component
+ */
 export const RevealInfo = ({
   contractAddress,
 }: RevealInfoProps): JSX.Element => {

@@ -17,10 +17,16 @@ import { Error } from '../Error'
 import { useCollectionCall } from '../../hooks/useCollectionCall'
 import { useCollectionFunction } from '../../hooks/useCollectionFunction'
 
+/**
+ * Prop Types
+ */
 interface MintProps {
   contractAddress: string
 }
 
+/**
+ * Component
+ */
 export const Mint = ({ contractAddress }: MintProps): JSX.Element => {
   const { account } = useEthers()
 

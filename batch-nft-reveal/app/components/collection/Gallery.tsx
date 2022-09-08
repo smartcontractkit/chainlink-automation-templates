@@ -15,10 +15,16 @@ import { useAllTokens } from '../../hooks/useAllTokens'
 import { useOwnedTokens } from '../../hooks/useOwnedTokens'
 import { TokenGrid } from './TokenGrid'
 
+/**
+ * Prop Types
+ */
 interface GalleryProps {
   contractAddress: string
 }
 
+/**
+ * Components
+ */
 export const Gallery = ({ contractAddress }: GalleryProps): JSX.Element => {
   const { account } = useEthers()
 

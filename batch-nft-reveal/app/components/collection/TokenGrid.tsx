@@ -1,10 +1,16 @@
 import { Text, Image, Grid, GridItem } from '@chakra-ui/react'
 import { decodeBase64ToImageSrc } from '../../utils/utils'
 
+/**
+ * Prop Types
+ */
 interface TokenGridProps {
   tokenUris: string[]
 }
 
+/**
+ * Component
+ */
 export const TokenGrid = ({ tokenUris }: TokenGridProps) => {
   const hasTokens = tokenUris.length > 0
 
