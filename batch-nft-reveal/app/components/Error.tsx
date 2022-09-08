@@ -4,6 +4,7 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  AlertProps
 } from '@chakra-ui/react'
 
 /**
@@ -16,9 +17,9 @@ interface ErrorProps {
 /**
  * Component
  */
-export function Error({ message }: ErrorProps): JSX.Element {
+export function Error({ message, ...rest }: ErrorProps & AlertProps): JSX.Element {
   return (
-    <Alert status="error" mb="8">
+    <Alert {...rest} status="error" mb="8">
       <AlertIcon />
       <AlertTitle mr={2}>Error:</AlertTitle>
       <AlertDescription>{message}</AlertDescription>

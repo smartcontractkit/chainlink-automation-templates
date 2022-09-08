@@ -61,7 +61,6 @@ function CreatePage(): JSX.Element {
         Setup batch-revealed NFT collection from a pre-built standard contract.
       </Text>
       <Section>
-        {error && <Error message={error} />}
         {deployedContract && (
           <SuccessDialog
             contractAddress={deployedContract.address}
@@ -72,6 +71,7 @@ function CreatePage(): JSX.Element {
         {!deployedContract && (
           <CreateForm onSubmit={onSubmit} isLoading={isLoading} />
         )}
+        { error && <Error message={error} mt="2" /> }
       </Section>
     </>
   )
