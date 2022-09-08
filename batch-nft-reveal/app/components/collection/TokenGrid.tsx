@@ -1,5 +1,5 @@
 import { Text, Image, Grid, GridItem } from '@chakra-ui/react'
-import { decodeBase64ToImageSrc } from '../../utils/utils'
+import { decodeBase64ToImageSrc } from '../../lib/utils'
 
 /**
  * Prop Types
