@@ -6,6 +6,7 @@ import { CreateForm } from '../components/CreateForm'
 import { SuccessDialog } from '../components/SuccessDialog'
 import { Error } from '../components/Error'
 import { deployNFTCollection } from '../lib/deploy'
+import { TransactionReceipt } from '@ethersproject/abstract-provider'
 import CreateFormValues from '../types//CreateFormValues'
 
 interface DeployedContract {
@@ -16,17 +17,18 @@ interface DeployedContract {
 
 function CreatePage(): JSX.Element {
   const { chainId, library } = useEthers()
+
   const [deployedContract, setDeployedContract] = useState<
     DeployedContract | undefined
   >()
 
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
   const onSubmit = useCallback(
     async (args: CreateFormValues) => {
       setError('')
-      let tx
+      let tx: TransactionReceipt
       try {
         const contract = await deployNFTCollection(
           args,
@@ -36,16 +38,16 @@ function CreatePage(): JSX.Element {
         setIsLoading(true)
         tx = await contract.deployTransaction.wait()
       } catch (ex) {
-        ex.message ? setError(ex.message) : setError('Unsuccessful deployment')
-        setIsLoading(false)
+        setError(ex.reason || ex.message || 'Unsuccessful deployment')
         return
+      } finally {
+        setIsLoading(false)
       }
       setDeployedContract({
         address: tx.contractAddress,
         txHash: tx.transactionHash,
         name: args.name,
       })
-      setIsLoading(false)
     },
     [library, chainId]
   )
