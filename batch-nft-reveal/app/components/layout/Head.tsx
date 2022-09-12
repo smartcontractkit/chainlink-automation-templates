@@ -5,7 +5,7 @@ import React from 'react'
 /**
  * Constants & Helpers
  */
-export const WEBSITE_HOST_URL = 'https://chainlink-demo.app'
+export const WEBSITE_HOST_URL = 'https://keepers.chainlink-demo.app'
 
 /**
  * Prop Types
@@ -27,9 +27,10 @@ export const Head = ({
 }): JSX.Element => {
   const router = useRouter()
   const meta: MetaProps = {
-    title: 'Chainlink Demo App',
-    description: 'Full stack starter project showcasing Chainlink products on Ethereum',
-    image: `${WEBSITE_HOST_URL}/images/social-preview.png`,
+    title: 'Chainlink NFT Demo App',
+    description:
+      'Batch-revealed NFT collections powered by Chainlink VRF & Keepers',
+    image: `${WEBSITE_HOST_URL}/images/social-preview.jpeg`,
     type: 'website',
     ...customMeta,
   }
