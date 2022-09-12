@@ -190,6 +190,12 @@ describe("NFTCollection", async function () {
       const uri = await nftCollection.tokenURI(1);
       expect(uri).to.equal(expectedUri);
     });
+
+    it("should revert when getting tokenUri on nonexitent token", async function () {
+      await expect(nftCollection.tokenURI(1)).to.be.revertedWith(
+        "NonExistentToken"
+      );
+    });
   });
 
   describe("Owner", async function () {
