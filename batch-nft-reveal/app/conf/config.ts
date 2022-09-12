@@ -25,4 +25,6 @@ export const VRF_COORDINATOR_V2_ADDRESS = {
 
 export const VRF_CALLBACK_GAS_LIMIT = 500000
 
+export const INFTCollectionInterfaceId = '0xb4fd92d0'
+
 export default config
