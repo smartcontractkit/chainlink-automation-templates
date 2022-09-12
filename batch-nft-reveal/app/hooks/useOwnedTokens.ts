@@ -23,14 +23,14 @@ export function useOwnedTokens(
   const ownedTokensResult = useCalls(ownedTokensCalls) ?? []
   const ownedTokenIds = ownedTokensResult.map((result) => result?.value?.[0])
 
-  const tokenUrisCalls =
-    ownedTokenIds?.map((tokenId) => {
-      return {
+  const tokenUrisCalls = ownedTokenIds.map(
+    (tokenId) =>
+      tokenId && {
         contract,
         method: 'tokenURI',
         args: [tokenId],
       }
-    }) ?? []
+  )
 
   const tokenUris = useCalls(tokenUrisCalls) ?? []
 
