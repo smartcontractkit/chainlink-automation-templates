@@ -62,6 +62,7 @@ contract NFTCollection is
     error RevealInProgress();
     error InsufficientLINK();
     error WithdrawProceedsFailed();
+    error NonExistentToken();
 
     constructor(
         string memory _name,
@@ -118,6 +119,9 @@ contract NFTCollection is
         override
         returns (string memory)
     {
+        if (!_exists(tokenId)) {
+            revert NonExistentToken();
+        }
         (uint256 randomness, bool metadataCleared) = _getTokenRandomness(tokenId);
         string memory svg = _generateSVG(randomness, metadataCleared);
         string memory svgEncoded = _svgToImageURI(svg);
