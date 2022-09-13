@@ -177,7 +177,11 @@ export const CreateForm = ({
               </FormErrorMessage>
             )}
         </FormControl>
-        <Link href="https://vrf.chain.link" isExternal fontSize="small">
+        <Link
+          href="https://docs.chain.link/docs/vrf/v2/examples/get-a-random-number/#create-and-fund-a-subscription"
+          isExternal
+          fontSize="small"
+        >
           How to Create and Fund a Subscription <ExternalLinkIcon mx="2px" />
         </Link>
         <Divider
