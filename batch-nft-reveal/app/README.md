@@ -1,6 +1,6 @@
 # Batch NFT Reveal App
 
-[LIVE DEMO](#)
+[LIVE DEMO](https://keepers.chainlink-demo.app)
 
 This is a complementary app for the [Chainlink Keepers Template: Batch NFT Reveal](https://github.com/hackbg/chainlink-keepers-templates/tree/main/batch-nft-reveal) contract repo. It helps you setup and play with batch-revealed NFT collections powered by Chainlink VRF & Keepers.
 
