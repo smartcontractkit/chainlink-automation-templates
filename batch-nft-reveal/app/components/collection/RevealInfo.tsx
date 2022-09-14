@@ -1,6 +1,13 @@
 import moment from 'moment'
 import { BigNumber } from 'ethers'
-import { Container, Heading, Text, Box } from '@chakra-ui/react'
+import {
+  Container,
+  Box,
+  HStack,
+  Spinner,
+  Heading,
+  Text,
+} from '@chakra-ui/react'
 import { useCollectionCall } from '../../hooks/useCollectionCall'
 
 /**
@@ -17,7 +24,7 @@ interface RevealInfoProps {
 }
 
 /**
- * Component
+ * Components
  */
 export const RevealInfo = ({
   contractAddress,
@@ -54,8 +61,8 @@ export const RevealInfo = ({
   )
 
   return (
-    <Container textAlign="center">
-      {shouldReveal && <Heading>Pending batch reveal</Heading>}
+    <Container centerContent>
+      {shouldReveal && <PendingReveal />}
       {!shouldReveal && (
         <>
           <Heading>Next reveal after</Heading>
@@ -73,3 +80,16 @@ export const RevealInfo = ({
     </Container>
   )
 }
+
+const PendingReveal = (): JSX.Element => (
+  <HStack spacing="4">
+    <Heading>Pending batch reveal</Heading>
+    <Spinner
+      thickness="4px"
+      speed="0.65s"
+      emptyColor="gray.200"
+      color="teal"
+      size="lg"
+    />
+  </HStack>
+)
