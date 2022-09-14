@@ -34,7 +34,7 @@ cd "$build_dir"
 touch .nojekyll
 
 # create CNAME if $domain is set
-["${domain}"] && echo -n "$domain" > CNAME
+[ "${domain}" ] && echo -n "$domain" > CNAME
 echo "[![Deploy to GitHub Pages](https://github.com/${GITHUB_REPOSITORY}/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/${GITHUB_REPOSITORY}/actions/workflows/gh-pages.yml)" > README.md
 
 git add .
