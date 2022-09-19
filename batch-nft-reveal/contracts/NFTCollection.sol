@@ -211,7 +211,7 @@ contract NFTCollection is
             string memory randomnessString = Strings.toString(_randomness);
 
             for (uint8 i = 0; i < 7; i++) {
-                string memory partialNumber = substring(randomnessString,i*11,(i+1)*11);
+                string memory partialNumber = _substring(randomnessString,i*11,(i+1)*11);
                 slicedRandomness[i] = string(
                     abi.encodePacked(
                         '<tspan x="12" dy="48">',
@@ -251,7 +251,7 @@ contract NFTCollection is
         return string(abi.encodePacked(baseURL, svgBase64Encoded));
     }
 
-    function substring(
+    function _substring(
         string memory str,
         uint256 startIndex,
         uint256 endIndex
