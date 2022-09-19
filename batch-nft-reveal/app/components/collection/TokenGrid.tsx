@@ -16,7 +16,7 @@ export const TokenGrid = ({ tokenUris }: TokenGridProps) => {
 
   return (
     <>
-      {!hasTokens && <Text>No tokens minted, yet</Text>}
+      {!hasTokens && <Text>No tokens minted, yet.</Text>}
       {hasTokens && (
         <Grid templateColumns={'repeat(3, 1fr)'} gridGap={'10px'}>
           {tokenUris.map((uri: string, idx: number) => {

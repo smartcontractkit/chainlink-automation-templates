@@ -145,7 +145,24 @@ contract NFTCollection is
         return s_revealInterval;
     }
 
-    function mintCost() external view override returns (uint256) {
+    function batchCount() external view returns (uint256) {
+        return s_metadatas.length;
+    }
+
+    function batchDetails(uint256 index)
+        external
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256
+        )
+    {
+        Metadata memory batch = s_metadatas[index];
+        return (batch.startIndex, batch.endIndex, batch.entropy);
+    }
+
+    function mintCost() public view override returns (uint256) {
         return MINT_COST;
     }
 
