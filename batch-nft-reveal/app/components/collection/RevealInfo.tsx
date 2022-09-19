@@ -1,13 +1,7 @@
 import moment from 'moment'
-import { BigNumber } from 'ethers'
-import {
-  Container,
-  Box,
-  HStack,
-  Spinner,
-  Heading,
-  Text,
-} from '@chakra-ui/react'
+import { BigNumber, Contract } from 'ethers'
+import { Container, Box, HStack, Heading, Text } from '@chakra-ui/react'
+import { Loading } from '../Loading'
 import { useCollectionCall } from '../../hooks/useCollectionCall'
 
 /**
@@ -20,45 +14,34 @@ const formatTime = (timestamp: BigNumber) =>
  * Prop Types
  */
 interface RevealInfoProps {
-  contractAddress: string
+  collection: Contract
 }
 
 /**
  * Components
  */
-export const RevealInfo = ({
-  contractAddress,
-}: RevealInfoProps): JSX.Element => {
-  const totalSupply = useCollectionCall<BigNumber>(
-    contractAddress,
-    'totalSupply'
-  )
+export const RevealInfo = ({ collection }: RevealInfoProps): JSX.Element => {
+  const totalSupply = useCollectionCall<BigNumber>(collection, 'totalSupply')
   const revealedCount = useCollectionCall<BigNumber>(
-    contractAddress,
+    collection,
     'revealedCount'
   )
-  const batchSize = useCollectionCall<BigNumber>(contractAddress, 'batchSize')
+  const batchSize = useCollectionCall<BigNumber>(collection, 'batchSize')
   const nextRevealBatchSize =
     revealedCount &&
     totalSupply &&
     batchSize &&
     batchSize.sub(totalSupply).add(revealedCount)
 
-  const lastRevealed = useCollectionCall<BigNumber>(
-    contractAddress,
-    'lastRevealed'
-  )
-  const revealedInterval = useCollectionCall<BigNumber>(
-    contractAddress,
-    'revealedInterval'
+  const lastRevealed = useCollectionCall<BigNumber>(collection, 'lastRevealed')
+  const revealInterval = useCollectionCall<BigNumber>(
+    collection,
+    'revealInterval'
   )
   const nextRevealTime =
-    lastRevealed && revealedInterval && lastRevealed.add(revealedInterval)
+    lastRevealed && revealInterval && lastRevealed.add(revealInterval)
 
-  const shouldReveal = useCollectionCall<boolean>(
-    contractAddress,
-    'shouldReveal'
-  )
+  const shouldReveal = useCollectionCall<boolean>(collection, 'shouldReveal')
 
   return (
     <Container centerContent>
@@ -84,12 +67,6 @@ export const RevealInfo = ({
 const PendingReveal = (): JSX.Element => (
   <HStack spacing="4">
     <Heading>Pending batch reveal</Heading>
-    <Spinner
-      thickness="4px"
-      speed="0.65s"
-      emptyColor="gray.200"
-      color="teal"
-      size="lg"
-    />
+    <Loading />
   </HStack>
 )

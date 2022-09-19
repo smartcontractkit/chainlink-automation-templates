@@ -1,3 +1,5 @@
+import { DEFAULT_SUPPORTED_CHAINS } from '@usedapp/core'
+
 export function getErrorMessage(error: Error): string {
   if (error.message.includes('No injected provider available')) {
     return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.'
@@ -24,4 +26,9 @@ export function getContractError(msg: string): string {
 
 export function decodeBase64ToImageSrc(tokenUri: string): string {
   return JSON.parse(atob(tokenUri.split(',')[1])).image
+}
+
+export function getNetworkName(chainId: number) {
+  return DEFAULT_SUPPORTED_CHAINS.find((network) => network.chainId === chainId)
+    ?.chainName
 }

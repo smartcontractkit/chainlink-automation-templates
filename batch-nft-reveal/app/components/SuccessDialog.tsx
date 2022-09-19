@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import { DEFAULT_SUPPORTED_CHAINS, useEthers } from '@usedapp/core'
+import { useEthers } from '@usedapp/core'
 import {
   Button,
   HStack,
@@ -14,6 +14,7 @@ import {
   Code,
 } from '@chakra-ui/react'
 import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { getNetworkName } from '../lib/utils'
 
 /**
  * Prop Types
@@ -30,7 +31,7 @@ interface SuccessDialogProps {
 export const SuccessDialog = ({
   contractAddress,
   deployTxHash,
-  collectionName
+  collectionName,
 }: SuccessDialogProps): JSX.Element => {
   const [checkedSteps, setCheckedSteps] = React.useState([false, false])
   const allChecked = checkedSteps.every(Boolean)
@@ -38,16 +39,12 @@ export const SuccessDialog = ({
   const { hasCopied, onCopy } = useClipboard(contractAddress, 3000)
 
   const router = useRouter()
-
   const viewColleciton = () => {
     router.push(`/collection/${contractAddress}`)
   }
 
   const { chainId } = useEthers()
-
-  const network = DEFAULT_SUPPORTED_CHAINS
-      .find((network) => network.chainId === chainId)
-      ?.chainName
+  const network = getNetworkName(chainId)
 
   return (
     <>
