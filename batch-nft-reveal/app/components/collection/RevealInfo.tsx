@@ -48,12 +48,12 @@ export const RevealInfo = ({
     contractAddress,
     'lastRevealed'
   )
-  const revealedInterval = useCollectionCall<BigNumber>(
+  const revealInterval = useCollectionCall<BigNumber>(
     contractAddress,
-    'revealedInterval'
+    'revealInterval'
   )
   const nextRevealTime =
-    lastRevealed && revealedInterval && lastRevealed.add(revealedInterval)
+    lastRevealed && revealInterval && lastRevealed.add(revealInterval)
 
   const shouldReveal = useCollectionCall<boolean>(
     contractAddress,

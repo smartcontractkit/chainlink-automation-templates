@@ -3,14 +3,15 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
+import "./INFTCollection.sol";
 
 contract NFTCollection is
+    INFTCollection,
     Ownable,
     ERC721Enumerable,
     VRFConsumerBaseV2,
@@ -88,7 +89,7 @@ contract NFTCollection is
 
     // ACTIONS
 
-    function mint(uint256 _amount) external payable {
+    function mint(uint256 _amount) external payable override {
         uint256 totalSupply = totalSupply();
         if (_amount == 0) {
             revert InvalidAmount();
@@ -104,7 +105,7 @@ contract NFTCollection is
         }
     }
 
-    function withdrawProceeds() external onlyOwner {
+    function withdrawProceeds() external override onlyOwner {
         (bool sent, ) = payable(owner()).call{value: address(this).balance}("");
         if (!sent) {
             revert WithdrawProceedsFailed();
@@ -128,27 +129,27 @@ contract NFTCollection is
         return _formatTokenURI(svgEncoded);
     }
 
-    function revealedCount() external view returns(uint256) {
+    function revealedCount() external view override returns (uint256) {
         return s_revealedCount;
     }
 
-    function lastRevealed() external view returns(uint256) {
+    function lastRevealed() external view override returns (uint256) {
         return s_lastRevealed;
     }
 
-    function batchSize() external view returns(uint256) {
+    function batchSize() external view override returns (uint256) {
         return s_revealBatchSize;
     }
 
-    function revealedInterval() external view returns(uint256) {
+    function revealInterval() external view override returns (uint256) {
         return s_revealInterval;
     }
 
-    function mintCost() public view returns (uint256) {
+    function mintCost() public view override returns (uint256) {
         return MINT_COST;
     }
 
-    function maxSupply() public view returns (uint256){
+    function maxSupply() public view override returns (uint256) {
         return MAX_SUPPLY;
     }
 
@@ -265,7 +266,7 @@ contract NFTCollection is
 
     // REVEAL
 
-    function shouldReveal() public view returns (bool){
+    function shouldReveal() public view override returns (bool) {
         uint256 unrevealedCount = totalSupply() - s_revealedCount;
         if (unrevealedCount == 0) {
             return false;
@@ -284,7 +285,10 @@ contract NFTCollection is
         return (batchSizeCriteria || intervalCriteria);
     }
 
-    function revealPendingMetadata() public returns (uint256 requestId) {
+    function revealPendingMetadata()
+        public
+        override
+        returns (uint256 requestId){
         if (s_revealInProgress) {
             revert RevealInProgress();
         }
@@ -345,11 +349,19 @@ contract NFTCollection is
 
     // SETTERS
 
-    function setRevealBatchSize(uint256 _revealBatchSize) external onlyOwner {
+    function setRevealBatchSize(uint256 _revealBatchSize)
+        external
+        override
+        onlyOwner
+    {
         s_revealBatchSize = _revealBatchSize;
     }
 
-    function setRevealInterval(uint256 _revealInterval) external onlyOwner {
+    function setRevealInterval(uint256 _revealInterval)
+        external
+        override
+        onlyOwner
+    {
         s_revealInterval = _revealInterval;
     }
 }
