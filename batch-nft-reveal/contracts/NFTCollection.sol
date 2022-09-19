@@ -205,7 +205,7 @@ contract NFTCollection is
         string[4] memory parts;
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">';
         if (_metadataCleared) {
-            parts[1] = '<style>.base { fill: white; font-family: serif; font-size: 54px; }</style><rect width="100%" height="100%" fill="black" /><text class="base">';
+            parts[1] = '<style>.base { fill: white; font-family: serif; font-size: 59px; }</style><rect width="100%" height="100%" fill="black" /><text class="base">';
             string[7] memory slicedRandomness;
             string memory randomnessString = Strings.toString(_randomness);
 
