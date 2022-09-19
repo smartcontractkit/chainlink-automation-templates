@@ -8,9 +8,11 @@ export function useOwnedTokens(
 ): string[] {
   const contract = useCollectionContract(contractAddress)
 
-  const ownerBalance = useCollectionCall<number>(contractAddress, 'balanceOf', [
-    account,
-  ])
+  const ownerBalance = useCollectionCall<number>(
+    account && contractAddress,
+    'balanceOf',
+    [account]
+  )
 
   const ownedTokensCalls = []
   for (let i = 0; i < ownerBalance; i++) {
