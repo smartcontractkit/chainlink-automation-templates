@@ -1,3 +1,4 @@
+import React from 'react'
 import { useEthers } from '@usedapp/core'
 import { Contract } from 'ethers'
 import {
@@ -14,7 +15,9 @@ import {
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { useAllTokens } from '../../hooks/useAllTokens'
 import { useOwnedTokens } from '../../hooks/useOwnedTokens'
+import { useBatches } from '../../hooks/useBatches'
 import { TokenGrid } from './TokenGrid'
+import { BatchList } from './BatchList'
 
 /**
  * Prop Types
@@ -35,17 +38,23 @@ export const Gallery = ({ collection }: GalleryProps): JSX.Element => {
   const ownedTokenUris = useOwnedTokens(collection, account)
   const ownedTokenUrisSorted = [...ownedTokenUris].reverse()
 
+  const batches = useBatches(collection)
+
   return (
     <>
       <GalleryInfo />
       <Tabs>
         <TabList>
-          <Tab _selected={{ color: 'white', bg: 'teal' }}>All</Tab>
-          <Tab _selected={{ color: 'white', bg: 'teal' }}>Owned</Tab>
+          <GalleryTab>Latest</GalleryTab>
+          <GalleryTab>Batches</GalleryTab>
+          <GalleryTab>Owned</GalleryTab>
         </TabList>
         <TabPanels>
           <TabPanel>
             <TokenGrid tokenUris={allTokenUrisSorted} />
+          </TabPanel>
+          <TabPanel>
+            <BatchList tokenUris={allTokenUris} batches={batches} />
           </TabPanel>
           <TabPanel>
             <TokenGrid tokenUris={ownedTokenUrisSorted} />
@@ -55,6 +64,10 @@ export const Gallery = ({ collection }: GalleryProps): JSX.Element => {
     </>
   )
 }
+
+const GalleryTab = ({ children }: { children: React.ReactNode }) => (
+  <Tab _selected={{ color: 'white', bg: 'teal' }}>{children}</Tab>
+)
 
 const GalleryInfo = () => (
   <Container pb="12" textAlign="center">
