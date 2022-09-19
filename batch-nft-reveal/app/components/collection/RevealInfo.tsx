@@ -43,6 +43,9 @@ export const RevealInfo = ({ collection }: RevealInfoProps): JSX.Element => {
 
   const shouldReveal = useCollectionCall<boolean>(collection, 'shouldReveal')
 
+  const hasIntervalPassed =
+    nextRevealTime && nextRevealTime.toNumber() - Date.now() / 1000 < 0
+
   return (
     <Container centerContent>
       {shouldReveal && <PendingReveal />}
@@ -50,13 +53,28 @@ export const RevealInfo = ({ collection }: RevealInfoProps): JSX.Element => {
         <>
           <Heading>Next reveal after</Heading>
           <Box mt="5">
-            <Text fontWeight="bold" as="span" mr="3">
-              {nextRevealBatchSize ? `${nextRevealBatchSize} NFTS` : '... '}
-            </Text>
-            <Text as="span">or</Text>
-            <Text fontWeight="bold" as="span" ml="3">
-              {(nextRevealTime && formatTime(nextRevealTime)) || '...'}
-            </Text>
+            {hasIntervalPassed && (
+              <>
+                <Text as="span" fontWeight="bold">
+                  1 NFT
+                </Text>
+                <Text as="span">
+                  {' '}
+                  (Interval passed {formatTime(nextRevealTime)})
+                </Text>
+              </>
+            )}
+            {!hasIntervalPassed && (
+              <>
+                <Text fontWeight="bold" as="span" mr="3">
+                  {nextRevealBatchSize ? `${nextRevealBatchSize} NFTS` : '... '}
+                </Text>
+                <Text as="span">or</Text>
+                <Text fontWeight="bold" as="span" ml="3">
+                  {(nextRevealTime && formatTime(nextRevealTime)) || '...'}
+                </Text>
+              </>
+            )}
           </Box>
         </>
       )}
