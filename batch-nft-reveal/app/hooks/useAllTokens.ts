@@ -1,16 +1,14 @@
 import { useCalls } from '@usedapp/core'
+import { Contract } from 'ethers'
 import { useCollectionCall } from './useCollectionCall'
-import { useCollectionContract } from './useCollectionContract'
 
-export function useAllTokens(contractAddress: string): string[] {
-  const contract = useCollectionContract(contractAddress)
-
-  const totalSupply = useCollectionCall<number>(contractAddress, 'totalSupply')
+export function useAllTokens(collection: Contract): string[] {
+  const totalSupply = useCollectionCall<number>(collection, 'totalSupply')
 
   const allTokensCalls = []
   for (let i = 1; i <= totalSupply; i++) {
     allTokensCalls.push({
-      contract,
+      contract: collection,
       method: 'tokenURI',
       args: [i],
     })

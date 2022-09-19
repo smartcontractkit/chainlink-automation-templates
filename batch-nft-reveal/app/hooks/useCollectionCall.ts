@@ -1,17 +1,15 @@
 import { useCall } from '@usedapp/core'
-import { useCollectionContract } from './useCollectionContract'
+import { Contract } from 'ethers'
 
 export function useCollectionCall<T>(
-  address: string,
+  collection: Contract,
   method: string,
   args = []
 ): T | undefined {
-  const contract = useCollectionContract(address)
-
   const { value } =
     useCall(
-      contract && {
-        contract,
+      collection && {
+        contract: collection,
         method,
         args,
       }

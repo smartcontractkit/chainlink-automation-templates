@@ -1,4 +1,5 @@
 import { useEthers } from '@usedapp/core'
+import { Contract } from 'ethers'
 import {
   Container,
   Tabs,
@@ -19,19 +20,19 @@ import { TokenGrid } from './TokenGrid'
  * Prop Types
  */
 interface GalleryProps {
-  contractAddress: string
+  collection: Contract
 }
 
 /**
  * Components
  */
-export const Gallery = ({ contractAddress }: GalleryProps): JSX.Element => {
+export const Gallery = ({ collection }: GalleryProps): JSX.Element => {
   const { account } = useEthers()
 
-  const allTokenUris = useAllTokens(contractAddress)
+  const allTokenUris = useAllTokens(collection)
   const allTokenUrisSorted = [...allTokenUris].reverse()
 
-  const ownedTokenUris = useOwnedTokens(contractAddress, account)
+  const ownedTokenUris = useOwnedTokens(collection, account)
   const ownedTokenUrisSorted = [...ownedTokenUris].reverse()
 
   return (

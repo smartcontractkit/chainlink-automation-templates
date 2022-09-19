@@ -255,7 +255,7 @@ contract NFTCollection is
         string memory str,
         uint256 startIndex,
         uint256 endIndex
-    ) public pure returns (string memory) {
+    ) internal pure returns (string memory) {
         bytes memory strBytes = bytes(str);
         bytes memory result = new bytes(endIndex - startIndex);
         for (uint256 i = startIndex; i < endIndex; i++) {

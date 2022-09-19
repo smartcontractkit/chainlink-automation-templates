@@ -1,15 +1,13 @@
 import { useCalls } from '@usedapp/core'
+import { Contract } from 'ethers'
 import { useCollectionCall } from './useCollectionCall'
-import { useCollectionContract } from './useCollectionContract'
 
 export function useOwnedTokens(
-  contractAddress: string,
+  collection: Contract,
   account: string
 ): string[] {
-  const contract = useCollectionContract(contractAddress)
-
   const ownerBalance = useCollectionCall<number>(
-    account && contractAddress,
+    account && collection,
     'balanceOf',
     [account]
   )
@@ -17,7 +15,7 @@ export function useOwnedTokens(
   const ownedTokensCalls = []
   for (let i = 0; i < ownerBalance; i++) {
     ownedTokensCalls.push({
-      contract,
+      contract: collection,
       method: 'tokenOfOwnerByIndex',
       args: [account, i],
     })
@@ -28,7 +26,7 @@ export function useOwnedTokens(
   const tokenUrisCalls = ownedTokenIds.map(
     (tokenId) =>
       tokenId && {
-        contract,
+        contract: collection,
         method: 'tokenURI',
         args: [tokenId],
       }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useEthers } from '@usedapp/core'
-import { BigNumber } from 'ethers'
+import { useContractFunction, useEthers } from '@usedapp/core'
+import { BigNumber, Contract } from 'ethers'
 import {
   Box,
   Button,
@@ -15,37 +15,33 @@ import {
 } from '@chakra-ui/react'
 import { Error } from '../Error'
 import { useCollectionCall } from '../../hooks/useCollectionCall'
-import { useCollectionFunction } from '../../hooks/useCollectionFunction'
 
 /**
  * Prop Types
  */
 interface MintProps {
-  contractAddress: string
+  collection: Contract
 }
 
 /**
  * Component
  */
-export const Mint = ({ contractAddress }: MintProps): JSX.Element => {
+export const Mint = ({ collection }: MintProps): JSX.Element => {
   const { account } = useEthers()
 
   const [mintAmount, setMintAmount] = useState(1)
   const [isMintDisabled, setIsMintDisabled] = useState(false)
 
-  const name = useCollectionCall<string>(contractAddress, 'name')
-  const symbol = useCollectionCall<string>(contractAddress, 'symbol')
-  const totalSupply = useCollectionCall<BigNumber>(
-    contractAddress,
-    'totalSupply'
-  )
-  const mintCost = useCollectionCall<BigNumber>(contractAddress, 'mintCost')
-  const maxSupply = useCollectionCall<BigNumber>(contractAddress, 'maxSupply')
+  const name = useCollectionCall<string>(collection, 'name')
+  const symbol = useCollectionCall<string>(collection, 'symbol')
+  const totalSupply = useCollectionCall<BigNumber>(collection, 'totalSupply')
+  const mintCost = useCollectionCall<BigNumber>(collection, 'mintCost')
+  const maxSupply = useCollectionCall<BigNumber>(collection, 'maxSupply')
 
   const hasReachedMaxSupply =
     totalSupply && maxSupply && totalSupply.gte(maxSupply)
 
-  const { send, state } = useCollectionFunction(contractAddress, 'mint')
+  const { send, state } = useContractFunction(collection, 'mint')
   const isLoading = state.status === 'Mining'
 
   return (

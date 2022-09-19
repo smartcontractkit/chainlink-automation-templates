@@ -1,71 +1,41 @@
-import { useEffect, useState } from 'react'
 import { useEthers } from '@usedapp/core'
 import { useRouter } from 'next/router'
-import { isAddress } from 'ethers/lib/utils'
-import { Text } from '@chakra-ui/react'
-import { Web3Provider } from '@ethersproject/providers'
-import { INFTCollectionInterfaceId } from '../../conf/config'
-import { useCollectionCall } from '../../hooks/useCollectionCall'
 import { Section } from '../../components/layout'
 import { RevealInfo, Mint, Gallery } from '../../components/collection'
-
-async function hasBytecode(library, address): Promise<boolean> {
-  if (!isAddress(address)) {
-    return false
-  }
-  const hasBytecode = (await library.getCode(address)) != '0x'
-  return !!hasBytecode
-}
+import { Error } from '../../components/Error'
+import { Loading } from '../../components/Loading'
+import { useCollectionContract } from '../../hooks/useCollectionContract'
 
 function Collection(): JSX.Element {
   const router = useRouter()
-  const { library } = useEthers()
-  const [isContract, setIsContract] = useState<boolean>()
   const address = router.query.address as string
 
-  const isNFTCollection = useCollectionCall(address, 'supportsInterface', [
-    INFTCollectionInterfaceId,
-  ])
+  const { error: appError } = useEthers()
 
-  const isLoading =
-    isContract === undefined ||
-    address === undefined ||
-    (isNFTCollection === undefined && isContract === undefined)
+  const { contract, loading, error } = useCollectionContract(address)
 
-  useEffect(() => {
-    if (library instanceof Web3Provider) {
-      hasBytecode(library, address).then((value) => {
-        setIsContract(value)
-      })
-    }
-  }, [library, address])
-
-  if (isLoading) {
-    return <Text>Loading</Text>
+  if (loading) {
+    return <Loading />
   }
 
-  if (!isAddress(address)) {
-    return <Text>Invalid Address</Text>
+  if (error) {
+    return <Error message={error} />
   }
 
-  if (!isContract) {
-    return <Text>This is not a contract</Text>
-  }
-
-  if (!isNFTCollection) {
-    return <Text>This is not an NFTCollection type of contract</Text>
+  if (appError) {
+    return null
   }
 
   return (
     <>
       <Section>
-        <Mint contractAddress={address}></Mint>
+        <Mint collection={contract}></Mint>
       </Section>
       <Section>
-        <RevealInfo contractAddress={address}></RevealInfo>
+        <RevealInfo collection={contract}></RevealInfo>
       </Section>
       <Section>
-        <Gallery contractAddress={address}></Gallery>
+        <Gallery collection={contract}></Gallery>
       </Section>
     </>
   )
