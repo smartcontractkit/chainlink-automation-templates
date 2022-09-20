@@ -1,4 +1,5 @@
-import { Heading, Code, Text, Box, Divider } from '@chakra-ui/react'
+import { Heading, Code, Text, Box, Divider, Container } from '@chakra-ui/react'
+import { ChevronRightIcon } from '@chakra-ui/icons'
 
 /**
  * Prop Types
@@ -20,20 +21,21 @@ export const BatchBox = ({
   return (
     <Box mt="4">
       <Heading size="sm">Batch #{id}</Heading>
-      <Box mt="2">
-        <Text fontSize="sm" textAlign="center" mb="2">
-          Entropy from Chainlink VRF
+      <Container mt="4">
+        <Text fontSize="sm" mb="2">
+          <ChevronRightIcon /> Entropy from Chainlink VRF
         </Text>
         <Code colorScheme="teal" overflowWrap="anywhere">
           {entropy}
         </Code>
-      </Box>
-      <Box mt="4">
-        <Text fontSize="sm" textAlign="center" mb="2">
-          NFTs with unique randomness derived from batch entropy
+      </Container>
+      <Container my="4">
+        <Text fontSize="sm" mb="2">
+          <ChevronRightIcon /> NFTs with unique randomness derived from batch
+          entropy
         </Text>
-        <Box mb="4">{children}</Box>
-      </Box>
+        <Box>{children}</Box>
+      </Container>
       <Divider />
     </Box>
   )
