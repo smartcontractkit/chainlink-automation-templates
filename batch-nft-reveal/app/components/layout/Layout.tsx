@@ -167,7 +167,7 @@ export const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
       <Container as="footer" mt="8" maxWidth="container.xl">
         <HStack py="8">
           <Link
-            href="https://github.com/hackbg/chainlink-keepers-templates"
+            href="https://github.com/hackbg/chainlink-keepers-templates/tree/main/batch-nft-reveal"
             isExternal
           >
             <HStack>
