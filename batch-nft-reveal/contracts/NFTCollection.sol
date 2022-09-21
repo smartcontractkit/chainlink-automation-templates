@@ -224,28 +224,56 @@ contract NFTCollection is
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">';
         if (_metadataCleared) {
             parts[1] = '<style>.base { fill: white; font-family: serif; font-size: 59px; }</style><rect width="100%" height="100%" fill="black" /><text class="base">';
-            string[7] memory slicedRandomness;
+            string[7] memory svgRows;
             string memory randomnessString = Strings.toString(_randomness);
+            uint256 svgRowsNumber;
 
-            for (uint8 i = 0; i < 7; i++) {
-                string memory partialNumber = _substring(randomnessString,i*11,(i+1)*11);
-                slicedRandomness[i] = string(
+            bool hasOnlyFullRows = _stringLength(randomnessString) % 11 == 0;
+            if(hasOnlyFullRows){
+                svgRowsNumber = _stringLength(randomnessString) / 11;
+            }
+            else{
+                svgRowsNumber = _stringLength(randomnessString) / 11 + 1;
+            }
+
+            for (uint8 i = 0; i < svgRowsNumber; i++) {  
+                uint256 randomnessRowsLength = _stringLength(randomnessString) / 11;
+                uint256 charactersOnRow;
+                bool isNotLastRow = i+1 <= randomnessRowsLength;
+                bool isFullRow = _stringLength(randomnessString) % 11 == 0;
+
+                if (isFullRow || isNotLastRow) {
+                    charactersOnRow = 11;
+                } else {
+                    charactersOnRow = _stringLength(randomnessString) % 11;
+                }
+
+                uint256 beginningOfNumber = i * 11;
+                uint256 endOfNumber = beginningOfNumber + charactersOnRow;
+
+                string memory partialRandomness = _substring(
+                    randomnessString,
+                    beginningOfNumber,
+                    endOfNumber
+                );
+
+                svgRows[i] = string(
                     abi.encodePacked(
                         '<tspan x="12" dy="48">',
-                        partialNumber,
+                        partialRandomness,
                         "</tspan>"
                     )
                 );
             }
             parts[2] = string(
                 abi.encodePacked(
-                    slicedRandomness[0],
-                    slicedRandomness[1],
-                    slicedRandomness[2],
-                    slicedRandomness[3],
-                    slicedRandomness[4],
-                    slicedRandomness[5],
-                    slicedRandomness[6]
+                    svgRows[0],
+                    svgRows[1],
+                    svgRows[2],
+                    svgRows[3],
+                    svgRows[4],
+                    svgRows[5],
+                    svgRows[6]
                 )
             );
         } else {
@@ -279,6 +307,10 @@ contract NFTCollection is
             result[i - startIndex] = strBytes[i];
         }
         return string(result);
+    }
+
+    function _stringLength(string memory s) internal pure returns (uint256) {
+        return bytes(s).length;
     }
 
     // REVEAL
