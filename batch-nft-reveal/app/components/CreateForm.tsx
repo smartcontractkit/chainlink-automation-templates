@@ -90,7 +90,13 @@ export const CreateForm = ({
       <FormikProvider value={formik}>
         <FormControl isInvalid={formik.touched.name && !!formik.errors.name}>
           <FormLabel htmlFor="name">Name</FormLabel>
-          <Field as={Input} bg="white" name="name" validate={isEmpty} />
+          <Field
+            as={Input}
+            bg="white"
+            name="name"
+            validate={isEmpty}
+            placeholder="My Sample Collection"
+          />
           {formik.errors.name && formik.touched.name && (
             <FormErrorMessage>Name {formik.errors.name}</FormErrorMessage>
           )}
@@ -100,7 +106,13 @@ export const CreateForm = ({
           isInvalid={formik.touched.symbol && !!formik.errors.symbol}
         >
           <FormLabel htmlFor="symbol">Symbol</FormLabel>
-          <Field as={Input} bg="white" name="symbol" validate={isEmpty} />
+          <Field
+            as={Input}
+            bg="white"
+            name="symbol"
+            validate={isEmpty}
+            placeholder="MSC"
+          />
           {formik.errors.symbol && formik.touched.symbol && (
             <FormErrorMessage>Symbol {formik.errors.symbol}</FormErrorMessage>
           )}
@@ -115,6 +127,7 @@ export const CreateForm = ({
             bg="white"
             name="maxSupply"
             validate={isPositiveNumber}
+            placeholder="1000"
           />
           {formik.errors.maxSupply && formik.touched.maxSupply && (
             <FormErrorMessage>
@@ -132,6 +145,7 @@ export const CreateForm = ({
             bg="white"
             name="mintCost"
             validate={isFractionalNumber}
+            placeholder="0.01"
           />
           {formik.errors.mintCost && formik.touched.mintCost && (
             <FormErrorMessage>
@@ -169,6 +183,7 @@ export const CreateForm = ({
             bg="white"
             name="vrfSubscriptionId"
             validate={isNumber}
+            placeholder="1234"
           />
           {formik.errors.vrfSubscriptionId &&
             formik.touched.vrfSubscriptionId && (
@@ -220,6 +235,7 @@ export const CreateForm = ({
                 bg="white"
                 name="revealBatchSize"
                 validate={isNumber}
+                placeholder="10"
               />
             </div>
           </Tooltip>
@@ -248,6 +264,7 @@ export const CreateForm = ({
                 bg="white"
                 name="revealInterval"
                 validate={isNumber}
+                placeholder="3600"
               />
             </div>
           </Tooltip>
