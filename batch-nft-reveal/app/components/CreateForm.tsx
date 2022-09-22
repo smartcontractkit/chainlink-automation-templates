@@ -267,9 +267,9 @@ export const CreateForm = ({
             formik.touched.revealBatchSize && !!formik.errors.revealBatchSize
           }
         >
-          <FormLabel htmlFor="revealBatchSize">Batch size</FormLabel>
+          <FormLabel htmlFor="revealBatchSize">Queue size trigger</FormLabel>
           <Tooltip
-            label="Number of unrevealed NFTs in the queue to trigger the reveal process."
+            label="The minimum number of unrevealed NFTs required for Keepers to trigger a batch reveal."
             placement="right-start"
             fontSize="xs"
             hasArrow
@@ -286,7 +286,7 @@ export const CreateForm = ({
           </Tooltip>
           {formik.errors.revealBatchSize && formik.touched.revealBatchSize && (
             <FormErrorMessage>
-              Batch size {formik.errors.revealBatchSize}
+              Queue size {formik.errors.revealBatchSize}
             </FormErrorMessage>
           )}
         </FormControl>
@@ -296,9 +296,9 @@ export const CreateForm = ({
             formik.touched.revealInterval && !!formik.errors.revealInterval
           }
         >
-          <FormLabel htmlFor="revealInterval">Interval (seconds)</FormLabel>
+          <FormLabel htmlFor="revealInterval">Time trigger (seconds)</FormLabel>
           <Tooltip
-            label="Number of seconds since the last reveal needed to trigger the reveal process. Please note at least 1 unrevealed NFT is required for this criteria to apply."
+            label="A countdown before Keepers will trigger a batch reveal, if there's at least 1 NFT in the queue. The timer is restarted after each reveal."
             placement="right-start"
             fontSize="xs"
             hasArrow
@@ -315,7 +315,7 @@ export const CreateForm = ({
           </Tooltip>
           {formik.errors.revealInterval && formik.touched.revealInterval && (
             <FormErrorMessage>
-              Interval {formik.errors.revealInterval}
+              Time trigger {formik.errors.revealInterval}
             </FormErrorMessage>
           )}
         </FormControl>
