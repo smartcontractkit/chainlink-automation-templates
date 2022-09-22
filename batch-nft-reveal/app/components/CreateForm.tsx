@@ -90,13 +90,22 @@ export const CreateForm = ({
       <FormikProvider value={formik}>
         <FormControl isInvalid={formik.touched.name && !!formik.errors.name}>
           <FormLabel htmlFor="name">Name</FormLabel>
-          <Field
-            as={Input}
-            bg="white"
-            name="name"
-            validate={isEmpty}
-            placeholder="My Sample Collection"
-          />
+          <Tooltip
+            label=" A descriptive name for a collection of NFTs used by third party applications like marketplaces and wallets."
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            <div>
+              <Field
+                as={Input}
+                bg="white"
+                name="name"
+                validate={isEmpty}
+                placeholder="My Sample Collection"
+              />
+            </div>
+          </Tooltip>
           {formik.errors.name && formik.touched.name && (
             <FormErrorMessage>Name {formik.errors.name}</FormErrorMessage>
           )}
@@ -106,13 +115,22 @@ export const CreateForm = ({
           isInvalid={formik.touched.symbol && !!formik.errors.symbol}
         >
           <FormLabel htmlFor="symbol">Symbol</FormLabel>
-          <Field
-            as={Input}
-            bg="white"
-            name="symbol"
-            validate={isEmpty}
-            placeholder="MSC"
-          />
+          <Tooltip
+            label="An abbreviated name for NFTs used by third party applications like marketplaces and wallets."
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            <div>
+              <Field
+                as={Input}
+                bg="white"
+                name="symbol"
+                validate={isEmpty}
+                placeholder="MSC"
+              />
+            </div>
+          </Tooltip>
           {formik.errors.symbol && formik.touched.symbol && (
             <FormErrorMessage>Symbol {formik.errors.symbol}</FormErrorMessage>
           )}
@@ -122,13 +140,22 @@ export const CreateForm = ({
           isInvalid={formik.touched.maxSupply && !!formik.errors.maxSupply}
         >
           <FormLabel htmlFor="maxSupply">Max supply</FormLabel>
-          <Field
-            as={Input}
-            bg="white"
-            name="maxSupply"
-            validate={isPositiveNumber}
-            placeholder="1000"
-          />
+          <Tooltip
+            label="The total number of NFTs that can be minted."
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            <div>
+              <Field
+                as={Input}
+                bg="white"
+                name="maxSupply"
+                validate={isPositiveNumber}
+                placeholder="1000"
+              />
+            </div>
+          </Tooltip>
           {formik.errors.maxSupply && formik.touched.maxSupply && (
             <FormErrorMessage>
               Max supply {formik.errors.maxSupply}
@@ -140,13 +167,22 @@ export const CreateForm = ({
           isInvalid={formik.touched.mintCost && !!formik.errors.mintCost}
         >
           <FormLabel htmlFor="mintCost">Cost to mint (ETH)</FormLabel>
-          <Field
-            as={Input}
-            bg="white"
-            name="mintCost"
-            validate={isFractionalNumber}
-            placeholder="0.01"
-          />
+          <Tooltip
+            label="The amount of ETH required for minting 1 NFT."
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            <div>
+              <Field
+                as={Input}
+                bg="white"
+                name="mintCost"
+                validate={isFractionalNumber}
+                placeholder="0.01"
+              />
+            </div>
+          </Tooltip>
           {formik.errors.mintCost && formik.touched.mintCost && (
             <FormErrorMessage>
               Cost to mint {formik.errors.mintCost}
@@ -178,13 +214,22 @@ export const CreateForm = ({
           }
         >
           <FormLabel htmlFor="vrfSubscriptionId">Subscription ID</FormLabel>
-          <Field
-            as={Input}
-            bg="white"
-            name="vrfSubscriptionId"
-            validate={isNumber}
-            placeholder="1234"
-          />
+          <Tooltip
+            label="The unique identifier of your funded Chainlink VRF subscription."
+            placement="right-start"
+            fontSize="xs"
+            hasArrow
+          >
+            <div>
+              <Field
+                as={Input}
+                bg="white"
+                name="vrfSubscriptionId"
+                validate={isNumber}
+                placeholder="1234"
+              />
+            </div>
+          </Tooltip>
           {formik.errors.vrfSubscriptionId &&
             formik.touched.vrfSubscriptionId && (
               <FormErrorMessage>
