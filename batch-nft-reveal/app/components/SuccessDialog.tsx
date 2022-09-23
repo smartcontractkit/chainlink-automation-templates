@@ -12,6 +12,8 @@ import {
   Stack,
   Checkbox,
   Code,
+  Alert,
+  AlertIcon,
 } from '@chakra-ui/react'
 import { CopyIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { getNetworkName } from '../lib/utils'
@@ -114,6 +116,15 @@ export const SuccessDialog = ({
           </Link>
         </HStack>
       </Stack>
+      <Alert status="info" mt="4">
+        <AlertIcon />
+        <Stack>
+          <Text>
+            When registering the Upkeep, choose &quot;Custom logic&quot; trigger
+            and input <code>200000</code> for Gas limit.
+          </Text>
+        </Stack>
+      </Alert>
       <Button
         mt="8"
         colorScheme="teal"
