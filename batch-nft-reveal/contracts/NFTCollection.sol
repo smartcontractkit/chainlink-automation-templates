@@ -224,37 +224,33 @@ contract NFTCollection is
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">';
         if (_metadataCleared) {
             parts[1] = '<style>.base { fill: white; font-family: serif; font-size: 59px; }</style><rect width="100%" height="100%" fill="black" /><text class="base">';
-            string[7] memory slicedRandomness;
-            string memory randomnessString = Strings.toString(_randomness);
-
-            for (uint8 i = 0; i < 7; i++) {
-                string memory partialNumber = _substring(randomnessString,i*11,(i+1)*11);
-                slicedRandomness[i] = string(
+            string[6] memory svgRows;
+            string memory randomnessString = Strings.toHexString(_randomness, 32);
+            for (uint8 i = 0; i < 6; i++) {
+                string memory partialString = _substring(randomnessString, i * 11, (i + 1) * 11);
+                svgRows[i] = string(
                     abi.encodePacked(
-                        '<tspan x="12" dy="48">',
-                        partialNumber,
+                        '<tspan x="16" dy="56">',
+                        partialString,
                         "</tspan>"
                     )
                 );
             }
             parts[2] = string(
                 abi.encodePacked(
-                    slicedRandomness[0],
-                    slicedRandomness[1],
-                    slicedRandomness[2],
-                    slicedRandomness[3],
-                    slicedRandomness[4],
-                    slicedRandomness[5],
-                    slicedRandomness[6]
+                    svgRows[0],
+                    svgRows[1],
+                    svgRows[2],
+                    svgRows[3],
+                    svgRows[4],
+                    svgRows[5]
                 )
             );
         } else {
             parts[1] = '<style>.base { fill: white; font-family: serif; font-size: 350px; }</style><rect width="100%" height="100%" fill="black" /><text x="90" y="295" class="base">';
             parts[2] = "?";
         }
-
         parts[3] = "</text></svg>";
-
         return string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3]));
     }
 
