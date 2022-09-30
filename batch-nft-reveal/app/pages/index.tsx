@@ -10,8 +10,8 @@ function HomeIndex(): JSX.Element {
         Welcome to Chainlink NFT Demo App
       </Heading>
       <Text fontSize="xl">
-        Create batch-revealed NFT collections powered by Chainlink VRF &amp;
-        Keepers.
+        Create batch-revealed NFT collections powered by Chainlink Automation &amp;
+        VRF.
       </Text>
       <Section>
         <Heading as="h2" size="md" mb="2">
@@ -38,16 +38,16 @@ function HomeIndex(): JSX.Element {
       </Section>
       <Section>
         <Heading as="h2" size="md" mb="2">
-          Keepers
+          Automation
         </Heading>
         <Text mb="4">
           The reveal process can be automated and further decentralized by
-          asking Chainlink Keepers to call the reveal function when certain
+          having Chainlink Automation call the reveal function when certain
           criteria is met. In this app there are two configurable criterias:
           batch size and time interval.
         </Text>
         <Link
-          href="https://docs.chain.link/docs/chainlink-keepers/introduction/"
+          href="https://docs.chain.link/docs/chainlink-automation/introduction/"
           isExternal
         >
           Learn More <ExternalLinkIcon mx="2px" />
