@@ -1,12 +1,12 @@
-# Chainlink Keepers Template: Batch NFT Reveal
+# Chainlink Automation Template: Batch NFT Reveal
 
-- [Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keepers-templates/batch-nft-reveal/flatten/NFTCollection.flat.sol)
+- [Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-automation-templates/batch-nft-reveal/flatten/NFTCollection.flat.sol)
 
-- [App Live Demo](https://keepers.chainlink-demo.app)
+- [App Live Demo](https://automation.chainlink-demo.app)
 
 Using Chainlink VRF in generative art NFT collections is de-facto the standard approach for getting provably random source in smart contracts. By batching the reveal process, instead of making VRF calls for each NFT we can save cost up to 100x (in a collection of 10,000 with batch size of 100).
 
-The reveal process can be automated and further decentralized by asking [Chainlink Keepers](https://keepers.chain.link) to call the reveal function when certain criteria is met. In this template there are two configurable criterias: batch size and time interval.
+The reveal process can be automated and further decentralized by having [Chainlink Automation](https://automation.chain.link) call the reveal function when certain criteria is met. In this template there are two configurable criterias: batch size and time interval.
 
 ## Randomness
 
@@ -78,11 +78,11 @@ The deploy scripts utilize an additional config (`helper-hardhat-config.ts`) whi
 
 However, you still need to manually replace the `subscriptionId` value with your own. To obtain one, you need to [Create and fund a VRF subscription](https://docs.chain.link/docs/get-a-random-number/#create-and-fund-a-subscription).
 
-To have a fully working solution, both [Chainlink VRF](https://docs.chain.link/docs/vrf-contracts/) and [Chainlink Keepers](https://docs.chain.link/docs/chainlink-keepers/supported-networks/) have to be supported on the network.
+To have a fully working solution, both [Chainlink VRF](https://docs.chain.link/docs/vrf-contracts/) and [Chainlink Automation](https://docs.chain.link/docs/chainlink-automation/supported-networks/) have to be supported on the network.
 
 ## Register Upkeep
 
-To automate the metadata reveal with Chainlink’s network of keepers, you need to [register new Upkeeep](https://keepers.chain.link/new) by following this [step-by-step guide](https://docs.chain.link/docs/chainlink-keepers/register-upkeep/).
+To automate the metadata reveal with Chainlink’s Automation network, you need to [register new Upkeeep](https://automation.chain.link/new) by following this [step-by-step guide](https://docs.chain.link/docs/chainlink-automation/register-upkeep/).
 
 ## User Interface
 
@@ -98,9 +98,9 @@ yarn flatten
 
 ## Refs
 
-- [Chainlink Keepers Docs](https://docs.chain.link/docs/chainlink-keepers/introduction/)
+- [Chainlink Automation Docs](https://docs.chain.link/docs/chainlink-automation/introduction/)
 - [Chainlink VRF Docs](https://docs.chain.link/docs/chainlink-vrf/)
 - [Designing Effective NFT Launches](https://www.paradigm.xyz/2021/10/a-guide-to-designing-effective-nft-launches)
 - [Smart Batched Auctions](https://github.com/FrankieIsLost/smart-batched-auction)
 
-> :warning: **Disclaimer**: The code used in Chainlink Keepers Quickstarts templates comes from Chainlink community members and has not been audited. The Chainlink team disclaims and shall have no liability with respect to any loss, malfunction, or any other result of deploying a Quickstart Template. By electing to deploy a Quickstart Template you hereby acknowledge and agree to the above.
+> :warning: **Disclaimer**: The code used in Chainlink Automation Quickstarts templates comes from Chainlink community members and has not been audited. The Chainlink team disclaims and shall have no liability with respect to any loss, malfunction, or any other result of deploying a Quickstart Template. By electing to deploy a Quickstart Template you hereby acknowledge and agree to the above.

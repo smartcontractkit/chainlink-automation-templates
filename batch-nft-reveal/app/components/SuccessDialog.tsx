@@ -111,7 +111,7 @@ export const SuccessDialog = ({
             }
           />
           <Text>2. Register new Upkeep</Text>
-          <Link href="https://keepers.chain.link" isExternal>
+          <Link href="https://automation.chain.link" isExternal>
             <ExternalLinkIcon />
           </Link>
         </HStack>
