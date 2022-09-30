@@ -1,8 +1,8 @@
-# Chainlink Keepers Templates
+# Chainlink Automation Templates
 
-This is a multi-project repo containing real-world examples of [Chainlink Keepers](https://keepers.chain.link) use cases that can be used as reference or to build upon.
+This is a multi-project repo containing real-world examples of [Chainlink Automation](https://automation.chain.link) use cases that can be used as reference or to build upon.
 
-Chainlink Keepers provide users with a decentralized network of nodes that are incentivized to perform all registered jobs (or Upkeeps) without competing with each other. The network provides developers with hyper-reliable, decentralized smart contract automation.
+Chainlink Automation provides users with a decentralized network of nodes that are incentivized to perform all registered jobs (or Upkeeps) without competing with each other. The network provides developers with hyper-reliable, decentralized smart contract automation.
 
 ## Example Projects
 
