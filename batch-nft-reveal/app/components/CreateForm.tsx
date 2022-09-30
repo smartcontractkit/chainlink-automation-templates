@@ -251,13 +251,13 @@ export const CreateForm = ({
         />
         <Center>
           <Tooltip
-            label="The reveal process can be automated and further decentralized by asking Chainlink Keepers to call the reveal function when any of the criterias below is met."
+            label="The reveal process can be automated and further decentralized by having Chainlink Automation call the reveal function when any of the criterias below is met."
             placement="right-start"
             fontSize="xs"
             hasArrow
           >
             <Heading as="h2" size="s" mb="2">
-              Chainlink Keepers <QuestionIcon w="4" h="4" mx="2" />
+              Chainlink Automation <QuestionIcon w="4" h="4" mx="2" />
             </Heading>
           </Tooltip>
         </Center>
@@ -269,7 +269,7 @@ export const CreateForm = ({
         >
           <FormLabel htmlFor="revealBatchSize">Queue size trigger</FormLabel>
           <Tooltip
-            label="The minimum number of unrevealed NFTs required for Keepers to trigger a batch reveal."
+            label="The minimum number of unrevealed NFTs required for Automation to trigger a batch reveal."
             placement="right-start"
             fontSize="xs"
             hasArrow
@@ -298,7 +298,7 @@ export const CreateForm = ({
         >
           <FormLabel htmlFor="revealInterval">Time trigger (seconds)</FormLabel>
           <Tooltip
-            label="A countdown before Keepers will trigger a batch reveal, if there's at least 1 NFT in the queue. The timer is restarted after each reveal."
+            label="A countdown before Automation will trigger a batch reveal, if there's at least 1 NFT in the queue. The timer is restarted after each reveal."
             placement="right-start"
             fontSize="xs"
             hasArrow

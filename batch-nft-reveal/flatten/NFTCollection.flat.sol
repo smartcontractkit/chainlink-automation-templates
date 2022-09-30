@@ -1822,7 +1822,7 @@ pragma solidity ^0.8.0;
 
 interface KeeperCompatibleInterface {
   /**
-   * @notice method that is simulated by the keepers to see if any work actually
+   * @notice method that is simulated by Chainlink Automation to see if any work actually
    * needs to be performed. This method does does not actually need to be
    * executable, and since it is only ever simulated it can consume lots of gas.
    * @dev To ensure that it is never called, you may want to add the
@@ -1841,14 +1841,14 @@ interface KeeperCompatibleInterface {
   function checkUpkeep(bytes calldata checkData) external returns (bool upkeepNeeded, bytes memory performData);
 
   /**
-   * @notice method that is actually executed by the keepers, via the registry.
+   * @notice method that is actually executed by Chainlink Automation, via the registry.
    * The data returned by the checkUpkeep simulation will be passed into
    * this method to actually be executed.
    * @dev The input to this method should not be trusted, and the caller of the
    * method should not even be restricted to any single registry. Anyone should
    * be able call it, and the input should be validated, there is no guarantee
    * that the data passed in is the performData returned from checkUpkeep. This
-   * could happen due to malicious keepers, racing keepers, or simply a state
+   * could happen due to malicious automation, racing automation, or simply a state
    * change while the performUpkeep transaction is waiting for confirmation.
    * Always validate the data passed in.
    * @param performData is the data which was passed back from the checkData

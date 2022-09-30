@@ -1,8 +1,8 @@
-# Chainlink Keepers Template: Vault Harvester
+# Chainlink Automation Template: Vault Harvester
 
-[Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-keepers-templates/vault-harvester/flatten/Harvester.flat.sol)
+[Open in Remix IDE](https://remix.ethereum.org/#url=https://github.com/hackbg/chainlink-automation-templates/vault-harvester/flatten/Harvester.flat.sol)
 
-The key component in DeFi yield aggregators are the Vaults in which you stake your crypto tokens. The investment strategy tied to the specific vault will increase your deposited token amount by compounding arbitrary yield farm reward tokens back into your initially deposited asset. The process is called vault harvesting and can be automated by [Chainlink Keepers](https://keepers.chain.link) while making it more trustless and decentralized.
+The key component in DeFi yield aggregators are the Vaults in which you stake your crypto tokens. The investment strategy tied to the specific vault will increase your deposited token amount by compounding arbitrary yield farm reward tokens back into your initially deposited asset. The process is called vault harvesting and can be automated by [Chainlink Automation](https://automation.chain.link) while making it more trustless and decentralized.
 
 Main Contracts:
 
@@ -16,7 +16,7 @@ Main Contracts:
 
 ## Develop
 
-If you want to create an automated vault harvesting powered by Chainlink Keepers you have to create a new contract that inherits the abstract `KeeperCompatibleHarvester` contract and implement all placeholder functions.
+If you want to create an automated vault harvesting powered by Chainlink Automation you have to create a new contract that inherits the abstract `KeeperCompatibleHarvester` contract and implement all placeholder functions.
 
 In `contracts` create a new `.sol` file:
 
@@ -199,11 +199,11 @@ To test the deploy script, execute it on `localhost` network while running a mai
 RPC_URL=https://example-rpc.com yarn net:fork
 ```
 
-Check [Supported Networks](https://docs.chain.link/docs/chainlink-keepers/supported-networks/).
+Check [Supported Networks](https://docs.chain.link/docs/chainlink-automation/supported-networks/).
 
 ## Register Upkeep
 
-To automate your harvester contract with Chainlink’s network of keepers, you need to [register new Upkeeep](https://keepers.chain.link/new) by following this [step-by-step guide](https://docs.chain.link/docs/chainlink-keepers/register-upkeep/).
+To automate your harvester contract with Chainlink’s automation network, you need to [register new Upkeeep](https://automation.chain.link/new) by following this [step-by-step guide](https://docs.chain.link/docs/chainlink-automation/register-upkeep/).
 
 ## Misc
 
@@ -215,6 +215,6 @@ yarn flatten
 
 ## References
 
-- [Chainlink Keepers Docs](https://docs.chain.link/docs/chainlink-keepers/introduction/)
+- [Chainlink Automation Docs](https://docs.chain.link/docs/chainlink-automation/introduction/)
 
-> :warning: **Disclaimer**: The code used in Chainlink Keepers Quickstarts templates comes from Chainlink community members and has not been audited. The Chainlink team disclaims and shall have no liability with respect to any loss, malfunction, or any other result of deploying a Quickstart Template. By electing to deploy a Quickstart Template you hereby acknowledge and agree to the above.
+> :warning: **Disclaimer**: The code used in Chainlink Automation Quickstarts templates comes from Chainlink community members and has not been audited. The Chainlink team disclaims and shall have no liability with respect to any loss, malfunction, or any other result of deploying a Quickstart Template. By electing to deploy a Quickstart Template you hereby acknowledge and agree to the above.
