@@ -165,6 +165,22 @@ export const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
         })}
       </Container>
       <Container as="footer" mt="8" maxWidth="container.xl">
+        <HStack>
+          <Link href="https://chn.lk/3R7BPNw" isExternal>
+            <Image
+              src="https://chain.link/badge-automation-black"
+              height="72px"
+              alt="automation secured with chainlink"
+            />
+          </Link>
+          <Link href="https://chn.lk/3C1ffBV" isExternal>
+            <Image
+              src="https://chain.link/badge-randomness-black"
+              height="72px"
+              alt="randomness secured with chainlink"
+            />
+          </Link>
+        </HStack>
         <HStack py="8">
           <Link
             href="https://github.com/hackbg/chainlink-automation-templates/tree/main/batch-nft-reveal"

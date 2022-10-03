@@ -10,17 +10,22 @@ function HomeIndex(): JSX.Element {
         Welcome to Chainlink NFT Demo App
       </Heading>
       <Text fontSize="xl">
-        Create batch-revealed NFT collections powered by Chainlink Automation &amp;
-        VRF.
+        Create batch-revealed NFT collections powered by Chainlink Automation
+        &amp; VRF.
       </Text>
+      <NextLink href="/create" passHref>
+        <Button as="a" colorScheme="teal" size="lg" mt="8">
+          Get Started <ArrowForwardIcon ml="8px" />
+        </Button>
+      </NextLink>
       <Section>
         <Heading as="h2" size="md" mb="2">
           VRF
         </Heading>
         <Text mb="4">
           All NFTs in a collection have a unique set of traits which determine
-          their value, so it&apos;s important they&apos;re randomly distributed amongst
-          the participants of the drop.
+          their value, so it&apos;s important they&apos;re randomly distributed
+          amongst the participants of the drop.
         </Text>
         <Text mb="4">
           Using Chainlink VRF in generative art NFT collections is de-facto the
@@ -53,11 +58,6 @@ function HomeIndex(): JSX.Element {
           Learn More <ExternalLinkIcon mx="2px" />
         </Link>
       </Section>
-      <NextLink href="/create" passHref>
-        <Button as="a" colorScheme="teal" size="lg" mt="8">
-          Get Started <ArrowForwardIcon ml="8px" />
-        </Button>
-      </NextLink>
     </>
   )
 }
