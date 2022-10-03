@@ -80,7 +80,7 @@ const GalleryInfo = () => (
       it to generate random traits and complex graphics.
     </Text>
     <Link
-      href="https://github.com/hackbg/chainlink-keepers-templates/tree/main/batch-nft-reveal#metadata"
+      href="https://github.com/hackbg/chainlink-automation-templates/tree/main/batch-nft-reveal#metadata"
       isExternal
     >
       Learn More <ExternalLinkIcon mx="2px" />

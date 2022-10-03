@@ -26,7 +26,7 @@ Chainlink Automation provides users with a decentralized network of nodes that a
 Clone the repo:
 
 ```bash
-git clone git@github.com:hackbg/chainlink-keepers-templates.git
+git clone git@github.com:hackbg/chainlink-automation-templates.git
 ```
 
 Navigate to a template subdirectory and follow the instructions in the included `README.md` file:
