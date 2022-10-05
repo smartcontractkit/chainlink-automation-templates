@@ -238,7 +238,7 @@ export const CreateForm = ({
             )}
         </FormControl>
         <Link
-          href="https://docs.chain.link/docs/vrf/v2/examples/get-a-random-number/#create-and-fund-a-subscription"
+          href="https://docs.chain.link/docs/vrf/v2/subscription/ui/"
           isExternal
           fontSize="small"
         >

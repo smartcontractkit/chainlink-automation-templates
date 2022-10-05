@@ -76,7 +76,7 @@ yarn deploy <network>
 
 The deploy scripts utilize an additional config (`helper-hardhat-config.ts`) which contains the parameters required for VRF on test networks like Rinkeby.
 
-However, you still need to manually replace the `subscriptionId` value with your own. To obtain one, you need to [Create and fund a VRF subscription](https://docs.chain.link/docs/get-a-random-number/#create-and-fund-a-subscription).
+However, you still need to manually replace the `subscriptionId` value with your own. To obtain one, you need to [Create and fund a VRF subscription](https://docs.chain.link/docs/vrf/v2/subscription/ui/).
 
 To have a fully working solution, both [Chainlink VRF](https://docs.chain.link/docs/vrf-contracts/) and [Chainlink Automation](https://docs.chain.link/docs/chainlink-automation/supported-networks/) have to be supported on the network.
 
