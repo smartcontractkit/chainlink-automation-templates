@@ -82,7 +82,11 @@ export const Mint = ({ collection }: MintProps): JSX.Element => {
           isLoading={isLoading}
           colorScheme="teal"
           disabled={
-            isMintDisabled || !account || hasReachedMaxSupply || isLoading
+            isMintDisabled ||
+            !account ||
+            hasReachedMaxSupply ||
+            isLoading ||
+            !mintCost
           }
           marginLeft="4"
           onClick={() => {
