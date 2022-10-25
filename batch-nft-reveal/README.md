@@ -74,7 +74,7 @@ To deploy the collection to a network, run:
 yarn deploy <network>
 ```
 
-The deploy scripts utilize an additional config (`helper-hardhat-config.ts`) which contains the parameters required for VRF on test networks like Rinkeby.
+The deploy scripts utilize an additional config (`helper-hardhat-config.ts`) which contains the parameters required for VRF on test networks like Goerli.
 
 However, you still need to manually replace the `subscriptionId` value with your own. To obtain one, you need to [Create and fund a VRF subscription](https://docs.chain.link/docs/vrf/v2/subscription/ui/).
 
