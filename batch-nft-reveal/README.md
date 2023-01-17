@@ -4,7 +4,7 @@
 
 - [App Live Demo](https://automation.chainlink-demo.app)
 
-Using Chainlink VRF in generative art NFT collections is de-facto the standard approach for getting provably random source in smart contracts. By batching the reveal process, instead of making VRF calls for each NFT we can save cost up to 100x (in a collection of 10,000 with batch size of 100).
+Using [Chainlink VRF](https://docs.chain.link/vrf/v2/introduction/) in generative art NFT collections is de-facto the standard approach for getting provably random source in smart contracts. By batching the reveal process, instead of making VRF calls for each NFT we can save cost up to 100x (in a collection of 10,000 with batch size of 100).
 
 The reveal process can be automated and further decentralized by having [Chainlink Automation](https://automation.chain.link) call the reveal function when certain criteria is met. In this template there are two configurable criterias: batch size and time interval.
 
