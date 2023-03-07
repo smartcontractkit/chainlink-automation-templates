@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { useEthers } from '@usedapp/core'
 import { Text, Heading } from '@chakra-ui/react'
+import { JsonRpcProvider } from '@ethersproject/providers'
 import { Section } from '../components/layout'
 import { CreateForm } from '../components/CreateForm'
 import { SuccessDialog } from '../components/SuccessDialog'
@@ -28,6 +29,11 @@ function CreatePage(): JSX.Element {
   const onSubmit = useCallback(
     async (args: CreateFormValues) => {
       setError('')
+
+      if (!(library instanceof JsonRpcProvider)) {
+        return null
+      }
+
       let tx: TransactionReceipt
       try {
         const contract = await deployNFTCollection(
@@ -71,7 +77,7 @@ function CreatePage(): JSX.Element {
         {!deployedContract && (
           <CreateForm onSubmit={onSubmit} isLoading={isLoading} />
         )}
-        { error && <Error message={error} mt="2" /> }
+        {error && <Error message={error} mt="2" />}
       </Section>
     </>
   )
