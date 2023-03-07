@@ -42,8 +42,8 @@ abstract contract KeeperCompatibleHarvester is IHarvester, Ownable {
         keeperRegistryGasOverhead = _keeperRegistryGasOverhead;
 
         // Initialize state variables derived from initialize() arguments.
-        (uint32 paymentPremiumPPB, , , , , , ) = keeperRegistry.getConfig();
-        chainlinkUpkeepTxPremiumFactor = uint256(paymentPremiumPPB);
+        (,OnchainConfig memory config,,,) = keeperRegistry.getState();
+        chainlinkUpkeepTxPremiumFactor = uint256(config.paymentPremiumPPB);
     }
 
     /*             */
