@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useEthers } from '@usedapp/core'
+import { JsonRpcProvider } from '@ethersproject/providers'
 import { Contract, ethers } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import { getNetworkName } from '../lib/utils'
@@ -16,13 +17,17 @@ export function useCollectionContract<T extends Contract = Contract>(
     if (!address) return null
     if (!library) return null
 
+    if (!(library instanceof JsonRpcProvider)) {
+      return null
+    }
+
     return new ethers.Contract(address, abi, library.getSigner()) as T
   }, [address, library])
 
   const [isContract, setIsContract] = useState<boolean | undefined>()
   const [loading, setLoading] = useState(false)
   useEffect(() => {
-    if (library && address) {
+    if (library instanceof JsonRpcProvider && address) {
       setLoading(true)
       checkContract(library, address).then((result) => {
         setIsContract(result)

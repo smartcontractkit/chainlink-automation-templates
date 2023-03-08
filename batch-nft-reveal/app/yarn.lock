@@ -1691,10 +1691,10 @@
     "@json-rpc-tools/types" "^1.7.6"
     "@pedrouid/environment" "^1.0.1"
 
-"@metamask/detect-provider@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@metamask/detect-provider/-/detect-provider-1.2.0.tgz#3667a7531f2a682e3c3a43eaf3a1958bdb42a696"
-  integrity sha512-ocA76vt+8D0thgXZ7LxFPyqw3H7988qblgzddTDA6B8a/yU0uKV42QR/DhA+Jh11rJjxW0jKvwb5htA6krNZDQ==
+"@metamask/detect-provider@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@metamask/detect-provider/-/detect-provider-2.0.0.tgz#4bc2795e5e6f7d8b84b2e845058d2f222c99917d"
+  integrity sha512-sFpN+TX13E9fdBDh9lvQeZdJn4qYoRb/6QF2oZZK/Pn559IhCFacPMU1rMuqyXoFQF3JSJfii2l98B87QDPeCQ==
 
 "@next/env@12.2.5":
   version "12.2.5"
@@ -2137,12 +2137,12 @@
   resolved "https://registry.yarnpkg.com/@uniswap/token-lists/-/token-lists-1.0.0-beta.30.tgz#2103ca23b8007c59ec71718d34cdc97861c409e5"
   integrity sha512-HwY2VvkQ8lNR6ks5NqQfAtg+4IZqz3KV1T8d2DlI8emIn9uMmaoFbIOg0nzjqAVKKnZSbMTRRtUoAh6mmjRvog==
 
-"@usedapp/core@1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@usedapp/core/-/core-1.1.5.tgz#1e7793d9633f19b38a65450c8815ed8020bf0692"
-  integrity sha512-goX1/uqlUGhio5fO3Uhjxe4gLde9ZkwGSdSaSfUGfrsDO5tyKgLK9Tlw0BF/Dj9Dh+NrKrhus/i2dNkpbbbktA==
+"@usedapp/core@1.2.6":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@usedapp/core/-/core-1.2.6.tgz#6ea9637a063e7315ece7ff3e79401aa42a1816be"
+  integrity sha512-j8Rnx3qQ1eQSFHiPwZjuAwCs12z5RKmv0tOnnIwsgJqXfJF/ZYIOOgR627x93mblWj/Vbqb4mNER9P6OTYn/tA==
   dependencies:
-    "@metamask/detect-provider" "^1.2.0"
+    "@metamask/detect-provider" "^2.0.0"
     "@uniswap/token-lists" "^1.0.0-beta.27"
     fetch-mock "^9.11.0"
     lodash.merge "^4.6.2"
