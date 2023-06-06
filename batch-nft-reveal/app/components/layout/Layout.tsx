@@ -185,7 +185,7 @@ export const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
         </HStack>
         <HStack py="8">
           <Link
-            href="https://github.com/hackbg/chainlink-automation-templates/tree/main/batch-nft-reveal"
+            href="https://github.com/smartcontractkit/chainlink-automation-templates/tree/main/batch-nft-reveal"
             isExternal
           >
             <HStack>

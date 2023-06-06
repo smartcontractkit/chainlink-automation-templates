@@ -2,7 +2,7 @@
 
 [LIVE DEMO](https://automation.chainlink-demo.app)
 
-This is a complementary app for the [Chainlink Automation Template: Batch NFT Reveal](https://github.com/hackbg/chainlink-automation-templates/tree/main/batch-nft-reveal) contract repo. It helps you setup and play with batch-revealed NFT collections powered by Chainlink VRF & Automation.
+This is a complementary app for the [Chainlink Automation Template: Batch NFT Reveal](https://github.com/smartcontractkit/chainlink-automation-templates/tree/main/batch-nft-reveal) contract repo. It helps you setup and play with batch-revealed NFT collections powered by Chainlink VRF & Automation.
 
 ## Requirements
 

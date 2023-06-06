@@ -53,7 +53,7 @@ const BatchInfoAlert = () => (
       </Text>
       <Box>
         <Link
-          href="https://github.com/hackbg/chainlink-automation-templates/tree/main/batch-nft-reveal#randomness"
+          href="https://github.com/smartcontractkit/chainlink-automation-templates/tree/main/batch-nft-reveal#randomness"
           isExternal
         >
           Learn More <ExternalLinkIcon mx="2px" />
