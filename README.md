@@ -26,7 +26,7 @@ Chainlink Automation provides users with a decentralized network of nodes, incen
 Clone the repo:
 
 ```bash
-git clone git@github.com:hackbg/chainlink-automation-templates.git
+git clone https://github.com/smartcontractkit/chainlink-automation-templates.git
 ```
 
 Navigate to a template subdirectory and follow the instructions in the included `README.md` file:
@@ -46,4 +46,4 @@ yarn install
 - [Chainlink Automation Docs](https://docs.chain.link/docs/chainlink-automation/introduction/)
 - [Hardhat Docs](https://hardhat.org/getting-started/)
 
-> :warning: **Disclaimer**: The code used in Chainlink Automation Quickstarts templates comes from Chainlink community members and has not been audited. The Chainlink team disclaims and shall have no liability with respect to any loss, malfunction, or any other result of deploying a Quickstart Template. By electing to deploy a Quickstart Template you hereby acknowledge and agree to the above.
+> :warning: **Disclaimer**: This tutorial represents an educational example to use a Chainlink system, product, or service and is provided to demonstrate how to interact with Chainlink’s systems, products, and services to integrate them into your own. This template is provided “AS IS” and “AS AVAILABLE” without warranties of any kind, it has not been audited, and it may be missing key checks or error handling to make the usage of the system, product or service more clear. Do not use the code in this example in a production environment without completing your own audits and application of best practices. Neither Chainlink Labs, the Chainlink Foundation, nor Chainlink node operators are responsible for unintended outputs that are generated due to errors in code. 
